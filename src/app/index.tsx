@@ -1,98 +1,103 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { AppButton, AppText } from '@/components/ui';
+import { Colors } from '@/core/theme';
+import { useAuth } from '@/hooks/useAuth';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function SplashScreen() {
+  const router = useRouter();
+  const { user, initializing } = useAuth();
+  const [opacity] = useState(() => new Animated.Value(0));
+  const [scale] = useState(() => new Animated.Value(0.8));
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 500,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    const timer = setTimeout(
+      () => router.replace(user ? '/(tabs)/inicio' : '/(auth)/login'),
+      2500,
     );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+    return () => clearTimeout(timer);
+  }, [opacity, scale, router, user]);
+
+  if (initializing) return <LinearGradient colors={['#0A0A14', '#0D0D1A']} style={styles.container} />;
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <LinearGradient colors={['#0A0A14', '#0D0D1A']} style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.glow}>
+          <Animated.View style={{ opacity, transform: [{ scale }] }}>
+            <Ionicons name="sparkles" size={72} color={Colors.primary} />
+          </Animated.View>
+        </View>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+        <Animated.Text style={[styles.logo, { opacity, transform: [{ scale }] }]}>
+          THE MAGIC TRADER
+        </Animated.Text>
+        <AppText variant="muted" style={styles.tagline}>
+          Análise inteligente. Entradas estratégicas.
+        </AppText>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <View style={styles.cta}>
+          <AppButton title="Começar" style={styles.button} onPress={() => router.replace('/(auth)/registro')} />
+          <AppText
+            variant="small"
+            style={styles.link}
+            onPress={() => router.replace('/(auth)/login')}>
+            Já tenho conta? Entrar
+          </AppText>
+        </View>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1 },
+  content: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    paddingHorizontal: 40,
   },
-  title: {
+  glow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(22,164,58,0.10)',
+    marginBottom: 24,
+  },
+  logo: {
+    color: Colors.text,
+    fontSize: 28,
+    fontWeight: '800',
     textAlign: 'center',
+    letterSpacing: 1,
   },
-  code: {
-    textTransform: 'uppercase',
+  tagline: { textAlign: 'center', marginTop: 12 },
+  cta: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 40,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  button: { width: '70%', alignSelf: 'center' },
+  link: { color: Colors.secondary, marginTop: 16 },
 });

@@ -1,18 +1,50 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from '@/hooks/useAuth';
+import { useNotificationNavigation } from '@/hooks/useNotifications';
+import { ensureChannel } from '@/lib/notifications';
+import { Colors } from '@/core/theme';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30_000,
+    },
+  },
+});
 
-SplashScreen.preventAutoHideAsync();
+export default function RootLayout() {
+  useNotificationNavigation();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    ensureChannel().catch(() => {});
+  }, []);
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: Colors.bg },
+            headerTintColor: Colors.text,
+            headerShadowVisible: false,
+            contentStyle: { backgroundColor: Colors.bg },
+          }}>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="sinal/[id]" options={{ title: 'Análise Completa' }} />
+          <Stack.Screen name="planos" options={{ title: 'Planos', presentation: 'modal' }} />
+          <Stack.Screen name="banca" options={{ title: 'Gestão de Banca' }} />
+          <Stack.Screen name="plano-crescimento" options={{ title: 'Plano de Crescimento' }} />
+          <Stack.Screen name="termos" options={{ title: 'Termos de Uso' }} />
+          <Stack.Screen name="privacidade" options={{ title: 'Privacidade' }} />
+          <Stack.Screen name="aviso-risco" options={{ title: 'Aviso de Risco' }} />
+        </Stack>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

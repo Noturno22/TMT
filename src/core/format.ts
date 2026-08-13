@@ -90,3 +90,8 @@ export function formatPips(n: number): string {
   const v = Math.round(n * 10) / 10;
   return v > 0 ? `+${v}` : `${v}`;
 }
+
+export function formatMoney(n: number): string {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}

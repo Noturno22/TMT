@@ -4,6 +4,7 @@ import { Link, useRouter } from 'expo-router';
 import { AppButton, AppInput, AppText, Screen } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
 import { supabase } from '@/lib/supabase';
+import { signInWithGoogle } from '@/lib/googleAuth';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function RegistroScreen() {
@@ -13,6 +14,7 @@ export default function RegistroScreen() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -56,6 +58,14 @@ export default function RegistroScreen() {
     );
   }
 
+  const registerGoogle = async () => {
+    setGoogleLoading(true);
+    setError(null);
+    const { error } = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (error) setError(error);
+  };
+
   return (
     <Screen scroll={false}>
       <KeyboardAvoidingView
@@ -97,12 +107,8 @@ export default function RegistroScreen() {
           <AppButton
             title="Continuar com Google"
             variant="secondary"
-            onPress={() =>
-              supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: 'magictrader://' },
-              })
-            }
+            loading={googleLoading}
+            onPress={registerGoogle}
           />
         </View>
 

@@ -1,0 +1,327 @@
+import { useEffect, useState } from 'react';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import type { BoomComment, BoomTime, BoomVote } from '@/core/types';
+import { getBoomStatus, boomCountdown } from '@/core/booms';
+import { formatDateTimeWAT, timeAgo, displayName, avatarLetter } from '@/core/format';
+import { Colors, Spacing } from '@/core/theme';
+import {
+  AppButton,
+  AppText,
+  Badge,
+  Card,
+  ConfidenceBar,
+} from '@/components/ui';
+import { AudioPlayer } from '@/components/AudioPlayer';
+import { AudioRecorderButton, type RecordedAudio } from '@/components/AudioRecorder';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
+import { castVote } from '@/hooks/useBooms';
+
+function StatusBadge({ boom }: { boom: BoomTime }) {
+  const status = getBoomStatus(boom.boom_time);
+  if (status === 'live') return <Badge color={Colors.live} bg={`${Colors.live}1F`}>🚨 AO VIVO</Badge>;
+  if (status === 'upcoming') return <Badge color={Colors.warning} bg={`${Colors.warning}1F`}>⏳ PRÓXIMO</Badge>;
+  return <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>✓ ENCERRADO</Badge>;
+}
+
+function Countdown({ boomTime }: { boomTime: string }) {
+  const [text, setText] = useState(boomCountdown(boomTime));
+  useEffect(() => {
+    const id = setInterval(() => setText(boomCountdown(boomTime)), 1000);
+    return () => clearInterval(id);
+  }, [boomTime]);
+
+  const live = getBoomStatus(boomTime) === 'live';
+  const spaced = text.replace(/(\d{2}):(\d{2}):(\d{2})/, '$1 : $2 : $3');
+  return <AppText variant="mono" style={[styles.countdown, live && { color: Colors.live }]}>{spaced}</AppText>;
+}
+
+function CommentItem({ comment }: { comment: BoomComment }) {
+  const avatarColor = comment.is_premium ? Colors.accent : Colors.primary;
+  return (
+    <View style={styles.comment}>
+      <View style={styles.commentHeader}>
+        <View style={[styles.avatar, { backgroundColor: `${avatarColor}2E`, borderColor: `${avatarColor}66` }]}>
+          <AppText variant="small" style={{ color: avatarColor, fontWeight: '800' }}>
+            {(comment.user_avatar || comment.user_name || 'T')[0].toUpperCase()}
+          </AppText>
+        </View>
+        <AppText variant="small" style={{ fontWeight: '700', flex: 1 }}>{comment.user_name || 'Trader'}</AppText>
+        {comment.is_premium ? <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>PRO</Badge> : null}
+        <AppText variant="small" style={{ color: Colors.textMuted }}>{timeAgo(comment.created_at)}</AppText>
+      </View>
+      {comment.text ? <AppText>{comment.text}</AppText> : null}
+      {comment.audio_url ? <AudioPlayer uri={comment.audio_url} /> : null}
+    </View>
+  );
+}
+
+export function BoomCard({
+  boom,
+  comments,
+  votes,
+}: {
+  boom: BoomTime;
+  comments: BoomComment[];
+  votes: BoomVote[];
+}) {
+  const { user } = useAuth();
+  const [expanded, setExpanded] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [pendingAudio, setPendingAudio] = useState<RecordedAudio | null>(null);
+  const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const status = getBoomStatus(boom.boom_time);
+  const live = status === 'live';
+  const upcoming = status === 'upcoming';
+
+  const buyCount = votes.filter((v) => v.vote === 'BUY').length;
+  const sellCount = votes.filter((v) => v.vote === 'SELL').length;
+  const total = buyCount + sellCount;
+  const buyPct = total > 0 ? Math.round((buyCount / total) * 100) : 50;
+  const myVote = user ? votes.find((v) => v.user_id === user.id)?.vote ?? null : null;
+
+  const onVote = async (type: 'BUY' | 'SELL') => {
+    if (!user || !boom.id) return;
+    await castVote(boom.id, user.id, type, myVote);
+  };
+
+  const uploadAudio = async (audio: RecordedAudio): Promise<string | null> => {
+    if (!user) return null;
+    const ext = audio.uri.split('.').pop()?.toLowerCase() || (audio.mimeType.includes('webm') ? 'webm' : 'm4a');
+    const path = `comments/${user.id}/${Date.now()}.${ext}`;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', {
+        uri: audio.uri,
+        name: path.split('/').pop(),
+        type: audio.mimeType,
+      } as any);
+      const { error } = await supabase.storage
+        .from('comments-audio')
+        .upload(path, form as any, { contentType: audio.mimeType, upsert: false });
+      if (error) return null;
+      return supabase.storage.from('comments-audio').getPublicUrl(path).data.publicUrl;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const sendComment = async () => {
+    if (!user || sending || uploading) return;
+    if (!commentText.trim() && !pendingAudio) return;
+
+    setSending(true);
+    try {
+      let audioUrl: string | null = null;
+      if (pendingAudio) {
+        audioUrl = await uploadAudio(pendingAudio);
+        if (!audioUrl) return;
+      }
+      const name = displayName(user);
+      const { error } = await supabase.from('boom_comments').insert({
+        boom_id: boom.id,
+        user_id: user.id,
+        user_name: name,
+        user_avatar: avatarLetter(user),
+        text: commentText.trim(),
+        audio_url: audioUrl,
+        is_premium: false,
+      });
+      if (!error) {
+        setCommentText('');
+        setPendingAudio(null);
+      }
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Card style={styles.card}>
+      {boom.image_url ? (
+        <Image source={{ uri: boom.image_url }} style={styles.cover} resizeMode="cover" />
+      ) : null}
+
+      <View style={styles.topRow}>
+        <StatusBadge boom={boom} />
+        <AppText variant="small" style={{ color: Colors.textMuted }}>
+          {formatDateTimeWAT(boom.boom_time)}
+        </AppText>
+      </View>
+
+      <View style={styles.titleRow}>
+        <AppText variant="h1">{boom.pair}</AppText>
+        {live || upcoming ? <Countdown boomTime={boom.boom_time} /> : null}
+      </View>
+
+      <ConfidenceBar value={boom.confidence} />
+
+      {boom.audio_url ? <AudioPlayer uri={boom.audio_url} /> : null}
+
+      {!upcoming && !live && boom.result ? (
+        <View style={styles.resultRow}>
+          <Ionicons
+            name={boom.result === 'BUY' ? 'trending-up' : boom.result === 'SELL' ? 'trending-down' : 'remove'}
+            size={16}
+            color={boom.result === 'BUY' ? Colors.success : Colors.destructive}
+          />
+          <AppText variant="label" style={{ color: boom.result === 'BUY' ? Colors.success : Colors.destructive }}>
+            {boom.result}
+          </AppText>
+        </View>
+      ) : null}
+
+      <View style={styles.voteArea}>
+        <View style={styles.voteRow}>
+          <Pressable
+            onPress={() => onVote('BUY')}
+            style={[
+              styles.voteButton,
+              { backgroundColor: `${Colors.success}1A`, borderColor: myVote === 'BUY' ? Colors.success : 'transparent' },
+            ]}>
+            <Ionicons name="trending-up" size={16} color={Colors.success} />
+            <AppText variant="small" style={{ color: Colors.success, fontWeight: '800' }}>
+              BUY {buyPct}%
+            </AppText>
+          </Pressable>
+          <Pressable
+            onPress={() => onVote('SELL')}
+            style={[
+              styles.voteButton,
+              { backgroundColor: `${Colors.destructive}1A`, borderColor: myVote === 'SELL' ? Colors.destructive : 'transparent' },
+            ]}>
+            <Ionicons name="trending-down" size={16} color={Colors.destructive} />
+            <AppText variant="small" style={{ color: Colors.destructive, fontWeight: '800' }}>
+              SELL {100 - buyPct}%
+            </AppText>
+          </Pressable>
+        </View>
+        <View style={styles.voteTrack}>
+          <View style={[styles.voteFill, { width: `${buyPct}%`, backgroundColor: Colors.success }]} />
+          <View style={[styles.voteFill, { width: `${100 - buyPct}%`, backgroundColor: Colors.destructive }]} />
+        </View>
+        <AppText variant="small" style={{ color: Colors.textMuted }}>
+          {total} votos · {buyPct}% BUY
+        </AppText>
+      </View>
+
+      <Pressable style={styles.commentsToggle} onPress={() => setExpanded(!expanded)}>
+        <Ionicons name="chatbubble-ellipses-outline" size={15} color={Colors.textMuted} />
+        <AppText variant="small" style={{ color: Colors.textMuted, fontWeight: '600' }}>
+          Comentários ({comments.length})
+        </AppText>
+        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={Colors.textMuted} />
+      </Pressable>
+
+      {expanded ? (
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          {comments.length > 0 ? (
+            <View style={styles.commentsList}>
+              {comments.map((c) => (
+                <CommentItem key={c.id} comment={c} />
+              ))}
+            </View>
+          ) : (
+            <AppText variant="muted">Ainda não há comentários. Sê o primeiro!</AppText>
+          )}
+
+          {user ? (
+            <View style={styles.composer}>
+              <TextInput
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Escreve um comentário…"
+                placeholderTextColor={Colors.textMuted}
+                multiline
+                style={styles.input}
+              />
+              <View style={styles.composerRow}>
+                <AudioRecorderButton onRecorded={(a) => setPendingAudio(a)} compact />
+                {pendingAudio ? (
+                  <Pressable onPress={() => setPendingAudio(null)} style={styles.attachChip}>
+                    <Ionicons name="musical-note" size={13} color={Colors.primary} />
+                    <AppText variant="small" style={{ color: Colors.primary }}>Áudio anexado ✕</AppText>
+                  </Pressable>
+                ) : null}
+                <AppButton
+                  title="Enviar"
+                  onPress={sendComment}
+                  loading={sending || uploading}
+                  disabled={!commentText.trim() && !pendingAudio}
+                  style={{ marginLeft: 'auto', paddingVertical: 10 }}
+                />
+              </View>
+            </View>
+          ) : (
+            <AppText variant="muted" style={{ marginTop: Spacing.md }}>
+              Inicia sessão para comentar.
+            </AppText>
+          )}
+        </KeyboardAvoidingView>
+      ) : null}
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: { marginBottom: Spacing.lg, gap: Spacing.md },
+  cover: { height: 160, borderRadius: 12, width: '100%' },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  countdown: { fontSize: 22, color: Colors.accent, fontWeight: '700', letterSpacing: 1 },
+  resultRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  voteArea: { gap: Spacing.sm },
+  voteRow: { flexDirection: 'row', gap: Spacing.sm },
+  voteButton: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1.5,
+  },
+  voteTrack: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden' },
+  voteFill: { height: '100%' },
+  commentsToggle: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  commentsList: { gap: Spacing.md },
+  comment: {
+    gap: Spacing.sm,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 12,
+    padding: Spacing.md,
+  },
+  commentHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  composer: { marginTop: Spacing.md, gap: Spacing.sm },
+  input: {
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 12,
+    padding: 12,
+    color: Colors.text,
+    minHeight: 44,
+    maxHeight: 100,
+  },
+  composerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  attachChip: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+});

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { LegalDoc } from '@/components/LegalDoc';
 
 export default function AvisoRiscoScreen() {
+  const { t } = useTranslation();
   return (
     <LegalDoc
-      title="Aviso de Risco"
+      title={t('legal.aviso')}
       icon="warning-outline"
       intro="O trading de produtos financeiros envolve riscos significativos e não é adequado para todos os investidores. Deve considerar cuidadosamente os seus objetivos de investimento, nível de experiência e tolerância ao risco."
       sections={[

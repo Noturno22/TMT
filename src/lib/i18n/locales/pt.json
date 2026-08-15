@@ -348,6 +348,9 @@
     "connection": "Erro de ligação. Verifica a tua internet e tenta novamente."
   },
   "legal": {
+    "termos": "Termos e Condições",
+    "privacidade": "Política de Privacidade",
+    "aviso": "Aviso de Risco",
     "termosTitle": "Termos de Uso",
     "privacidadeTitle": "Privacidade",
     "avisoRiscoTitle": "Aviso de Risco"

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { LegalDoc } from '@/components/LegalDoc';
 
 export default function PrivacidadeScreen() {
+  const { t } = useTranslation();
   return (
     <LegalDoc
-      title="Política de Privacidade"
+      title={t('legal.privacidade')}
       icon="shield-checkmark-outline"
       sections={[
         {

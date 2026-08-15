@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { LegalDoc } from '@/components/LegalDoc';
 
 export default function TermosScreen() {
+  const { t } = useTranslation();
   return (
     <LegalDoc
-      title="Termos de Uso"
+      title={t('legal.termos')}
       icon="document-text-outline"
       sections={[
         {

@@ -11,6 +11,7 @@ import { Colors, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTranslation } from 'react-i18next';
 
 const BINANCE_ID = '547723572';
 const EXPRESS_PHONE = '+244926717730';
@@ -44,6 +45,7 @@ function MenuRow({
 }
 
 export default function PerfilScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, signOut } = useAuth();
   const { isPremium, canAccessBanca, subscription } = useSubscription();
@@ -120,7 +122,7 @@ export default function PerfilScreen() {
             <MenuRow icon="notifications" label="Notificações" onPress={() => router.push('/notificacoes')} />
             <MenuRow icon="alarm" label="Gerenciar Alertas" onPress={() => router.push('/horarios')} />
             <MenuRow icon="shield-checkmark" label="Segurança" onPress={() => Alert.alert('Segurança', 'Funcionalidade em breve.')} />
-            <MenuRow icon="settings" label="Preferências" onPress={() => Alert.alert('Preferências', 'Funcionalidade em breve.')} />
+            <MenuRow icon="globe" label={t('language.title')} onPress={() => router.push('/idioma')} />
           </View>
         </View>
 

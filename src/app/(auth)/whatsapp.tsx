@@ -15,10 +15,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 const WA_GREEN = '#25D366';
 
 export default function WhatsappScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, signInTest } = useAuth();
 
@@ -48,7 +50,7 @@ export default function WhatsappScreen() {
   const enterTest = async () => {
     const digits = normalizedPhone();
     if (digits.length < 8 || digits.length > 15) {
-      setError('Introduz um número de WhatsApp válido com o código do país.');
+      setError(t('auth.invalidPhone'));
       return;
     }
     setLoading(true);
@@ -84,9 +86,9 @@ export default function WhatsappScreen() {
             <View style={styles.logoGlow}>
               <Ionicons name="logo-whatsapp" size={44} color={WA_GREEN} />
             </View>
-            <AppText variant="title" style={styles.logo}>Entrar com WhatsApp</AppText>
+            <AppText variant="title" style={styles.logo}>{t('auth.enterWhatsapp')}</AppText>
             <AppText variant="muted" style={styles.tagline}>
-              Modo de teste — introduz o número e entra de imediato, sem código.
+              {t('auth.whatsappTestMode')}
             </AppText>
           </Animated.View>
 
@@ -94,15 +96,15 @@ export default function WhatsappScreen() {
             <View style={styles.testBadge}>
               <Ionicons name="flask" size={14} color={WA_GREEN} />
               <AppText variant="small" style={styles.testBadgeText}>
-                MODO TESTE · login imediato sem SMS
+                {t('auth.testBadge')}
               </AppText>
             </View>
 
             <AppInput
-              label="NÚMERO DE WHATSAPP"
+              label={t('auth.phoneLabel')}
               value={phone}
               onChangeText={setPhone}
-              placeholder="+244 9xx xxx xxx"
+              placeholder={t('auth.phonePlaceholder')}
               keyboardType="phone-pad"
               autoComplete="tel"
               textContentType="telephoneNumber"
@@ -119,7 +121,7 @@ export default function WhatsappScreen() {
             ) : null}
 
             <AppButton
-              title="Entrar na app"
+              title={t('auth.enterApp')}
               onPress={enterTest}
               loading={loading}
               icon={<Ionicons name="log-in-outline" size={18} color="#FFFFFF" />}
@@ -128,21 +130,7 @@ export default function WhatsappScreen() {
 
           <Animated.View style={[styles.footer, fadeSlide]}>
             <AppText variant="small" style={styles.legal}>
-              Ao continuar aceitas os nossos{' '}
-              <AppText
-                variant="small"
-                style={{ color: Colors.primary }}
-                onPress={() => router.push('/termos')}>
-                Termos
-              </AppText>{' '}
-              e a nossa{' '}
-              <AppText
-                variant="small"
-                style={{ color: Colors.primary }}
-                onPress={() => router.push('/privacidade')}>
-                Política de Privacidade
-              </AppText>
-              .
+              {t('auth.legalFooter')}
             </AppText>
           </Animated.View>
         </KeyboardAvoidingView>

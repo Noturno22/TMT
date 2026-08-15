@@ -8,6 +8,7 @@ import { AppButton, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { signInWithGoogle } from '@/lib/googleAuth';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 const WA_GREEN = '#25D366';
 
@@ -21,6 +22,7 @@ const fadeSlide = (value: Animated.Value, fromY = 24) => ({
 });
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const { oauthError } = useLocalSearchParams<{ oauthError?: string }>();
@@ -86,7 +88,7 @@ export default function LoginScreen() {
               </View>
               <AppText variant="title" style={styles.logo}>The Magic Trader</AppText>
               <AppText variant="muted" style={styles.tagline}>
-                Análise inteligente. Entradas estratégicas.
+                {t('auth.tagline')}
               </AppText>
             </Animated.View>
 
@@ -99,7 +101,7 @@ export default function LoginScreen() {
               ) : null}
 
               <AppButton
-                title="Continuar com Google"
+                title={t('auth.continueGoogle')}
                 variant="outline"
                 loading={googleLoading}
                 onPress={loginGoogle}
@@ -110,7 +112,7 @@ export default function LoginScreen() {
                 }
               />
               <AppButton
-                title="Entrar com WhatsApp"
+                title={t('auth.enterWhatsapp')}
                 variant="outline"
                 onPress={() => router.push('/(auth)/whatsapp')}
                 icon={
@@ -123,21 +125,7 @@ export default function LoginScreen() {
 
             <Animated.View style={[styles.footer, fadeSlide(footerAnim, 24)]}>
               <AppText variant="small" style={styles.legal}>
-                Ao continuar aceitas os nossos{' '}
-                <AppText
-                  variant="small"
-                  style={{ color: Colors.primary, fontWeight: '700' }}
-                  onPress={() => router.push('/termos')}>
-                  Termos
-                </AppText>{' '}
-                e a nossa{' '}
-                <AppText
-                  variant="small"
-                  style={{ color: Colors.primary, fontWeight: '700' }}
-                  onPress={() => router.push('/privacidade')}>
-                  Política de Privacidade
-                </AppText>
-                .
+                {t('auth.legalFooter')}
               </AppText>
             </Animated.View>
           </View>

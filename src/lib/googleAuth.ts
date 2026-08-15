@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import Constants from 'expo-constants';
 import { supabase } from './supabase';
+import { i18n } from '@/lib/i18n';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -58,7 +59,7 @@ export async function signInWithGoogle(): Promise<{ error: string | null }> {
       },
     });
     if (error) return { error: error.message };
-    if (!data.url) return { error: 'Não foi possível iniciar o login com o Google.' };
+    if (!data.url) return { error: i18n.t('authErrors.googleStart') };
 
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
       showInRecents: true,
@@ -85,9 +86,9 @@ export async function signInWithGoogle(): Promise<{ error: string | null }> {
       return { error: null };
     }
 
-    return { error: 'O login com o Google não foi concluído.' };
+    return { error: i18n.t('authErrors.googleNotComplete') };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Ocorreu um erro ao iniciar sessão com o Google.';
+    const message = err instanceof Error ? err.message : i18n.t('authErrors.googleError');
     return { error: message };
   }
 }

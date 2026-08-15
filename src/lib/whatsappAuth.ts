@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from './env';
+import { i18n } from '@/lib/i18n';
 
 const WHATSAPP_FN = `${SUPABASE_URL}/functions/v1/whatsapp-auth`;
 
@@ -19,13 +20,13 @@ async function call(
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.error) {
-    throw new Error(data.error ?? 'Erro desconhecido ao iniciar sessão.');
+    throw new Error(data.error ?? i18n.t('authErrors.whatsappUnknown'));
   }
   return data;
 }
 
 function message(err: unknown): string {
-  return err instanceof Error ? err.message : 'Ocorreu um erro ao iniciar sessão.';
+  return err instanceof Error ? err.message : i18n.t('authErrors.whatsappError');
 }
 
 export async function requestWhatsAppCode(phone: string): Promise<{ error: string | null }> {
@@ -41,7 +42,7 @@ export async function verifyWhatsAppCode(phone: string, code: string): Promise<{
   try {
     const data = await call('verify', { phone, code });
     const email = typeof data.email === 'string' ? data.email : '';
-    if (!email) return { error: 'Código inválido. Tenta novamente.' };
+    if (!email) return { error: i18n.t('authErrors.whatsappInvalidCode') };
 
     const { error } = await supabase.auth.signInWithPassword({
       email,

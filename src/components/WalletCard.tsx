@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { AppText, Divider } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { MetricGrid } from '@/components/MetricGrid';
@@ -36,6 +37,7 @@ function MovementRow({
 }
 
 export function WalletCard({ config }: { config: BancaConfig }) {
+  const { t } = useTranslation();
   const metaValue = config.capital * (config.metaPercent / 100);
   const progress = config.achieved - config.capital;
   const progressPct = metaValue > 0 ? Math.min(100, Math.max(0, (progress / metaValue) * 100)) : 0;
@@ -49,7 +51,7 @@ export function WalletCard({ config }: { config: BancaConfig }) {
         colors={[Colors.primaryDim, 'rgba(16,139,177,0.15)']}
         style={styles.balance}>
         <View style={styles.balanceHeader}>
-          <AppText variant="small" style={styles.eyebrow}>SALDO DISPONÍVEL</AppText>
+          <AppText variant="small" style={styles.eyebrow}>{t('components.walletCard.balance')}</AppText>
           <View style={styles.walletIcon}>
             <Ionicons name="wallet" size={18} color={Colors.success} />
           </View>
@@ -59,7 +61,7 @@ export function WalletCard({ config }: { config: BancaConfig }) {
         </AppText>
         <View style={styles.balanceFooter}>
           <AppText variant="small" style={{ color: Colors.textMuted }}>
-            Capital base · ${formatMoney(config.capital)}
+            {t('components.walletCard.capitalBase')}${formatMoney(config.capital)}
           </AppText>
           <AppText variant="small" style={{ color: aboveCapital ? Colors.success : Colors.destructive }}>
             {aboveCapital ? '+' : ''}{formatMoney(progress)} USD
@@ -69,27 +71,27 @@ export function WalletCard({ config }: { config: BancaConfig }) {
           <View style={[styles.fill, { width: `${progressPct}%`, backgroundColor: aboveCapital ? Colors.success : Colors.destructive }]} />
         </View>
         <AppText variant="small" style={styles.metaCaption}>
-          Meta de retorno · +{formatMoney(metaValue)} USD ({config.metaPercent}%)
+          {t('components.walletCard.targetReturn')}+{formatMoney(metaValue)} USD ({config.metaPercent}%)
         </AppText>
       </GradientCard>
 
       <MetricGrid
         items={[
-          { label: 'Capital', value: `$${formatMoney(config.capital)}`, accent: Colors.text },
-          { label: 'Meta', value: `${config.metaPercent}%`, accent: Colors.accent },
-          { label: 'Risco/op', value: `${config.riskPercent}%`, accent: Colors.secondary },
+          { label: t('components.walletCard.capital'), value: `$${formatMoney(config.capital)}`, accent: Colors.text },
+          { label: t('components.walletCard.target'), value: `${config.metaPercent}%`, accent: Colors.accent },
+          { label: t('components.walletCard.riskPerOp'), value: `${config.riskPercent}%`, accent: Colors.secondary },
         ]}
       />
 
       <View style={styles.movements}>
-        <AppText variant="label" style={styles.sectionLabel}>MOVIMENTAÇÕES</AppText>
-        <MovementRow icon="arrow-down-circle" label="Depósito inicial" date="Hoje" value={`+$${formatMoney(config.capital)}`} positive />
+        <AppText variant="label" style={styles.sectionLabel}>{t('components.walletCard.movements')}</AppText>
+        <MovementRow icon="arrow-down-circle" label={t('components.walletCard.initialDeposit')} date={t('components.walletCard.today')} value={`+$${formatMoney(config.capital)}`} positive />
         <Divider style={styles.movementDivider} />
-        <MovementRow icon="trending-up" label="Sinal TP · XAU/USD" date="Ontem" value={`+$${formatMoney(tpValue)}`} positive />
+        <MovementRow icon="trending-up" label={t('components.walletCard.signalTp', { par: 'XAU/USD' })} date={t('components.walletCard.yesterday')} value={`+$${formatMoney(tpValue)}`} positive />
         <Divider style={styles.movementDivider} />
-        <MovementRow icon="trending-down" label="Sinal SL · EUR/USD" date="Há 2 dias" value={`-$${formatMoney(slValue)}`} positive={false} />
+        <MovementRow icon="trending-down" label={t('components.walletCard.signalSl', { par: 'EUR/USD' })} date={t('components.walletCard.daysAgo', { count: 2 })} value={`-$${formatMoney(slValue)}`} positive={false} />
         <Divider style={styles.movementDivider} />
-        <MovementRow icon="wallet" label="Saldo total" date="Carteira" value={`$${formatMoney(config.achieved)}`} positive={aboveCapital} />
+        <MovementRow icon="wallet" label={t('components.walletCard.totalBalance')} date={t('components.walletCard.wallet')} value={`$${formatMoney(config.achieved)}`} positive={aboveCapital} />
       </View>
     </View>
   );

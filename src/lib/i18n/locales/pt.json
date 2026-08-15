@@ -121,6 +121,62 @@
     },
     "premiumLock": {
       "viewPlans": "Ver Planos"
+    },
+    "signalCard": {
+      "waiting": "AGUARDAR",
+      "active": "ATIVO",
+      "pending": "PENDENTE",
+      "entry": "ENTRADA",
+      "pips": "{{count}} pips",
+      "now": "agora",
+      "rr": "RR {{value}}:",
+      "inProfit": "Em lucro",
+      "inLoss": "Em perda",
+      "atPoint": "No ponto",
+      "analysis": "ANÁLISE",
+      "moreReasons": "+{{count}} razões"
+    },
+    "boomCard": {
+      "live": "🚨 AO VIVO",
+      "upcoming": "⏳ PRÓXIMO",
+      "closed": "✓ ENCERRADO",
+      "trader": "Trader",
+      "pro": "PRO",
+      "buy": "BUY {{pct}}%",
+      "sell": "SELL {{pct}}%",
+      "votes": "{{total}} votos · {{pct}}% BUY",
+      "comments": "Comentários ({{count}})",
+      "noComments": "Ainda não há comentários. Sê o primeiro!",
+      "commentPlaceholder": "Escreve um comentário…",
+      "audioAttached": "Áudio anexado ✕",
+      "send": "Enviar",
+      "loginToComment": "Inicia sessão para comentar."
+    },
+    "walletCard": {
+      "balance": "SALDO DISPONÍVEL",
+      "capitalBase": "Capital base · ",
+      "targetReturn": "Meta de retorno · ",
+      "capital": "Capital",
+      "target": "Meta",
+      "riskPerOp": "Risco/op",
+      "movements": "MOVIMENTAÇÕES",
+      "initialDeposit": "Depósito inicial",
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "daysAgo": "Há {{count}} dias",
+      "totalBalance": "Saldo total",
+      "wallet": "Carteira",
+      "signalTp": "Sinal TP · {{par}}",
+      "signalSl": "Sinal SL · {{par}}"
+    },
+    "legalDoc": {
+      "lastUpdated": "Última atualização: {{date}}",
+      "january2026": "Janeiro 2026"
+    },
+    "tradingViewChart": {
+      "entry": "ENTRADA",
+      "stopLoss": "SL",
+      "takeProfit": "TP"
     }
   }
 }

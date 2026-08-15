@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { BoomComment, BoomTime, BoomVote } from '@/core/types';
 import { getBoomStatus, boomCountdown } from '@/core/booms';
 import { formatDateTimeWAT, timeAgo, displayName, avatarLetter } from '@/core/format';
@@ -27,10 +28,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { castVote } from '@/hooks/useBooms';
 
 function StatusBadge({ boom }: { boom: BoomTime }) {
+  const { t } = useTranslation();
   const status = getBoomStatus(boom.boom_time);
-  if (status === 'live') return <Badge color={Colors.live} bg={`${Colors.live}1F`}>🚨 AO VIVO</Badge>;
-  if (status === 'upcoming') return <Badge color={Colors.warning} bg={`${Colors.warning}1F`}>⏳ PRÓXIMO</Badge>;
-  return <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>✓ ENCERRADO</Badge>;
+  if (status === 'live') return <Badge color={Colors.live} bg={`${Colors.live}1F`}>{t('components.boomCard.live')}</Badge>;
+  if (status === 'upcoming') return <Badge color={Colors.warning} bg={`${Colors.warning}1F`}>{t('components.boomCard.upcoming')}</Badge>;
+  return <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>{t('components.boomCard.closed')}</Badge>;
 }
 
 function Countdown({ boomTime }: { boomTime: string }) {
@@ -46,6 +48,7 @@ function Countdown({ boomTime }: { boomTime: string }) {
 }
 
 function CommentItem({ comment }: { comment: BoomComment }) {
+  const { t } = useTranslation();
   const avatarColor = comment.is_premium ? Colors.accent : Colors.primary;
   return (
     <View style={styles.comment}>
@@ -55,8 +58,8 @@ function CommentItem({ comment }: { comment: BoomComment }) {
             {(comment.user_avatar || comment.user_name || 'T')[0].toUpperCase()}
           </AppText>
         </View>
-        <AppText variant="small" style={{ fontWeight: '700', flex: 1 }}>{comment.user_name || 'Trader'}</AppText>
-        {comment.is_premium ? <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>PRO</Badge> : null}
+        <AppText variant="small" style={{ fontWeight: '700', flex: 1 }}>{comment.user_name || t('components.boomCard.trader')}</AppText>
+        {comment.is_premium ? <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>{t('components.boomCard.pro')}</Badge> : null}
         <AppText variant="small" style={{ color: Colors.textMuted }}>{timeAgo(comment.created_at)}</AppText>
       </View>
       {comment.text ? <AppText>{comment.text}</AppText> : null}
@@ -74,6 +77,7 @@ export function BoomCard({
   comments: BoomComment[];
   votes: BoomVote[];
 }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -193,7 +197,7 @@ export function BoomCard({
             ]}>
             <Ionicons name="trending-up" size={16} color={Colors.success} />
             <AppText variant="small" style={{ color: Colors.success, fontWeight: '800' }}>
-              BUY {buyPct}%
+              {t('components.boomCard.buy', { pct: buyPct })}
             </AppText>
           </Pressable>
           <Pressable
@@ -204,7 +208,7 @@ export function BoomCard({
             ]}>
             <Ionicons name="trending-down" size={16} color={Colors.destructive} />
             <AppText variant="small" style={{ color: Colors.destructive, fontWeight: '800' }}>
-              SELL {100 - buyPct}%
+              {t('components.boomCard.sell', { pct: 100 - buyPct })}
             </AppText>
           </Pressable>
         </View>
@@ -213,14 +217,14 @@ export function BoomCard({
           <View style={[styles.voteFill, { width: `${100 - buyPct}%`, backgroundColor: Colors.destructive }]} />
         </View>
         <AppText variant="small" style={{ color: Colors.textMuted }}>
-          {total} votos · {buyPct}% BUY
+          {t('components.boomCard.votes', { total, pct: buyPct })}
         </AppText>
       </View>
 
       <Pressable style={styles.commentsToggle} onPress={() => setExpanded(!expanded)}>
         <Ionicons name="chatbubble-ellipses-outline" size={15} color={Colors.textMuted} />
         <AppText variant="small" style={{ color: Colors.textMuted, fontWeight: '600' }}>
-          Comentários ({comments.length})
+          {t('components.boomCard.comments', { count: comments.length })}
         </AppText>
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={Colors.textMuted} />
       </Pressable>
@@ -234,7 +238,7 @@ export function BoomCard({
               ))}
             </View>
           ) : (
-            <AppText variant="muted">Ainda não há comentários. Sê o primeiro!</AppText>
+            <AppText variant="muted">{t('components.boomCard.noComments')}</AppText>
           )}
 
           {user ? (
@@ -242,7 +246,7 @@ export function BoomCard({
               <TextInput
                 value={commentText}
                 onChangeText={setCommentText}
-                placeholder="Escreve um comentário…"
+                placeholder={t('components.boomCard.commentPlaceholder')}
                 placeholderTextColor={Colors.textMuted}
                 multiline
                 style={styles.input}
@@ -252,11 +256,11 @@ export function BoomCard({
                 {pendingAudio ? (
                   <Pressable onPress={() => setPendingAudio(null)} style={styles.attachChip}>
                     <Ionicons name="musical-note" size={13} color={Colors.primary} />
-                    <AppText variant="small" style={{ color: Colors.primary }}>Áudio anexado ✕</AppText>
+                    <AppText variant="small" style={{ color: Colors.primary }}>{t('components.boomCard.audioAttached')}</AppText>
                   </Pressable>
                 ) : null}
                 <AppButton
-                  title="Enviar"
+                  title={t('components.boomCard.send')}
                   onPress={sendComment}
                   loading={sending || uploading}
                   disabled={!commentText.trim() && !pendingAudio}
@@ -266,7 +270,7 @@ export function BoomCard({
             </View>
           ) : (
             <AppText variant="muted" style={{ marginTop: Spacing.md }}>
-              Inicia sessão para comentar.
+              {t('components.boomCard.loginToComment')}
             </AppText>
           )}
         </KeyboardAvoidingView>

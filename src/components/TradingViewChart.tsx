@@ -1,9 +1,27 @@
 import { useMemo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { WebView } from 'react-native-webview';
 import { TV_INTERVALS } from '@/core/gating';
 import { Colors } from '@/core/theme';
 import { Spinner } from '@/components/ui';
+import { i18n } from '@/lib/i18n';
+
+const TV_LOCALES: Record<string, string> = {
+  en: 'en',
+  es: 'es',
+  de: 'de',
+  fr: 'fr',
+  it: 'it',
+  nl: 'nl',
+  pt: 'pt',
+  ru: 'ru',
+  zh: 'zh',
+  ja: 'ja',
+  ko: 'ko',
+  ar: 'ar',
+};
 
 function tvSymbol(pair: string): string {
   const raw = pair.replace('/', '');
@@ -19,16 +37,21 @@ interface ChartLevel {
   dashed?: boolean;
 }
 
-function buildLevels(entry?: number, stopLoss?: number, takeProfit?: number): ChartLevel[] {
+function buildLevels(
+  t: TFunction,
+  entry?: number,
+  stopLoss?: number,
+  takeProfit?: number,
+): ChartLevel[] {
   const levels: ChartLevel[] = [];
   const push = (price: number | undefined, color: string, text: string, dashed = false) => {
     if (typeof price === 'number' && isFinite(price) && price > 0) {
       levels.push({ price, color, text, dashed });
     }
   };
-  push(stopLoss, Colors.destructive, 'SL', true);
-  push(entry, Colors.accent, 'ENTRADA', false);
-  push(takeProfit, Colors.success, 'TP', false);
+  push(stopLoss, Colors.destructive, t('components.tradingViewChart.stopLoss'), true);
+  push(entry, Colors.accent, t('components.tradingViewChart.entry'), false);
+  push(takeProfit, Colors.success, t('components.tradingViewChart.takeProfit'), false);
   return levels;
 }
 
@@ -47,9 +70,14 @@ export function TradingViewChart({
   stopLoss?: number;
   takeProfit?: number;
 }) {
+  const { t } = useTranslation();
   const interval = TV_INTERVALS[timeframe ?? 'M15'] ?? '15';
   const symbol = tvSymbol(pair);
-  const levels = useMemo(() => buildLevels(entry, stopLoss, takeProfit), [entry, stopLoss, takeProfit]);
+  const locale = TV_LOCALES[i18n.language] ?? 'en';
+  const levels = useMemo(
+    () => buildLevels(t, entry, stopLoss, takeProfit),
+    [entry, stopLoss, takeProfit, t],
+  );
 
   const html = useMemo(() => {
     const levelsJson = JSON.stringify(levels)
@@ -77,7 +105,7 @@ export function TradingViewChart({
     timezone: "Etc/UTC",
     theme: "dark",
     style: "1",
-    locale: "pt",
+    locale: "${locale}",
     backgroundColor: "rgba(0, 0, 0, 0)",
     gridColor: "rgba(42, 46, 57, 0.35)",
     hide_top_toolbar: true,
@@ -117,7 +145,7 @@ export function TradingViewChart({
 </script>
 </body>
 </html>`;
-  }, [symbol, interval, levels]);
+  }, [symbol, interval, levels, locale]);
 
   return (
     <View style={[styles.wrap, { height }]}>

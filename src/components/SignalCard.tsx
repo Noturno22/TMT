@@ -1,32 +1,34 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { Signal, PriceData } from '@/core/types';
 import { formatNumber, timeAgo } from '@/core/format';
 import { calcOpenPips, getPipMultiplier, pipsBetween } from '@/core/pips';
 import { Colors, Spacing } from '@/core/theme';
 import { AppText, Badge, Card, ConfidenceBar } from '@/components/ui';
 
-function typeBadge(type: Signal['type']) {
+function typeBadge(type: Signal['type'], t: TFunction) {
   switch (type) {
     case 'BUY':
       return { label: 'BUY', color: Colors.success, icon: 'arrow-up' as const };
     case 'SELL':
       return { label: 'SELL', color: Colors.destructive, icon: 'arrow-down' as const };
     default:
-      return { label: 'AGUARDAR', color: Colors.warning, icon: 'pause' as const };
+      return { label: t('components.signalCard.waiting'), color: Colors.warning, icon: 'pause' as const };
   }
 }
 
-function statusBadge(status: Signal['status']) {
+function statusBadge(status: Signal['status'], t: TFunction) {
   switch (status) {
     case 'tp':
       return { label: 'TP', color: Colors.success };
     case 'sl':
       return { label: 'SL', color: Colors.destructive };
     case 'active':
-      return { label: 'ATIVO', color: Colors.success };
+      return { label: t('components.signalCard.active'), color: Colors.success };
     default:
-      return { label: 'PENDENTE', color: Colors.textMuted };
+      return { label: t('components.signalCard.pending'), color: Colors.textMuted };
   }
 }
 
@@ -54,6 +56,7 @@ function LevelLadder({
   live: number | null;
   pair: string;
 }) {
+  const { t } = useTranslation();
   const tpPips = pipsBetween(entry, takeProfit, pair);
   const slPips = pipsBetween(entry, stopLoss, pair);
 
@@ -73,7 +76,7 @@ function LevelLadder({
   const levels = [
     { key: 'tp', price: takeProfit, color: Colors.success, label: 'TP', pips: tpPips },
     ...(live !== null ? [{ key: 'live', price: live, color: Colors.text, label: '●', pips: null, isLive: true }] : []),
-    { key: 'entry', price: entry, color: Colors.accent, label: 'ENTRADA', pips: 0 },
+    { key: 'entry', price: entry, color: Colors.accent, label: t('components.signalCard.entry'), pips: 0 },
     { key: 'sl', price: stopLoss, color: Colors.destructive, label: 'SL', pips: slPips },
   ];
 
@@ -102,11 +105,11 @@ function LevelLadder({
               </AppText>
               {lvl.pips !== null && lvl.pips !== undefined && (
                 <AppText variant="small" style={{ color: lvl.color }}>
-                  {Math.round(lvl.pips)} pips
+                  {t('components.signalCard.pips', { count: Math.round(lvl.pips) })}
                 </AppText>
               )}
               {lvl.isLive && (
-                <AppText variant="small" style={{ color: Colors.textMuted }}>agora</AppText>
+                <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.signalCard.now')}</AppText>
               )}
             </View>
           </View>
@@ -127,8 +130,9 @@ export function SignalCard({
   showReasons?: boolean;
   price?: PriceData;
 }) {
-  const type = typeBadge(signal.type);
-  const status = statusBadge(signal.status);
+  const { t } = useTranslation();
+  const type = typeBadge(signal.type, t);
+  const status = statusBadge(signal.status, t);
   const mult = getPipMultiplier(signal.pair);
   const entryPips = Math.abs(signal.takeProfit - signal.entry) * mult;
   const slPips = Math.abs(signal.stopLoss - signal.entry) * mult;
@@ -154,7 +158,7 @@ export function SignalCard({
         <View style={styles.meta}>
           <AppText variant="muted">{signal.timeframe}</AppText>
           <AppText variant="muted">•</AppText>
-          <AppText variant="muted">RR 1:{rr}</AppText>
+          <AppText variant="muted">{t('components.signalCard.rr', { value: 1 })}{rr}</AppText>
           <View style={styles.spacer} />
           <AppText variant="small" style={{ color: Colors.textFaint }}>{timeAgo(signal.createdAt)}</AppText>
         </View>
@@ -172,17 +176,17 @@ export function SignalCard({
         {live !== null && openPips !== null ? (
           <View style={styles.liveRow}>
             <AppText variant="small" style={{ color: Colors.textMuted }}>
-              {isProfitable ? 'Em lucro' : openPips < 0 ? 'Em perda' : 'No ponto'} ·
+              {isProfitable ? t('components.signalCard.inProfit') : openPips < 0 ? t('components.signalCard.inLoss') : t('components.signalCard.atPoint')} ·
             </AppText>
             <AppText variant="small" style={{ color: isProfitable ? Colors.success : openPips < 0 ? Colors.destructive : Colors.textMuted, fontWeight: '800' }}>
-              {openPips > 0 ? '+' : ''}{openPips.toFixed(1)} pips
+              {openPips > 0 ? '+' : ''}{t('components.signalCard.pips', { count: openPips.toFixed(1) })}
             </AppText>
           </View>
         ) : null}
 
         <View style={styles.levels}>
           <View style={styles.level}>
-            <AppText variant="small" style={{ color: Colors.accent }}>ENTRADA</AppText>
+            <AppText variant="small" style={{ color: Colors.accent }}>{t('components.signalCard.entry')}</AppText>
             <AppText variant="mono">{formatNumber(signal.entry, decimalsFor(signal.pair))}</AppText>
           </View>
           <View style={styles.level}>
@@ -198,7 +202,7 @@ export function SignalCard({
         {showReasons && signal.reasons.length > 0 ? (
           <View style={styles.reasons}>
             <AppText variant="small" style={{ color: Colors.textMuted, fontWeight: '600' }}>
-              ANÁLISE
+              {t('components.signalCard.analysis')}
             </AppText>
             {signal.reasons.slice(0, 2).map((r, i) => (
               <View key={i} style={styles.reasonRow}>
@@ -208,7 +212,7 @@ export function SignalCard({
             ))}
             {signal.reasons.length > 2 ? (
               <AppText variant="small" style={{ color: Colors.textMuted }}>
-                +{signal.reasons.length - 2} razões
+                {t('components.signalCard.moreReasons', { count: signal.reasons.length - 2 })}
               </AppText>
             ) : null}
           </View>

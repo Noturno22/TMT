@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { AppText, Card, Screen } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
 
@@ -13,7 +14,7 @@ export function LegalDoc({
   icon,
   intro,
   sections,
-  lastUpdate = 'Janeiro 2026',
+  lastUpdate,
 }: {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
@@ -21,6 +22,7 @@ export function LegalDoc({
   sections: LegalSection[];
   lastUpdate?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Screen>
       <View style={styles.header}>
@@ -41,7 +43,7 @@ export function LegalDoc({
       ))}
 
       <AppText variant="small" style={{ color: Colors.textMuted, marginTop: Spacing.lg }}>
-        Última atualização: {lastUpdate}
+        {t('components.legalDoc.lastUpdated', { date: lastUpdate ?? t('components.legalDoc.january2026') })}
       </AppText>
     </Screen>
   );

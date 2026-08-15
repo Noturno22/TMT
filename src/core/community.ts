@@ -30,13 +30,10 @@ export function formatClosesIn(ms: number): string {
 export function mergeMessages(current: Message[], server: Message[]): Message[] {
   const serverIds = new Set(server.map((m) => m.id));
   const serverClientIds = new Set(server.map((m) => m.client_msg_id));
-  const inFlight = current.filter(
-    (m) =>
-      (m.pending || m.failed) &&
-      !serverIds.has(m.id) &&
-      !serverClientIds.has(m.client_msg_id),
+  const extras = current.filter(
+    (m) => !serverIds.has(m.id) && !serverClientIds.has(m.client_msg_id),
   );
-  return [...server, ...inFlight].sort((a, b) =>
+  return [...server, ...extras].sort((a, b) =>
     a.created_at.localeCompare(b.created_at),
   );
 }

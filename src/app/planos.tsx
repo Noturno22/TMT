@@ -8,6 +8,7 @@ import { PlanCard } from '@/components/PlanCard';
 import { Colors, Spacing } from '@/core/theme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 type Currency = 'usd' | 'aoa';
 type PlanId = 'free' | 'basic' | 'pro' | 'premium';
@@ -75,7 +76,7 @@ const PAYMENT_METHODS: {
   color: string;
   usd: boolean;
   aoa: boolean;
-  getDetails: () => string;
+  getDetails: (t: TFunction) => string;
 }[] = [
   {
     id: 'binance',
@@ -84,7 +85,7 @@ const PAYMENT_METHODS: {
     color: '#F0B90B',
     usd: true,
     aoa: false,
-    getDetails: () => `UID: ${BINANCE_ID}`,
+    getDetails: (t) => t('planos.uid', { value: BINANCE_ID }),
   },
   {
     id: 'rodotpay',
@@ -93,7 +94,7 @@ const PAYMENT_METHODS: {
     color: '#6366F1',
     usd: true,
     aoa: true,
-    getDetails: () => `UID: ${RODOTPAY_UID}`,
+    getDetails: (t) => t('planos.uid', { value: RODOTPAY_UID }),
   },
   {
     id: 'express',
@@ -102,39 +103,24 @@ const PAYMENT_METHODS: {
     color: '#00C853',
     usd: false,
     aoa: true,
-    getDetails: () => `Número: ${EXPRESS_PHONE}`,
+    getDetails: (t) => t('planos.phone', { value: EXPRESS_PHONE }),
   },
 ];
 
 const PLANS: {
   id: Exclude<PlanId, 'free'>;
   icon: 'flash' | 'rocket' | 'trophy';
-  tagline: string;
-  badge?: string;
   highlight?: boolean;
   featured?: boolean;
 }[] = [
-  { id: 'basic', icon: 'flash', tagline: 'Para começar a sério' },
-  { id: 'pro', icon: 'rocket', tagline: 'Para traders a sério', badge: 'MAIS POPULAR', highlight: true },
-  { id: 'premium', icon: 'trophy', tagline: 'Experiência completa', badge: 'TOP', featured: true },
+  { id: 'basic', icon: 'flash' },
+  { id: 'pro', icon: 'rocket', highlight: true },
+  { id: 'premium', icon: 'trophy', featured: true },
 ];
 
 const PRICES: Record<Currency, Record<PlanId, string>> = {
   usd: { free: '$0', basic: '$14.99', pro: '$29.99', premium: '$49.99' },
   aoa: { free: '0 Kz', basic: '10.000 Kz', pro: '20.000 Kz', premium: '35.000 Kz' },
-};
-
-const PAYMENT_INFO: Record<Currency, { method: string; details: string; instructions: string }> = {
-  usd: {
-    method: 'Binance Pay',
-    details: `Binance ID: ${BINANCE_ID}`,
-    instructions: 'Pague via Binance Pay para o ID acima e envie o comprovante para ativação.',
-  },
-  aoa: {
-    method: 'Express',
-    details: `Número: ${EXPRESS_PHONE}`,
-    instructions: 'Pague via Express para o número acima e envie o comprovante para verificação.',
-  },
 };
 
 const FREE_FEATURES: PlanFeature[] = [
@@ -441,7 +427,7 @@ function PaymentModal({
                     {selectedMethod?.label}
                   </AppText>
                   <AppText variant="small" style={{ color: Colors.textMuted }}>
-                    {selectedMethod?.getDetails()}
+                    {selectedMethod?.getDetails(t)}
                   </AppText>
                 </View>
                 <Pressable onPress={() => onMethodSelect(undefined as any)} style={styles.changeMethodBtn}>

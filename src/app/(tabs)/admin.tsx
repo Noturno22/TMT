@@ -9,16 +9,17 @@ import * as adminApi from '@/lib/adminApi';
 import { formatSymbol, formatTimeframe } from '@/core/format';
 import type { BoomHour, BoomTime } from '@/core/types';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users';
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'signals', label: 'Sinais' },
-  { key: 'boom', label: 'Boom Hours' },
-  { key: 'boom_times', label: 'Boom Times' },
-  { key: 'posts', label: 'Posts' },
-  { key: 'users', label: 'Usuários' },
+const TABS = [
+  { key: 'dashboard' as const, labelKey: 'admin.tabDashboard' as const },
+  { key: 'signals' as const, labelKey: 'admin.tabSignals' as const },
+  { key: 'boom' as const, labelKey: 'admin.tabBoom' as const },
+  { key: 'boom_times' as const, labelKey: 'admin.tabBoomTimes' as const },
+  { key: 'posts' as const, labelKey: 'admin.tabPosts' as const },
+  { key: 'users' as const, labelKey: 'admin.tabUsers' as const },
 ];
 
 interface PostRow {
@@ -78,38 +79,38 @@ export default function AdminScreen() {
     return () => clearTimeout(timer);
   }, [user, loadData]);
 
-  if (!user) return <Spinner label="A verificar acesso…" />;
+  if (!user) return <Spinner label={t('admin.checkingAccess')} />;
   if (!isAdminEmail(user.email)) {
     return (
       <Screen>
         <View style={styles.restricted}>
           <Ionicons name="lock-closed" size={44} color={Colors.textMuted} />
-          <AppText variant="h1" style={{ textAlign: 'center' }}>Acesso restrito</AppText>
+          <AppText variant="h1" style={{ textAlign: 'center' }}>{t('admin.restrictedTitle')}</AppText>
           <AppText variant="muted" style={{ textAlign: 'center' }}>
-            Esta área é exclusiva para administradores.
+            {t('admin.restrictedDesc')}
           </AppText>
         </View>
       </Screen>
     );
   }
-  if (loading) return <Spinner label="A carregar admin…" />;
+  if (loading) return <Spinner label={t('admin.loadingAdmin')} />;
 
   const run = async (label: string, fn: () => Promise<number>) => {
     setBusy(true);
     try {
       const n = await fn();
-      Alert.alert('Concluído', `${label}: ${n}`);
+      Alert.alert(t('admin.doneTitle'), `${label}: ${n}`);
       await loadData();
     } catch (e: any) {
-      Alert.alert('Erro', e?.message || 'Ocorreu um erro.');
+      Alert.alert(t('admin.errorTitle'), e?.message || t('admin.genericError'));
     } finally {
       setBusy(false);
     }
   };
 
   const confirmAndRun = (message: string, label: string, fn: () => Promise<number>) => {
-    Alert.alert('Confirmação', message, [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(t('admin.confirmTitle'), message, [
+      { text: t('admin.cancel'), style: 'cancel' },
       { text: 'OK', onPress: () => run(label, fn) },
     ]);
   };
@@ -126,13 +127,13 @@ export default function AdminScreen() {
       </SectionTitle>
 
       <View style={styles.tabs}>
-        {TABS.map((t) => (
-          <Chip key={t.key} label={t.label} active={tab === t.key} onPress={() => setTab(t.key)} />
+        {TABS.map((tb) => (
+          <Chip key={tb.key} label={t(tb.labelKey)} active={tab === tb.key} onPress={() => setTab(tb.key)} />
         ))}
       </View>
 
       {tab === 'dashboard' ? (
-        <DashboardPanel stats={stats} busy={busy} run={run} confirmAndRun={confirmAndRun} />
+        <DashboardPanel stats={stats} busy={busy} run={run} confirmAndRun={confirmAndRun} t={t} />
       ) : tab === 'signals' ? (
         <SignalsPanel signals={signals} onRefresh={loadData} />
       ) : tab === 'boom' ? (
@@ -155,18 +156,20 @@ function DashboardPanel({
   busy,
   run,
   confirmAndRun,
+  t,
 }: {
   stats: { total: number; active: number; tp: number; sl: number; users: number; premium: number };
   busy: boolean;
   run: (label: string, fn: () => Promise<number>) => void;
   confirmAndRun: (message: string, label: string, fn: () => Promise<number>) => void;
+  t: TFunction;
 }) {
   const hitRate = stats.tp + stats.sl > 0 ? Math.round((stats.tp / (stats.tp + stats.sl)) * 100) : 0;
   const cards = [
-    { label: 'Usuários', value: stats.users.toLocaleString('pt-PT'), color: Colors.secondary, icon: 'people' as const },
-    { label: 'Sinais Hoje', value: stats.total, color: Colors.success, icon: 'trending-up' as const },
-    { label: 'Taxa de Acerto', value: `${hitRate}%`, color: Colors.accent, icon: 'analytics' as const },
-    { label: 'Premium', value: stats.premium, color: Colors.accent, icon: 'diamond' as const },
+    { label: t('admin.statUsers'), value: stats.users.toLocaleString('pt-PT'), color: Colors.secondary, icon: 'people' as const },
+    { label: t('admin.statSignalsToday'), value: stats.total, color: Colors.success, icon: 'trending-up' as const },
+    { label: t('admin.statWinRate'), value: `${hitRate}%`, color: Colors.accent, icon: 'analytics' as const },
+    { label: t('admin.statPremium'), value: stats.premium, color: Colors.accent, icon: 'diamond' as const },
   ];
 
   return (
@@ -182,15 +185,15 @@ function DashboardPanel({
       </View>
 
       <View style={styles.actionRow}>
-        <AppButton title="Gerar Sinais" variant="secondary" loading={busy} style={{ flex: 1 }} onPress={() => run('Sinais gerados', adminApi.generateSignals)} />
-        <AppButton title="Fechar TP/SL" variant="secondary" loading={busy} style={{ flex: 1 }} onPress={() => run('Sinais fechados', adminApi.closeSignals)} />
+        <AppButton title={t('admin.generateSignals')} variant="secondary" loading={busy} style={{ flex: 1 }} onPress={() => run(t('admin.doneGenerate'), adminApi.generateSignals)} />
+        <AppButton title={t('admin.closeTpSl')} variant="secondary" loading={busy} style={{ flex: 1 }} onPress={() => run(t('admin.doneClose'), adminApi.closeSignals)} />
       </View>
       <AppButton
-        title="Limpar e Regenerar"
+        title={t('admin.clearRegenerate')}
         variant="danger"
         loading={busy}
         onPress={() =>
-          confirmAndRun('Apagar todos os sinais ativos e gerar novos?', 'Sinais regenerados', async () => {
+          confirmAndRun(t('admin.confirmClearRegenerate'), t('admin.doneRegenerate'), async () => {
             await adminApi.deleteAllActiveSignals();
             return adminApi.generateSignals();
           })
@@ -203,6 +206,7 @@ function DashboardPanel({
 // ---------- Sinais ----------
 
 function SignalsPanel({ signals, onRefresh }: { signals: any[]; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [symbol, setSymbol] = useState('EURUSD');
   const [signalType, setSignalType] = useState('BUY');
   const [entry, setEntry] = useState('');
@@ -226,28 +230,28 @@ function SignalsPanel({ signals, onRefresh }: { signals: any[]; onRefresh: () =>
       setEntry(''); setSl(''); setTp(''); setReason('');
       onRefresh();
     } catch (e: any) {
-      Alert.alert('Erro', e?.message || 'Erro ao adicionar sinal.');
+      Alert.alert(t('admin.errorTitle'), e?.message || t('admin.addSignalError'));
     }
   };
 
   return (
     <View>
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>NOVO SINAL</AppText>
-      <AppInput label="PAR (EURUSD, GBPUSD…)" value={symbol} onChangeText={setSymbol} autoCapitalize="characters" />
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>{t('admin.newSignal')}</AppText>
+      <AppInput label={t('admin.pairLabel')} value={symbol} onChangeText={setSymbol} autoCapitalize="characters" />
       <View style={styles.inlineRow}>
-        <View style={{ flex: 1 }}><AppInput label="TIPO" value={signalType} onChangeText={setSignalType} autoCapitalize="characters" /></View>
-        <View style={{ flex: 1 }}><AppInput label="CONFIANÇA %" value={confidence} onChangeText={setConfidence} keyboardType="numeric" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.typeLabel')} value={signalType} onChangeText={setSignalType} autoCapitalize="characters" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.confidenceLabel')} value={confidence} onChangeText={setConfidence} keyboardType="numeric" /></View>
       </View>
       <View style={styles.inlineRow}>
-        <View style={{ flex: 1 }}><AppInput label="ENTRADA" value={entry} onChangeText={setEntry} keyboardType="numeric" /></View>
-        <View style={{ flex: 1 }}><AppInput label="SL" value={sl} onChangeText={setSl} keyboardType="numeric" /></View>
-        <View style={{ flex: 1 }}><AppInput label="TP" value={tp} onChangeText={setTp} keyboardType="numeric" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.entryLabel')} value={entry} onChangeText={setEntry} keyboardType="numeric" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.slLabel')} value={sl} onChangeText={setSl} keyboardType="numeric" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.tpLabel')} value={tp} onChangeText={setTp} keyboardType="numeric" /></View>
       </View>
-      <AppInput label="RAZÕES (uma por linha)" value={reason} onChangeText={setReason} multiline numberOfLines={3} />
-      <AppButton title="Adicionar Sinal" onPress={add} />
+      <AppInput label={t('admin.reasonsLabel')} value={reason} onChangeText={setReason} multiline numberOfLines={3} />
+      <AppButton title={t('admin.addSignal')} onPress={add} />
 
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>SINAIS ({signals.length})</AppText>
-      {signals.length === 0 ? <EmptyState title="Sem sinais" /> : signals.map((s) => (
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>{t('admin.signalsList', { count: signals.length })}</AppText>
+      {signals.length === 0 ? <EmptyState title={t('admin.noSignalsAdmin')} /> : signals.map((s) => (
         <View key={s.id} style={styles.row}>
           <View style={{ flex: 1, gap: 2 }}>
             <AppText variant="label">{formatSymbol(s.symbol)} · {formatTimeframe(s.timeframe)}</AppText>
@@ -264,9 +268,9 @@ function SignalsPanel({ signals, onRefresh }: { signals: any[]; onRefresh: () =>
           </Pressable>
           <Pressable
             onPress={() =>
-              Alert.alert('Apagar sinal', 'Confirmas a eliminação?', [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Apagar', style: 'destructive', onPress: () => adminApi.deleteSignal(s.id).then(onRefresh) },
+              Alert.alert(t('admin.deleteSignalTitle'), t('admin.deleteConfirm'), [
+                { text: t('admin.cancel'), style: 'cancel' },
+                { text: t('admin.delete'), style: 'destructive', onPress: () => adminApi.deleteSignal(s.id).then(onRefresh) },
               ])
             }
             hitSlop={8}>
@@ -281,6 +285,7 @@ function SignalsPanel({ signals, onRefresh }: { signals: any[]; onRefresh: () =>
 // ---------- Hora do Boom ----------
 
 function BoomHoursPanel({ hours, onRefresh }: { hours: BoomHour[]; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [timeWat, setTimeWat] = useState('');
   const [timeGmt, setTimeGmt] = useState('');
@@ -303,24 +308,24 @@ function BoomHoursPanel({ hours, onRefresh }: { hours: BoomHour[]; onRefresh: ()
       setTitle(''); setTimeWat(''); setTimeGmt(''); setPairs(''); setBadge('⚡');
       onRefresh();
     } catch (e: any) {
-      Alert.alert('Erro', e?.message || 'Erro ao adicionar horário.');
+      Alert.alert(t('admin.errorTitle'), e?.message || t('admin.addHourError'));
     }
   };
 
   return (
     <View>
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>NOVO HORÁRIO</AppText>
-      <AppInput label="TÍTULO" value={title} onChangeText={setTitle} placeholder="Boom de Londres" />
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>{t('admin.newHour')}</AppText>
+      <AppInput label={t('admin.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('admin.titlePlaceholder')} />
       <View style={styles.inlineRow}>
-        <View style={{ flex: 1 }}><AppInput label="WAT" value={timeWat} onChangeText={setTimeWat} placeholder="09:00" /></View>
-        <View style={{ flex: 1 }}><AppInput label="GMT" value={timeGmt} onChangeText={setTimeGmt} placeholder="08:00" /></View>
-        <View style={{ flex: 1 }}><AppInput label="VOL" value={vol} onChangeText={setVol} keyboardType="numeric" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.watLabel')} value={timeWat} onChangeText={setTimeWat} placeholder="09:00" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.gmtLabel')} value={timeGmt} onChangeText={setTimeGmt} placeholder="08:00" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.volLabel')} value={vol} onChangeText={setVol} keyboardType="numeric" /></View>
       </View>
-      <AppInput label="PARES (separados por vírgula)" value={pairs} onChangeText={setPairs} placeholder="EURUSD, GBPUSD" />
-      <AppButton title="Adicionar Horário" onPress={add} />
+      <AppInput label={t('admin.pairsLabel')} value={pairs} onChangeText={setPairs} placeholder={t('admin.pairsPlaceholder')} />
+      <AppButton title={t('admin.addHour')} onPress={add} />
 
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>HORÁRIOS ({hours.length})</AppText>
-      {hours.length === 0 ? <EmptyState title="Sem horários" /> : hours.map((h) => (
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>{t('admin.hoursList', { count: hours.length })}</AppText>
+      {hours.length === 0 ? <EmptyState title={t('admin.noHours')} /> : hours.map((h) => (
         <View key={h.id} style={styles.row}>
           <View style={{ flex: 1, gap: 2 }}>
             <AppText variant="label">{h.title}</AppText>
@@ -330,9 +335,9 @@ function BoomHoursPanel({ hours, onRefresh }: { hours: BoomHour[]; onRefresh: ()
           </View>
           <Pressable
             onPress={() =>
-              Alert.alert('Apagar horário', 'Confirmas a eliminação?', [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Apagar', style: 'destructive', onPress: () => adminApi.deleteBoomHour(h.id).then(onRefresh) },
+              Alert.alert(t('admin.deleteHourTitle'), t('admin.deleteConfirm'), [
+                { text: t('admin.cancel'), style: 'cancel' },
+                { text: t('admin.delete'), style: 'destructive', onPress: () => adminApi.deleteBoomHour(h.id).then(onRefresh) },
               ])
             }
             hitSlop={8}>
@@ -347,6 +352,7 @@ function BoomHoursPanel({ hours, onRefresh }: { hours: BoomHour[]; onRefresh: ()
 // ---------- Boom Times ----------
 
 function BoomTimesPanel({ times, onRefresh }: { times: BoomTime[]; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [pair, setPair] = useState('EURUSD');
   const [confidence, setConfidence] = useState('75');
   const [inMinutes, setInMinutes] = useState('120');
@@ -364,22 +370,22 @@ function BoomTimesPanel({ times, onRefresh }: { times: BoomTime[]; onRefresh: ()
       });
       onRefresh();
     } catch (e: any) {
-      Alert.alert('Erro', e?.message || 'Erro ao adicionar boom time.');
+      Alert.alert(t('admin.errorTitle'), e?.message || t('admin.addBoomTimeError'));
     }
   };
 
   return (
     <View>
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>NOVO BOOM TIME</AppText>
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>{t('admin.newBoomTime')}</AppText>
       <View style={styles.inlineRow}>
-        <View style={{ flex: 1 }}><AppInput label="PAR" value={pair} onChangeText={setPair} autoCapitalize="characters" /></View>
-        <View style={{ flex: 1 }}><AppInput label="CONFIANÇA %" value={confidence} onChangeText={setConfidence} keyboardType="numeric" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.pairLabel')} value={pair} onChangeText={setPair} autoCapitalize="characters" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.confidenceLabel')} value={confidence} onChangeText={setConfidence} keyboardType="numeric" /></View>
       </View>
-      <AppInput label="DAQUI A (MIN)" value={inMinutes} onChangeText={setInMinutes} keyboardType="numeric" />
-      <AppButton title="Adicionar Boom Time" onPress={add} />
+      <AppInput label={t('admin.inMinutesLabel')} value={inMinutes} onChangeText={setInMinutes} keyboardType="numeric" />
+      <AppButton title={t('admin.addBoomTime')} onPress={add} />
 
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>BOOM TIMES ({times.length})</AppText>
-      {times.length === 0 ? <EmptyState title="Sem boom times" /> : times.map((b) => (
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>{t('admin.boomTimesList', { count: times.length })}</AppText>
+      {times.length === 0 ? <EmptyState title={t('admin.noBoomTimes')} /> : times.map((b) => (
         <View key={b.id} style={styles.row}>
           <View style={{ flex: 1, gap: 2 }}>
             <AppText variant="label">{formatSymbol(b.pair)}</AppText>
@@ -394,9 +400,9 @@ function BoomTimesPanel({ times, onRefresh }: { times: BoomTime[]; onRefresh: ()
           </Pressable>
           <Pressable
             onPress={() =>
-              Alert.alert('Apagar boom time', 'Confirmas a eliminação?', [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Apagar', style: 'destructive', onPress: () => adminApi.deleteBoomTime(b.id).then(onRefresh) },
+              Alert.alert(t('admin.deleteBoomTimeTitle'), t('admin.deleteConfirm'), [
+                { text: t('admin.cancel'), style: 'cancel' },
+                { text: t('admin.delete'), style: 'destructive', onPress: () => adminApi.deleteBoomTime(b.id).then(onRefresh) },
               ])
             }
             hitSlop={8}>
@@ -411,6 +417,7 @@ function BoomTimesPanel({ times, onRefresh }: { times: BoomTime[]; onRefresh: ()
 // ---------- Posts ----------
 
 function PostsPanel({ posts, onRefresh }: { posts: PostRow[]; onRefresh: () => void }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [pair, setPair] = useState('');
@@ -418,7 +425,7 @@ function PostsPanel({ posts, onRefresh }: { posts: PostRow[]; onRefresh: () => v
 
   const add = async () => {
     if (!title.trim()) {
-      Alert.alert('Título obrigatório', 'Escreve um título para o post.');
+      Alert.alert(t('admin.titleRequired'), t('admin.titleRequiredMsg'));
       return;
     }
     try {
@@ -431,23 +438,23 @@ function PostsPanel({ posts, onRefresh }: { posts: PostRow[]; onRefresh: () => v
       setTitle(''); setContent(''); setPair(''); setSignalType('NEUTRO');
       onRefresh();
     } catch (e: any) {
-      Alert.alert('Erro', e?.message || 'Erro ao criar post.');
+      Alert.alert(t('admin.errorTitle'), e?.message || t('admin.addPostError'));
     }
   };
 
   return (
     <View>
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>NOVO POST</AppText>
-      <AppInput label="TÍTULO" value={title} onChangeText={setTitle} placeholder="Análise do GBP/USD" />
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>{t('admin.newPost')}</AppText>
+      <AppInput label={t('admin.titleLabel')} value={title} onChangeText={setTitle} placeholder={t('admin.postTitlePlaceholder')} />
       <View style={styles.inlineRow}>
-        <View style={{ flex: 1 }}><AppInput label="PAR" value={pair} onChangeText={setPair} autoCapitalize="characters" placeholder="EURUSD" /></View>
-        <View style={{ flex: 1 }}><AppInput label="TIPO" value={signalType} onChangeText={setSignalType} autoCapitalize="characters" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.pairLabel')} value={pair} onChangeText={setPair} autoCapitalize="characters" placeholder="EURUSD" /></View>
+        <View style={{ flex: 1 }}><AppInput label={t('admin.typeLabel')} value={signalType} onChangeText={setSignalType} autoCapitalize="characters" /></View>
       </View>
-      <AppInput label="CONTEÚDO" value={content} onChangeText={setContent} multiline numberOfLines={3} placeholder="Texto da análise…" />
-      <AppButton title="Publicar Post" onPress={add} />
+      <AppInput label={t('admin.contentLabel')} value={content} onChangeText={setContent} multiline numberOfLines={3} placeholder={t('admin.contentPlaceholder')} />
+      <AppButton title={t('admin.publishPost')} onPress={add} />
 
-      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>POSTS ({posts.length})</AppText>
-      {posts.length === 0 ? <EmptyState title="Sem posts" /> : posts.map((p) => (
+      <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.md }}>{t('admin.postsList', { count: posts.length })}</AppText>
+      {posts.length === 0 ? <EmptyState title={t('admin.noPosts')} /> : posts.map((p) => (
         <View key={p.id} style={styles.row}>
           <View style={{ flex: 1, gap: 2 }}>
             <AppText variant="label">{p.title}</AppText>
@@ -456,13 +463,13 @@ function PostsPanel({ posts, onRefresh }: { posts: PostRow[]; onRefresh: () => v
             </AppText>
           </View>
           <Badge color={p.is_active === false ? Colors.textMuted : Colors.success}>
-            {p.is_active === false ? 'Desativado' : 'Publicado'}
+            {p.is_active === false ? t('admin.postInactive') : t('admin.postActive')}
           </Badge>
           <Pressable
             onPress={() =>
-              Alert.alert('Apagar post', 'Confirmas a eliminação?', [
-                { text: 'Cancelar', style: 'cancel' },
-                { text: 'Apagar', style: 'destructive', onPress: () => adminApi.deletePost(p.id).then(onRefresh) },
+              Alert.alert(t('admin.deletePostTitle'), t('admin.deleteConfirm'), [
+                { text: t('admin.cancel'), style: 'cancel' },
+                { text: t('admin.delete'), style: 'destructive', onPress: () => adminApi.deletePost(p.id).then(onRefresh) },
               ])
             }
             hitSlop={8}>
@@ -483,23 +490,24 @@ function UsersPanel({
   users: { id: string; email: string; created_at: string; last_sign_in_at: string | null }[];
   premium: number;
 }) {
+  const { t } = useTranslation();
   return (
     <View>
       <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>
-        USUÁRIOS ({users.length}) · {premium} premium
+        {t('admin.usersList', { count: users.length, premium })}
       </AppText>
       {users.length === 0 ? (
-        <EmptyState title="Sem dados" subtitle="Não foi possível carregar os utilizadores." />
+        <EmptyState title={t('admin.noUsersTitle')} subtitle={t('admin.noUsersDesc')} />
       ) : (
         users.map((u) => (
           <View key={u.id} style={styles.row}>
             <View style={{ flex: 1, gap: 2 }}>
               <AppText variant="label">{u.email}</AppText>
               <AppText variant="small" style={{ color: Colors.textMuted }}>
-                Registo: {new Date(u.created_at).toLocaleDateString('pt-PT')}
+                {t('admin.registeredAt', { date: new Date(u.created_at).toLocaleDateString('pt-PT') })}
               </AppText>
             </View>
-            <Badge color={Colors.accent}>Utilizador</Badge>
+            <Badge color={Colors.accent}>{t('admin.userRole')}</Badge>
           </View>
         ))
       )}

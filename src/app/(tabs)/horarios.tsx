@@ -164,14 +164,14 @@ export default function HorariosScreen() {
       {loading ? (
         <Spinner label={t('horarios.loading')} />
       ) : error ? (
-        <EmptyState title="Erro" subtitle={error} />
+        <EmptyState title={t('horarios.errorTitle')} subtitle={error} />
       ) : hours.length === 0 ? (
         <EmptyState title={t('horarios.emptyTitle')} subtitle={t('horarios.emptyBody')} />
       ) : filteredHours.length === 0 ? (
         <>
           <EmptyState
-            title="Sem booms nos filtros"
-            subtitle="Nenhum boom corresponde aos teus filtros. Ajusta-os nas definições."
+            title={t('horarios.noFilteredBooms')}
+            subtitle={t('horarios.noFilteredBoomsDesc')}
           />
           <AppButton
             title={t('horarios.adjustFilters')}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { subscribeToChanges } from '@/lib/realtime';
 import { STRIPE_CHECKOUT_URL, SUPABASE_ANON_KEY } from '@/lib/env';
+import { i18n } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import type { Subscription } from '@/core/types';
 
@@ -80,10 +81,10 @@ export function useSubscription() {
       });
       const data = await res.json();
       if (data.error) return { ok: false, error: data.error };
-      if (!data.url) return { ok: false, error: 'URL de pagamento não recebida.' };
+      if (!data.url) return { ok: false, error: i18n.t('planos.urlMissing') };
       return { ok: true, url: data.url };
     } catch {
-      return { ok: false, error: 'Erro de ligação. Tenta novamente.' };
+      return { ok: false, error: i18n.t('planos.connectionError') };
     }
   };
 

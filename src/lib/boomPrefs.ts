@@ -11,11 +11,11 @@ export interface BoomPrefs {
 
 export const DEFAULT_BOOM_PREFS: BoomPrefs = { pairs: [], volTier: 'todas', hiddenIds: [] };
 
-export const VOL_TIERS: { key: VolTier; label: string; hint: string }[] = [
-  { key: 'todas', label: 'Todas', hint: '1–5' },
-  { key: 'alta', label: 'Alta', hint: '4–5' },
-  { key: 'media', label: 'Média', hint: '2–3' },
-  { key: 'baixa', label: 'Baixa', hint: '1–2' },
+export const VOL_TIERS: { key: VolTier }[] = [
+  { key: 'todas' },
+  { key: 'alta' },
+  { key: 'media' },
+  { key: 'baixa' },
 ];
 
 const VOL_RANGE: Record<VolTier, [number, number]> = {

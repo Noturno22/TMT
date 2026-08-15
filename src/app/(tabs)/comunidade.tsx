@@ -93,7 +93,7 @@ export default function ComunidadeScreen() {
       {loading ? (
         <Spinner label={t('comunidade.loading')} />
       ) : error ? (
-        <EmptyState title="Erro" subtitle={error} />
+        <EmptyState title={t('comunidade.errorTitle')} subtitle={error} />
       ) : filtered.length === 0 ? (
         <EmptyState title={t('comunidade.emptyTitle')} subtitle={t('comunidade.emptyBody')} />
       ) : (

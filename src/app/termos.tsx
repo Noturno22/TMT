@@ -9,32 +9,32 @@ export default function TermosScreen() {
       icon="document-text-outline"
       sections={[
         {
-          title: '1. Aceitação dos Termos',
-          body: 'Ao aceder e utilizar a plataforma The Magic Trader, o utilizador concorda com estes Termos de Uso. Se não concordar com algum dos termos, não deve utilizar a plataforma.',
+          title: t('legal.termosDoc.s1Title'),
+          body: t('legal.termosDoc.s1Body'),
         },
         {
-          title: '2. Descrição do Serviço',
-          body: 'The Magic Trader é uma plataforma de análise técnica do mercado Forex que utiliza inteligência artificial e indicadores técnicos para gerar análises educacionais. Os sinais fornecidos são baseados em modelos estatísticos e não devem ser considerados aconselhamento financeiro.',
+          title: t('legal.termosDoc.s2Title'),
+          body: t('legal.termosDoc.s2Body'),
         },
         {
-          title: '3. Natureza Educacional',
-          body: 'Todo o conteúdo disponibilizado na plataforma é de caráter exclusivamente educacional e informativo. Não nos responsabilizamos por decisões de investimento tomadas com base nas análises fornecidas.',
+          title: t('legal.termosDoc.s3Title'),
+          body: t('legal.termosDoc.s3Body'),
         },
         {
-          title: '4. Conta de Utilizador',
-          body: 'O utilizador é responsável por manter a confidencialidade das suas credenciais de acesso. Uma conta premium é pessoal e intransmissível.',
+          title: t('legal.termosDoc.s4Title'),
+          body: t('legal.termosDoc.s4Body'),
         },
         {
-          title: '5. Pagamentos',
-          body: 'As subscrições premium são processadas via Stripe. Os planos são renovados automaticamente ao final de cada período de faturação, a menos que sejam cancelados antes da data de renovação.',
+          title: t('legal.termosDoc.s5Title'),
+          body: t('legal.termosDoc.s5Body'),
         },
         {
-          title: '6. Propriedade Intelectual',
-          body: 'Todo o conteúdo da plataforma, incluindo mas não se limitando a textos, gráficos, logotipos, software e análises, é propriedade de The Magic Trader e é protegido por direitos de autor.',
+          title: t('legal.termosDoc.s6Title'),
+          body: t('legal.termosDoc.s6Body'),
         },
         {
-          title: '7. Alterações',
-          body: 'Reservamo-nos o direito de alterar estes termos a qualquer momento. As alterações entram em vigor imediatamente após a publicação na plataforma.',
+          title: t('legal.termosDoc.s7Title'),
+          body: t('legal.termosDoc.s7Body'),
         },
       ]}
     />

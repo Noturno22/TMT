@@ -206,7 +206,7 @@ export default function AnalisesScreen() {
         {loading ? (
           <Spinner label={t('analises.loading')} />
         ) : error ? (
-          <EmptyState title="Erro a carregar sinais" subtitle={error} />
+          <EmptyState title={t('analises.errorTitle')} subtitle={error} />
         ) : filtered.length === 0 ? (
           <EmptyState title={t('analises.emptyTitle')} subtitle={t('analises.emptyBody')} />
         ) : (

@@ -117,7 +117,7 @@ export default function DefinicoesBoomsScreen() {
       ) : hoursLoading ? (
         <Spinner label={t('definicoesBooms.loadingBooms')} />
       ) : hoursError ? (
-        <EmptyState title="Erro" subtitle={hoursError} />
+        <EmptyState title={t('definicoesBooms.errorTitle')} subtitle={hoursError} />
       ) : (
         <>
           <AppText variant="muted" style={{ marginBottom: Spacing.md }}>

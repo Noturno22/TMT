@@ -1,11 +1,12 @@
 import { supabase } from '@/lib/supabase';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/env';
+import { i18n } from '@/lib/i18n';
 
 const ADMIN_FN = `${SUPABASE_URL}/functions/v1/admin-manage`;
 
 async function callAdminFn(action: string, payload: Record<string, unknown> = {}): Promise<any> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('Não autenticado');
+  if (!session) throw new Error(i18n.t('adminErrors.notAuthenticated'));
 
   const res = await fetch(ADMIN_FN, {
     method: 'POST',
@@ -18,7 +19,7 @@ async function callAdminFn(action: string, payload: Record<string, unknown> = {}
   });
 
   const data = await res.json();
-  if (!res.ok || data.error) throw new Error(data.error || 'Erro desconhecido');
+  if (!res.ok || data.error) throw new Error(data.error || i18n.t('adminErrors.unknown'));
   return data;
 }
 
@@ -110,7 +111,7 @@ export async function premiumCount(): Promise<number> {
 
 export async function generateSignals(): Promise<number> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('Não autenticado');
+  if (!session) throw new Error(i18n.t('adminErrors.notAuthenticated'));
 
   const body = [
     'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURGBP',
@@ -127,13 +128,13 @@ export async function generateSignals(): Promise<number> {
     body: JSON.stringify(body),
   });
   const data = await res.json();
-  if (!res.ok || data.error) throw new Error(data.error || 'Erro ao gerar sinais');
+  if (!res.ok || data.error) throw new Error(data.error || i18n.t('adminErrors.generate'));
   return data.results?.length ?? 0;
 }
 
 export async function closeSignals(): Promise<number> {
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('Não autenticado');
+  if (!session) throw new Error(i18n.t('adminErrors.notAuthenticated'));
 
   const res = await fetch(`${SUPABASE_URL}/functions/v1/close-signals`, {
     method: 'POST',
@@ -145,6 +146,6 @@ export async function closeSignals(): Promise<number> {
     body: JSON.stringify({}),
   });
   const data = await res.json();
-  if (!res.ok || data.error) throw new Error(data.error || 'Erro ao fechar sinais');
+  if (!res.ok || data.error) throw new Error(data.error || i18n.t('adminErrors.close'));
   return data.closed ?? 0;
 }

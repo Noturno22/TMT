@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useTranslation } from 'react-i18next';
+import { i18n } from '@/lib/i18n';
 
 const BINANCE_ID = '547723572';
 const EXPRESS_PHONE = '+244926717730';
@@ -52,13 +53,13 @@ export default function PerfilScreen() {
   const { config: banca } = useBanca();
 
   const periodEnd = subscription?.current_period_end
-    ? new Date(subscription.current_period_end).toLocaleDateString('pt-PT')
+    ? new Date(subscription.current_period_end).toLocaleDateString(i18n.language)
     : null;
 
   const confirmSignOut = () => {
-    Alert.alert('Sair', 'Tens a certeza que queres sair?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => signOut() },
+    Alert.alert(t('perfil.signOutTitle'), t('perfil.signOutBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('perfil.signOut'), style: 'destructive', onPress: () => signOut() },
     ]);
   };
 
@@ -69,18 +70,18 @@ export default function PerfilScreen() {
           colors={[Colors.primaryDim, 'rgba(255,201,21,0.07)']}
           style={styles.identity}>
           <View style={styles.avatar}>
-            <AppText style={styles.avatarText}>{user ? avatarLetter(user) : 'T'}</AppText>
+            <AppText style={styles.avatarText}>{user ? avatarLetter(user) : t('perfil.fallbackAvatar')}</AppText>
           </View>
-          <AppText variant="h1">{user ? displayName(user) : 'Trader'}</AppText>
-          <AppText variant="muted">{user ? (contactInfo(user) ?? 'Conta verificada') : 'Não autenticado'}</AppText>
+          <AppText variant="h1">{user ? displayName(user) : t('perfil.trader')}</AppText>
+          <AppText variant="muted">{user ? (contactInfo(user) ?? t('perfil.verified')) : t('perfil.notAuthed')}</AppText>
           {user ? (
             <View style={styles.badgeWrap}>
               {isPremium ? (
                 <Badge color={Colors.accent} bg={`${Colors.accent}20`}>
-                  {periodEnd ? `Premium até ${periodEnd}` : 'Premium'}
+                  {periodEnd ? t('perfil.premiumUntil', { date: periodEnd }) : t('perfil.premium')}
                 </Badge>
               ) : (
-                <Badge color={Colors.textMuted} bg={`${Colors.textMuted}20`}>Plano Grátis</Badge>
+                <Badge color={Colors.textMuted} bg={`${Colors.textMuted}20`}>{t('perfil.freePlan')}</Badge>
               )}
             </View>
           ) : null}
@@ -88,10 +89,10 @@ export default function PerfilScreen() {
 
         <View style={styles.section}>
           <SectionHeader
-            title="Carteira"
-            subtitle={canAccessBanca ? 'Gestão de banca' : 'Disponível no plano Premium'}
+            title={t('perfil.walletSection')}
+            subtitle={canAccessBanca ? t('perfil.bancaManagement') : t('perfil.availablePremium')}
             action={
-              canAccessBanca ? { label: 'Ver banca ›', onPress: () => router.push('/banca') } : undefined
+              canAccessBanca ? { label: t('perfil.viewBanca'), onPress: () => router.push('/banca') } : undefined
             }
           />
           {canAccessBanca ? (
@@ -99,42 +100,42 @@ export default function PerfilScreen() {
           ) : (
             <PremiumLock
               compact
-              label="Carteira & Gestão de Banca"
-              description="Controla capital, metas e risco por operação."
+              label={t('perfil.walletLockTitle')}
+              description={t('perfil.walletLockDesc')}
             />
           )}
         </View>
 
         <View style={styles.section}>
-          <AppText variant="label" style={styles.sectionLabel}>CONTA</AppText>
+          <AppText variant="label" style={styles.sectionLabel}>{t('perfil.sectionAccount')}</AppText>
           <View style={styles.menu}>
-            <MenuRow icon="trophy" label="Minha Assinatura" onPress={() => router.push('/planos')} right={
-              isPremium ? <Badge color={Colors.accent} bg={`${Colors.accent}20`}>PRO</Badge> : null
+            <MenuRow icon="trophy" label={t('perfil.mySubscription')} onPress={() => router.push('/planos')} right={
+              isPremium ? <Badge color={Colors.accent} bg={`${Colors.accent}20`}>{t('components.dashboardHeader.pro')}</Badge> : null
             } />
-            <MenuRow icon="trending-up" label="Plano de Crescimento" onPress={() => router.push('/plano-crescimento')} />
-            <MenuRow icon="wallet" label="Gestão de Banca" color={Colors.success} onPress={() => router.push('/banca')} />
+            <MenuRow icon="trending-up" label={t('perfil.growthPlan')} onPress={() => router.push('/plano-crescimento')} />
+            <MenuRow icon="wallet" label={t('perfil.banca')} color={Colors.success} onPress={() => router.push('/banca')} />
           </View>
         </View>
 
         <View style={styles.section}>
-          <AppText variant="label" style={styles.sectionLabel}>PREFERÊNCIAS</AppText>
+          <AppText variant="label" style={styles.sectionLabel}>{t('perfil.sectionPreferences')}</AppText>
           <View style={styles.menu}>
-            <MenuRow icon="notifications" label="Notificações" onPress={() => router.push('/notificacoes')} />
-            <MenuRow icon="alarm" label="Gerenciar Alertas" onPress={() => router.push('/horarios')} />
-            <MenuRow icon="shield-checkmark" label="Segurança" onPress={() => Alert.alert('Segurança', 'Funcionalidade em breve.')} />
+            <MenuRow icon="notifications" label={t('perfil.notifications')} onPress={() => router.push('/notificacoes')} />
+            <MenuRow icon="alarm" label={t('perfil.manageAlerts')} onPress={() => router.push('/horarios')} />
+            <MenuRow icon="shield-checkmark" label={t('perfil.security')} onPress={() => Alert.alert(t('perfil.security'), t('common.comingSoon'))} />
             <MenuRow icon="globe" label={t('language.title')} onPress={() => router.push('/idioma')} />
           </View>
         </View>
 
         <View style={styles.section}>
-          <AppText variant="label" style={styles.sectionLabel}>SAQUE E DEPÓSITO</AppText>
+          <AppText variant="label" style={styles.sectionLabel}>{t('perfil.sectionWithdraw')}</AppText>
           <View style={styles.menu}>
             <Pressable style={styles.paymentRow}>
               <View style={[styles.paymentIcon, { backgroundColor: '#F0B90B1A' }]}>
                 <Ionicons name="logo-bitcoin" size={20} color="#F0B90B" />
               </View>
               <View style={styles.paymentInfo}>
-                <AppText style={styles.paymentLabel}>Binance</AppText>
+                <AppText style={styles.paymentLabel}>{t('perfil.binance')}</AppText>
                 <AppText variant="small" style={styles.paymentDetail}>ID: {BINANCE_ID}</AppText>
               </View>
               <Ionicons name="copy" size={20} color={Colors.textFaint} />
@@ -144,7 +145,7 @@ export default function PerfilScreen() {
                 <Ionicons name="cash" size={20} color="#00C853" />
               </View>
               <View style={styles.paymentInfo}>
-                <AppText style={styles.paymentLabel}>Express</AppText>
+                <AppText style={styles.paymentLabel}>{t('perfil.express')}</AppText>
                 <AppText variant="small" style={styles.paymentDetail}>{EXPRESS_PHONE}</AppText>
               </View>
               <Ionicons name="copy" size={20} color={Colors.textFaint} />
@@ -153,12 +154,12 @@ export default function PerfilScreen() {
         </View>
 
         {user ? (
-          <MenuRow icon="log-out" label="Sair" danger onPress={confirmSignOut} />
+          <MenuRow icon="log-out" label={t('perfil.signOut')} danger onPress={confirmSignOut} />
         ) : (
-          <MenuRow icon="log-in" label="Entrar" color={Colors.primary} onPress={() => router.push('/login')} />
+          <MenuRow icon="log-in" label={t('perfil.signIn')} color={Colors.primary} onPress={() => router.push('/login')} />
         )}
 
-        <AppText variant="small" style={styles.version}>The Magic Trader · v1.0.0</AppText>
+        <AppText variant="small" style={styles.version}>{t('perfil.version')}</AppText>
       </ScrollView>
     </Screen>
   );

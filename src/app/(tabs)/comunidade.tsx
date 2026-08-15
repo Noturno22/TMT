@@ -7,17 +7,20 @@ import { useBoomSocial } from '@/hooks/useBoomSocial';
 import { getBoomStatus } from '@/core/booms';
 import { Colors } from '@/core/theme';
 import type { BoomTime } from '@/core/types';
+import { useTranslation } from 'react-i18next';
 
 type Filter = 'todos' | 'live' | 'upcoming' | 'expired';
+type FilterLabel = 'comunidade.all' | 'comunidade.live' | 'comunidade.upcoming' | 'comunidade.closed';
 
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'todos', label: 'Todos' },
-  { key: 'live', label: 'Ao Vivo' },
-  { key: 'upcoming', label: 'Próximos' },
-  { key: 'expired', label: 'Encerrados' },
+const FILTERS: { key: Filter; label: FilterLabel }[] = [
+  { key: 'todos', label: 'comunidade.all' },
+  { key: 'live', label: 'comunidade.live' },
+  { key: 'upcoming', label: 'comunidade.upcoming' },
+  { key: 'expired', label: 'comunidade.closed' },
 ];
 
 function LiveBadge() {
+  const { t } = useTranslation();
   const [opacity] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
@@ -43,7 +46,7 @@ function LiveBadge() {
 
   return (
     <Animated.View style={{ opacity }}>
-      <Badge color={Colors.live} bg={`${Colors.live}1F`}>AO VIVO</Badge>
+      <Badge color={Colors.live} bg={`${Colors.live}1F`}>{t('comunidade.liveBadge')}</Badge>
     </Animated.View>
   );
 }
@@ -54,6 +57,7 @@ function BoomCardContainer({ boom }: { boom: BoomTime }) {
 }
 
 export default function ComunidadeScreen() {
+  const { t } = useTranslation();
   const { booms, loading, error } = useBooms();
   const [filter, setFilter] = useState<Filter>('todos');
 
@@ -73,13 +77,13 @@ export default function ComunidadeScreen() {
 
   return (
     <Screen>
-      <SectionTitle right={liveCount > 0 ? <LiveBadge /> : null}>Boom Times</SectionTitle>
+      <SectionTitle right={liveCount > 0 ? <LiveBadge /> : null}>{t('comunidade.title')}</SectionTitle>
 
       <View style={styles.filterRow}>
         {FILTERS.map((f) => (
           <Chip
             key={f.key}
-            label={f.label}
+            label={t(f.label)}
             active={filter === f.key}
             onPress={() => setFilter(f.key)}
           />
@@ -87,11 +91,11 @@ export default function ComunidadeScreen() {
       </View>
 
       {loading ? (
-        <Spinner label="A carregar comunidade…" />
+        <Spinner label={t('comunidade.loading')} />
       ) : error ? (
         <EmptyState title="Erro" subtitle={error} />
       ) : filtered.length === 0 ? (
-        <EmptyState title="Sem booms" subtitle="Não há booms para este filtro." />
+        <EmptyState title={t('comunidade.emptyTitle')} subtitle={t('comunidade.emptyBody')} />
       ) : (
         filtered.map((boom) => <BoomCardContainer key={boom.id} boom={boom} />)
       )}

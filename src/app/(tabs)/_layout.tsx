@@ -57,6 +57,7 @@ export default function TabsLayout() {
         name="comunidade"
         options={{
           title: t('tabs.comunidade'),
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
         }}
       />

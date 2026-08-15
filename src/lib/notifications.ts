@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BOOM_LIVE_WINDOW_MINUTES } from '@/core/booms';
+import { i18n } from '@/lib/i18n';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -20,14 +22,14 @@ const UPGRADE_CHANNEL_ID = 'planos';
 export async function ensureChannel(): Promise<void> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: 'Avisos da Hora do Boom (5 min)',
+      name: i18n.t('notifications.channelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#16A43A',
     });
 
     await Notifications.setNotificationChannelAsync(CHANNEL_ID_ALARM, {
-      name: 'Alarme da Hora do Boom (exato)',
+      name: i18n.t('notifications.channelDesc'),
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 500, 200, 500, 200, 500],
       lightColor: '#FF3B30',
@@ -106,6 +108,13 @@ export interface ScheduledAlarm {
   title: string;
 }
 
+function formatWindowTime(boomTime: string): string {
+  const d = new Date(boomTime);
+  const h = String((d.getUTCHours() + 1) % 24).padStart(2, '0');
+  const m = String(d.getUTCMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
 /**
  * Agenda DOIS alarmes para um boom:
  * 1. Aviso 5 minutos antes (para preparar)
@@ -139,8 +148,12 @@ export async function scheduleBoomAlarm(boomId: string, boomTime: string, title:
   if (warningAt.getTime() > now) {
     warningId = await Notifications.scheduleNotificationAsync({
       content: {
-        title: '⏰ Preparação: Hora do Boom',
-        body: `${title} começa em 5 minutos! Prepare-se.`,
+        title: i18n.t('notifications.prepTitle'),
+        body: i18n.t('notifications.prepBody', {
+          pair: title,
+          minutes: BOOM_LIVE_WINDOW_MINUTES,
+          windowTime: formatWindowTime(boomTime),
+        }),
         data: { url: '/(tabs)/horarios', boomId, type: 'warning' },
         sound: Platform.OS === 'ios' ? 'default' : undefined,
         priority: Notifications.AndroidNotificationPriority.HIGH,
@@ -156,8 +169,11 @@ export async function scheduleBoomAlarm(boomId: string, boomTime: string, title:
 
   alarmId = await Notifications.scheduleNotificationAsync({
     content: {
-      title: '🚨 HORA DO BOOM!',
-      body: `${title} COMEÇOU AGORA!`,
+      title: i18n.t('notifications.goTitle'),
+      body: i18n.t('notifications.goBody', {
+        pair: title,
+        minutes: BOOM_LIVE_WINDOW_MINUTES,
+      }),
       data: { url: '/(tabs)/horarios', boomId, type: 'alarm' },
       sound: Platform.OS === 'ios' ? 'default' : undefined,
       priority: Notifications.AndroidNotificationPriority.MAX,
@@ -219,7 +235,7 @@ export function subscribeToNotificationResponses(onOpen: (url: string) => void):
 async function ensureUpgradeChannel(): Promise<void> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(UPGRADE_CHANNEL_ID, {
-      name: 'Planos e Ofertas',
+      name: i18n.t('notifications.upgradeChannelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#FFC915',
@@ -248,8 +264,8 @@ export async function scheduleUpgradePrompt(userId: string): Promise<boolean> {
   try {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Desbloqueia o Premium',
-        body: 'Escolhe Basic, Pro ou Premium e sai do plano gratuito.',
+        title: i18n.t('notifications.upgradeTitle'),
+        body: i18n.t('notifications.upgradeBody'),
         data: { url: '/planos' },
         sound: Platform.OS === 'ios' ? 'default' : undefined,
       },

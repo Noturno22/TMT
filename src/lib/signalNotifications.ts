@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Signal, SignalTier } from '@/core/types';
+import { i18n } from '@/lib/i18n';
 
 const SIGNAL_CHANNEL_ID = 'signals';
 const SIGNAL_KEY_PREFIX = 'signal_notified';
@@ -14,7 +15,7 @@ interface NotifiedSignal {
 async function ensureSignalChannel(): Promise<void> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(SIGNAL_CHANNEL_ID, {
-      name: 'Novos Sinais',
+      name: i18n.t('notifications.signalChannelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#16A43A',
@@ -36,7 +37,11 @@ async function saveNotifiedSignals(signals: NotifiedSignal[]): Promise<void> {
 }
 
 function formatSignalType(type: Signal['type']): string {
-  return type === 'BUY' ? 'COMPRA' : type === 'SELL' ? 'VENDA' : 'AGUARDAR';
+  return type === 'BUY'
+    ? i18n.t('notifications.signalBuy')
+    : type === 'SELL'
+      ? i18n.t('notifications.signalSell')
+      : i18n.t('notifications.signalWait');
 }
 
 function getSignalEmoji(type: Signal['type']): string {
@@ -44,7 +49,11 @@ function getSignalEmoji(type: Signal['type']): string {
 }
 
 function getTierLabel(tier: SignalTier): string {
-  return tier === 'premium' ? 'PREMIUM' : tier === 'pro' ? 'PRO' : 'GRÁTIS';
+  return tier === 'premium'
+    ? i18n.t('notifications.signalTierPremium')
+    : tier === 'pro'
+      ? i18n.t('notifications.signalTierPro')
+      : i18n.t('notifications.signalTierFree');
 }
 
 export async function notifyNewSignal(signal: Signal): Promise<boolean> {
@@ -60,16 +69,34 @@ export async function notifyNewSignal(signal: Signal): Promise<boolean> {
   const typeLabel = formatSignalType(signal.type);
   const emoji = getSignalEmoji(signal.type);
   const tierLabel = getTierLabel(signal.tier);
-  const rr = signal.riskReward ? `R:R 1:${signal.riskReward}` : '';
+  const rr = signal.riskReward
+    ? i18n.t('notifications.signalRR', { value: signal.riskReward })
+    : '';
   const expires = signal.expiresAt
-    ? ` Expira: ${new Date(signal.expiresAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`
+    ? i18n.t('notifications.signalExpires', {
+        time: new Date(signal.expiresAt).toLocaleTimeString('pt-PT', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      })
     : '';
 
   try {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: `${emoji} Novo Sinal ${tierLabel}: ${signal.pair} ${typeLabel}`,
-        body: `Entrada: ${signal.entry} | SL: ${signal.stopLoss} | TP: ${signal.takeProfit} ${rr}${expires}`,
+        title: i18n.t('notifications.signalTitle', {
+          emoji,
+          tier: tierLabel,
+          pair: signal.pair,
+          type: typeLabel,
+        }),
+        body: i18n.t('notifications.signalBody', {
+          entry: signal.entry,
+          sl: signal.stopLoss,
+          tp: signal.takeProfit,
+          rr,
+          expires,
+        }),
         data: { url: `/sinal/${signal.id}`, signalId: signal.id, type: 'signal' },
         sound: Platform.OS === 'ios' ? 'default' : undefined,
         priority: Notifications.AndroidNotificationPriority.HIGH,

@@ -9,13 +9,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const WA_GREEN = '#25D366';
 
@@ -130,7 +130,14 @@ export default function WhatsappScreen() {
 
           <Animated.View style={[styles.footer, fadeSlide]}>
             <AppText variant="small" style={styles.legal}>
-              {t('auth.legalFooter')}
+              <Trans
+                t={t}
+                components={{
+                  termsLink: <Link href="/termos" style={{ color: Colors.primary }} />,
+                  privacyLink: <Link href="/privacidade" style={{ color: Colors.primary }} />,
+                }}>
+                {`${t('auth.legalFooterBefore')}<termsLink>${t('auth.legalTerms')}</termsLink>${t('auth.legalFooterAfter')}<privacyLink>${t('auth.legalPrivacy')}</privacyLink>.`}
+              </Trans>
             </AppText>
           </Animated.View>
         </KeyboardAvoidingView>

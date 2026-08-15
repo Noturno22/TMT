@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { signInWithGoogle } from '@/lib/googleAuth';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 const WA_GREEN = '#25D366';
 
@@ -125,7 +125,14 @@ export default function LoginScreen() {
 
             <Animated.View style={[styles.footer, fadeSlide(footerAnim, 24)]}>
               <AppText variant="small" style={styles.legal}>
-                {t('auth.legalFooter')}
+                <Trans
+                  t={t}
+                  components={{
+                    termsLink: <Link href="/termos" style={{ color: Colors.primary, fontWeight: '700' }} />,
+                    privacyLink: <Link href="/privacidade" style={{ color: Colors.primary, fontWeight: '700' }} />,
+                  }}>
+                  {`${t('auth.legalFooterBefore')}<termsLink>${t('auth.legalTerms')}</termsLink>${t('auth.legalFooterAfter')}<privacyLink>${t('auth.legalPrivacy')}</privacyLink>.`}
+                </Trans>
               </AppText>
             </Animated.View>
           </View>

@@ -13,12 +13,14 @@ import { useSignals } from '@/hooks/useSignals';
 import { useSubscription } from '@/hooks/useSubscription';
 import { boomEpochMs, getNextBoomHour } from '@/core/booms';
 import { Colors, Spacing } from '@/core/theme';
+import { useTranslation } from 'react-i18next';
 
 const TICKER_PAIRS = ['XAU/USD', 'EUR/USD', 'GBP/USD', 'USD/JPY'];
 const PREVIEW_COUNT = 3;
 
 export default function InicioScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { isPremium } = useSubscription();
   const { prices, loading: pricesLoading } = useLivePrices(TICKER_PAIRS);
   const { stats, loading: historyLoading } = useHistory();
@@ -60,15 +62,15 @@ export default function InicioScreen() {
         <NextBoomCard nextEpochMs={nextEpochMs} />
 
         <SectionHeader
-          title="Próximos horários"
-          subtitle="Janelas de alta volatilidade"
-          action={{ label: 'Ver todos', onPress: () => router.push('/(tabs)/horarios') }}
+          title={t('inicio.nextHours')}
+          subtitle={t('inicio.highVolatility')}
+          action={{ label: t('inicio.viewAll'), onPress: () => router.push('/(tabs)/horarios') }}
         />
 
         {hoursLoading ? (
-          <Spinner label="A carregar horários…" />
+          <Spinner label={t('inicio.loadingHours')} />
         ) : upcoming.length === 0 ? (
-          <EmptyState title="Sem horários" subtitle="Ainda não há horários ativos." />
+          <EmptyState title={t('inicio.emptyTitle')} subtitle={t('inicio.emptyBody')} />
         ) : (
           upcoming.map(({ hour }) => (
             <Pressable
@@ -77,7 +79,7 @@ export default function InicioScreen() {
               style={styles.boomRow}>
               <View style={styles.boomTimeCol}>
                 <AppText style={styles.boomTime}>{hour.time_wat}</AppText>
-                <AppText variant="small" style={{ color: Colors.textMuted }}>WAT</AppText>
+                <AppText variant="small" style={{ color: Colors.textMuted }}>{t('inicio.wat')}</AppText>
               </View>
               <View style={styles.boomBody}>
                 <AppText variant="h2" numberOfLines={1}>{hour.title}</AppText>

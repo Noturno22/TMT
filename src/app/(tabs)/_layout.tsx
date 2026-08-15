@@ -3,8 +3,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/core/theme';
 import { Pressable, StyleSheet } from 'react-native';
 import { AppText } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -20,7 +22,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="inicio"
         options={{
-          title: 'Início',
+          title: t('tabs.inicio'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
@@ -28,11 +30,11 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="analises"
         options={{
-          title: 'Análises',
+          title: t('tabs.analises'),
           tabBarIcon: ({ color, size }) => <Ionicons name="pulse" size={size} color={color} />,
           headerRight: () => (
             <Pressable onPress={() => router.push('/planos')} style={styles.headerRight}>
-              <AppText variant="label" style={{ color: Colors.accent }}>PLANOS</AppText>
+              <AppText variant="label" style={{ color: Colors.accent }}>{t('tabs.planos')}</AppText>
             </Pressable>
           ),
         }}
@@ -40,28 +42,28 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="historico"
         options={{
-          title: 'Histórico',
+          title: t('tabs.historico'),
           tabBarIcon: ({ color, size }) => <Ionicons name="time" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="horarios"
         options={{
-          title: 'Horários',
+          title: t('tabs.horarios'),
           tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="comunidade"
         options={{
-          title: 'Comunidade',
+          title: t('tabs.comunidade'),
           tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="perfil"
         options={{
-          title: 'Perfil',
+          title: t('tabs.perfil'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}

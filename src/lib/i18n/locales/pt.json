@@ -13,6 +13,42 @@
     "trader": "Trader",
     "waiting": "AGUARDAR"
   },
+  "tabs": {
+    "inicio": "Início",
+    "analises": "Análises",
+    "historico": "Histórico",
+    "horarios": "Horários",
+    "comunidade": "Comunidade",
+    "perfil": "Perfil",
+    "planos": "PLANOS"
+  },
+  "inicio": {
+    "nextHours": "Próximos horários",
+    "highVolatility": "Janelas de alta volatilidade",
+    "viewAll": "Ver todos",
+    "loadingHours": "A carregar horários…",
+    "emptyTitle": "Sem horários",
+    "emptyBody": "Ainda não há horários ativos.",
+    "wat": "WAT"
+  },
+  "analises": {
+    "title": "Análises",
+    "premiumTitle": "{{what}} é Premium",
+    "premiumSignals": "Sinais {{what}} são Premium",
+    "premiumDesc": "Desbloqueia todos os pares e timeframes com o plano PRO.",
+    "currentPrice": "Preço atual",
+    "pipsOpen": "Pips abertos",
+    "entry": "ENTRADA",
+    "sl": "SL ({{count}} pips)",
+    "tp": "TP ({{count}} pips)",
+    "viewFull": "Ver análise completa ›",
+    "signalsCount": "{{count}} SINAIS … toca para ver no gráfico",
+    "highlight": "DESTAQUE",
+    "loading": "A carregar sinais…",
+    "emptyTitle": "Sem sinais",
+    "emptyBody": "Ainda não há sinais disponíveis.",
+    "filterAll": "Todos"
+  },
   "language": {
     "title": "Idioma"
   },

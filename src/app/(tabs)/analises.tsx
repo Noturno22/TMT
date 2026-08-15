@@ -15,6 +15,7 @@ import { ALL_PAIRS, FREE_PAIRS, TIMEFRAMES, SIGNAL_TYPES } from '@/core/gating';
 import { calcOpenPips, pipsBetween } from '@/core/pips';
 import { formatNumber } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
+import { useTranslation } from 'react-i18next';
 
 function decimalsFor(pair: string): number {
   if (pair.includes('JPY')) return 3;
@@ -24,6 +25,7 @@ function decimalsFor(pair: string): number {
 
 export default function AnalisesScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const scrollRef = useRef<ScrollView>(null);
   const { signals, loading, error, refetch } = useSignals();
   const { isPremium } = useSubscription();
@@ -93,7 +95,7 @@ export default function AnalisesScreen() {
               </Pressable>
             </View>
           }>
-          Análises
+          {t('analises.title')}
         </SectionTitle>
 
         <View style={styles.tickerWrap}>
@@ -111,7 +113,7 @@ export default function AnalisesScreen() {
             return (
               <Chip
                 key={tf}
-                label={tf}
+                label={tf === 'Todos' ? t('analises.filterAll') : tf}
                 active={timeframe === tf}
                 locked={lockedTf}
                 onPress={() => setTimeframe(tf)}
@@ -121,15 +123,20 @@ export default function AnalisesScreen() {
         </View>
 
         <View style={styles.chipRow}>
-          {SIGNAL_TYPES.map((t) => (
-            <Chip key={t} label={t} active={type === t} onPress={() => setType(t)} />
+          {SIGNAL_TYPES.map((st) => (
+            <Chip
+              key={st}
+              label={st === 'Todos' ? t('analises.filterAll') : st}
+              active={type === st}
+              onPress={() => setType(st)}
+            />
           ))}
         </View>
 
         {locked ? (
           <PremiumLock
-            label={pairLocked ? `${pair} é Premium` : `Sinais ${timeframe} são Premium`}
-            description="Desbloqueia todos os pares e timeframes com o plano PRO."
+            label={pairLocked ? t('analises.premiumTitle', { what: pair }) : t('analises.premiumSignals', { what: timeframe })}
+            description={t('analises.premiumDesc')}
           />
         ) : null}
 
@@ -141,7 +148,7 @@ export default function AnalisesScreen() {
                 <Badge color={heroTypeColor} bg={`${heroTypeColor}1F`}>{hero.type}</Badge>
                 <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>{hero.timeframe}</Badge>
               </View>
-              <Badge color={Colors.primary} bg={`${Colors.primary}1F`}>DESTAQUE</Badge>
+              <Badge color={Colors.primary} bg={`${Colors.primary}1F`}>{t('analises.highlight')}</Badge>
             </View>
 
             <TradingViewChart
@@ -156,12 +163,12 @@ export default function AnalisesScreen() {
             <MetricGrid
               items={[
                 {
-                  label: 'Preço atual',
+                  label: t('analises.currentPrice'),
                   value: heroLive !== null && isFinite(heroLive) && heroLive > 0 ? formatNumber(heroLive, decimalsFor(hero.pair)) : '—',
                   accent: Colors.text,
                 },
                 {
-                  label: 'Pips abertos',
+                  label: t('analises.pipsOpen'),
                   value: heroPips === null ? '—' : `${heroPips > 0 ? '+' : ''}${heroPips.toFixed(1)}`,
                   accent: heroPips === null ? undefined : heroPips > 0 ? Colors.success : Colors.destructive,
                 },
@@ -171,37 +178,37 @@ export default function AnalisesScreen() {
 
             <View style={styles.heroLevels}>
               <View style={styles.heroLevel}>
-                <AppText variant="small" style={{ color: Colors.accent }}>ENTRADA</AppText>
+                <AppText variant="small" style={{ color: Colors.accent }}>{t('analises.entry')}</AppText>
                 <AppText variant="mono">{formatNumber(hero.entry, decimalsFor(hero.pair))}</AppText>
               </View>
               <View style={styles.heroLevel}>
-                <AppText variant="small" style={{ color: Colors.destructive }}>SL ({Math.round(heroSlPips)} pips)</AppText>
+                <AppText variant="small" style={{ color: Colors.destructive }}>{t('analises.sl', { count: Math.round(heroSlPips) })}</AppText>
                 <AppText variant="mono">{formatNumber(hero.stopLoss, decimalsFor(hero.pair))}</AppText>
               </View>
               <View style={styles.heroLevel}>
-                <AppText variant="small" style={{ color: Colors.success }}>TP ({Math.round(heroTpPips)} pips)</AppText>
+                <AppText variant="small" style={{ color: Colors.success }}>{t('analises.tp', { count: Math.round(heroTpPips) })}</AppText>
                 <AppText variant="mono">{formatNumber(hero.takeProfit, decimalsFor(hero.pair))}</AppText>
               </View>
             </View>
 
             <AppText variant="small" style={styles.heroCta}>
-              Ver análise completa ›
+              {t('analises.viewFull')}
             </AppText>
           </Pressable>
         ) : null}
 
         <View style={styles.listHeader}>
           <AppText variant="label" style={{ color: Colors.textMuted }}>
-            {filtered.length} SINAIS {timeframe === 'Todos' ? '' : `${timeframe} `}· toca para ver no gráfico
+            {t('analises.signalsCount', { count: filtered.length })}
           </AppText>
         </View>
 
         {loading ? (
-          <Spinner label="A carregar sinais…" />
+          <Spinner label={t('analises.loading')} />
         ) : error ? (
           <EmptyState title="Erro a carregar sinais" subtitle={error} />
         ) : filtered.length === 0 ? (
-          <EmptyState title="Sem sinais" subtitle="Experimenta alterar os filtros." />
+          <EmptyState title={t('analises.emptyTitle')} subtitle={t('analises.emptyBody')} />
         ) : (
           filtered.map((s) => (
             <SignalCard

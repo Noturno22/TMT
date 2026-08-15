@@ -1,0 +1,19 @@
+{
+  "common": {
+    "loading": "A carregar…",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "send": "Enviar",
+    "retry": "Tentar novamente",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "ok": "OK",
+    "comingSoon": "Funcionalidade em breve.",
+    "all": "Todos",
+    "trader": "Trader",
+    "waiting": "AGUARDAR"
+  },
+  "language": {
+    "title": "Idioma"
+  }
+}

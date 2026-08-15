@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.magictrader.app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Permite gravar comentários de áudio na Comunidade."
+        "NSMicrophoneUsageDescription": "Permite gravar comentários de áudio na Comunidade.",
+        "NSPhotoLibraryUsageDescription": "Permite anexar imagens nas mensagens da Comunidade."
       }
     },
     "android": {
@@ -67,7 +68,13 @@
           "experimentalLauncherActivity": false
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permite anexar imagens nas mensagens da Comunidade."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

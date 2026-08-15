@@ -65,6 +65,20 @@ export function formatShortDate(dateStr: string): string {
   return `${dd}/${mm}/${d.getFullYear()}`;
 }
 
+export function formatChatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+  if (sameDay(d, today)) return i18n.t('format.today');
+  if (sameDay(d, yesterday)) return i18n.t('format.yesterday');
+  return formatLongDate(dateStr);
+}
+
 export function formatDateTimeWAT(dateStr: string): string {
   const d = new Date(dateStr);
   const dd = String(d.getDate()).padStart(2, '0');

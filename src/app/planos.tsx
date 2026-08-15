@@ -7,14 +7,58 @@ import { GradientCard } from '@/components/GradientCard';
 import { PlanCard } from '@/components/PlanCard';
 import { Colors, Spacing } from '@/core/theme';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTranslation } from 'react-i18next';
 
 type Currency = 'usd' | 'aoa';
 type PlanId = 'free' | 'basic' | 'pro' | 'premium';
 
+type PlanKey =
+  | 'planos.featureFree.0'
+  | 'planos.featureFree.1'
+  | 'planos.featureFree.2'
+  | 'planos.featureFree.3'
+  | 'planos.featureFree.4'
+  | 'planos.featureFree.5'
+  | 'planos.featureFree.6'
+  | 'planos.featureBasic.0'
+  | 'planos.featureBasic.1'
+  | 'planos.featureBasic.2'
+  | 'planos.featureBasic.3'
+  | 'planos.featureBasic.4'
+  | 'planos.featureBasic.5'
+  | 'planos.featureBasic.6'
+  | 'planos.featurePro.0'
+  | 'planos.featurePro.1'
+  | 'planos.featurePro.2'
+  | 'planos.featurePro.3'
+  | 'planos.featurePro.4'
+  | 'planos.featurePro.5'
+  | 'planos.featurePro.6'
+  | 'planos.featurePro.7'
+  | 'planos.featurePremium.0'
+  | 'planos.featurePremium.1'
+  | 'planos.featurePremium.2'
+  | 'planos.featurePremium.3'
+  | 'planos.featurePremium.4'
+  | 'planos.featurePremium.5'
+  | 'planos.featurePremium.6'
+  | 'planos.trustSecure'
+  | 'planos.trustCancel'
+  | 'planos.trustSupport'
+  | 'planos.alertsWhatsapp'
+  | 'planos.alertsWhatsappDesc'
+  | 'planos.alertsTelegram'
+  | 'planos.alertsTelegramDesc'
+  | 'planos.alertsEmail'
+  | 'planos.alertsEmailDesc';
+
 interface PlanFeature {
-  text: string;
+  text: PlanKey;
   included: boolean;
 }
+
+const planLabel = (plan: Exclude<PlanId, 'free'>): string =>
+  plan === 'basic' ? 'Basic' : plan === 'pro' ? 'Pro' : 'Premium';
 
 const WA_GREEN = '#25D366';
 
@@ -94,59 +138,61 @@ const PAYMENT_INFO: Record<Currency, { method: string; details: string; instruct
 };
 
 const FREE_FEATURES: PlanFeature[] = [
-  { text: '3 pares Forex (EUR/USD, GBP/USD, USD/JPY)', included: true },
-  { text: 'Sinais M15', included: true },
-  { text: 'RSI, EMA e MACD básico', included: true },
-  { text: 'Histórico de 24h', included: true },
-  { text: 'Acesso à comunidade', included: true },
-  { text: 'Alertas em tempo real', included: false },
-  { text: 'Gestão de banca', included: false },
+  { text: 'planos.featureFree.0', included: true },
+  { text: 'planos.featureFree.1', included: true },
+  { text: 'planos.featureFree.2', included: true },
+  { text: 'planos.featureFree.3', included: true },
+  { text: 'planos.featureFree.4', included: true },
+  { text: 'planos.featureFree.5', included: false },
+  { text: 'planos.featureFree.6', included: false },
 ];
 
 const BASIC_FEATURES: PlanFeature[] = [
-  { text: '6 pares Forex', included: true },
-  { text: 'Sinais M15 e H1', included: true },
-  { text: 'RSI, EMA, MACD, Bollinger', included: true },
-  { text: 'Alertas push (2 por dia)', included: true },
-  { text: 'Histórico de 7 dias', included: true },
-  { text: 'Suporte por email', included: true },
-  { text: 'Gestão de banca avançada', included: false },
+  { text: 'planos.featureBasic.0', included: true },
+  { text: 'planos.featureBasic.1', included: true },
+  { text: 'planos.featureBasic.2', included: true },
+  { text: 'planos.featureBasic.3', included: true },
+  { text: 'planos.featureBasic.4', included: true },
+  { text: 'planos.featureBasic.5', included: true },
+  { text: 'planos.featureBasic.6', included: false },
 ];
 
 const PRO_FEATURES: PlanFeature[] = [
-  { text: 'Todos os pares Forex (10+)', included: true },
-  { text: 'Sinais M15, H1 e H4', included: true },
-  { text: 'Todos os indicadores técnicos', included: true },
-  { text: 'Alertas em tempo real', included: true },
-  { text: 'Histórico completo com pips', included: true },
-  { text: 'Análises de mercado diárias', included: true },
-  { text: 'Suporte prioritário', included: true },
-  { text: 'Gestão de banca avançada + análise 1:1', included: false },
+  { text: 'planos.featurePro.0', included: true },
+  { text: 'planos.featurePro.1', included: true },
+  { text: 'planos.featurePro.2', included: true },
+  { text: 'planos.featurePro.3', included: true },
+  { text: 'planos.featurePro.4', included: true },
+  { text: 'planos.featurePro.5', included: true },
+  { text: 'planos.featurePro.6', included: true },
+  { text: 'planos.featurePro.7', included: false },
 ];
 
 const PREMIUM_FEATURES: PlanFeature[] = [
-  { text: 'Tudo do plano Pro', included: true },
-  { text: 'Sinais antecipados (early access)', included: true },
-  { text: 'Alertas via WhatsApp e Telegram', included: true },
-  { text: 'Sessões ao vivo mensais', included: true },
-  { text: 'Gestão de banca avançada', included: true },
-  { text: 'Análise personalizada de banca (1:1)', included: true },
-  { text: 'Suporte 1:1 dedicado', included: true },
+  { text: 'planos.featurePremium.0', included: true },
+  { text: 'planos.featurePremium.1', included: true },
+  { text: 'planos.featurePremium.2', included: true },
+  { text: 'planos.featurePremium.3', included: true },
+  { text: 'planos.featurePremium.4', included: true },
+  { text: 'planos.featurePremium.5', included: true },
+  { text: 'planos.featurePremium.6', included: true },
 ];
 
-const TRUST: { icon: keyof typeof Ionicons.glyphMap; label: string }[] = [
-  { icon: 'shield-checkmark', label: 'Pagamento seguro' },
-  { icon: 'lock-closed', label: 'Cancela quando quiseres' },
-  { icon: 'headset', label: 'Suporte dedicado' },
+const TRUST: { icon: keyof typeof Ionicons.glyphMap; label: PlanKey }[] = [
+  { icon: 'shield-checkmark', label: 'planos.trustSecure' },
+  { icon: 'lock-closed', label: 'planos.trustCancel' },
+  { icon: 'headset', label: 'planos.trustSupport' },
 ];
 
-const ALERTS: { icon: keyof typeof Ionicons.glyphMap; color: string; title: string; desc: string }[] = [
-  { icon: 'logo-whatsapp', color: WA_GREEN, title: 'WhatsApp', desc: 'Notificações instantâneas' },
-  { icon: 'paper-plane', color: Colors.secondary, title: 'Telegram', desc: 'Bot dedicado' },
-  { icon: 'mail', color: Colors.accent, title: 'Email', desc: 'Resumo diário' },
+const ALERTS: { icon: keyof typeof Ionicons.glyphMap; color: string; title: PlanKey; desc: PlanKey }[] = [
+  { icon: 'logo-whatsapp', color: WA_GREEN, title: 'planos.alertsWhatsapp', desc: 'planos.alertsWhatsappDesc' },
+  { icon: 'paper-plane', color: Colors.secondary, title: 'planos.alertsTelegram', desc: 'planos.alertsTelegramDesc' },
+  { icon: 'mail', color: Colors.accent, title: 'planos.alertsEmail', desc: 'planos.alertsEmailDesc' },
 ];
 
 export default function PlanosScreen() {
+  const { t } = useTranslation();
+  const tr = (key: PlanKey): string => t(key as never);
   const router = useRouter();
   const { user, isPremium, subscription, loading } = useSubscription();
   const [currency, setCurrency] = useState<Currency>('usd');
@@ -185,22 +231,20 @@ export default function PlanosScreen() {
   const handlePaymentConfirmed = () => {
     setPaymentModal(null);
     setCheckingOut(null);
-    Alert.alert(
-      'Comprovante recebido',
-      'Obrigado! O seu comprovante foi enviado para verificação. O plano será ativado após confirmação.',
-      [{ text: 'OK' }]
-    );
+    Alert.alert(t('planos.receiptOk'), t('planos.receiptMsg'), [{ text: 'OK' }]);
   };
 
   const planButton = (plan: Exclude<PlanId, 'free'>) => {
     if (isPremium && activePlan === plan) {
-      return { title: '✓ Plano Ativo', variant: 'primary' as const, disabled: true as const };
+      return { title: t('planos.planActive'), variant: 'primary' as const, disabled: true as const };
     }
     if (isPremium) {
-      return { title: `Mudar para ${plan === 'basic' ? 'Basic' : plan === 'pro' ? 'Pro' : 'Premium'}`, variant: 'secondary' as const };
+      return { title: t('planos.switchTo', { plan: planLabel(plan) }), variant: 'secondary' as const };
     }
     return {
-      title: user ? `Assinar ${plan === 'basic' ? 'Basic' : plan === 'pro' ? 'Pro' : 'Premium'}` : 'Criar conta e assinar',
+      title: user
+        ? t('planos.subscribe', { plan: planLabel(plan) })
+        : t('planos.createAndSubscribe', { plan: planLabel(plan) }),
       variant: plan === 'pro' ? ('gold' as const) : ('secondary' as const),
     };
   };
@@ -215,17 +259,17 @@ export default function PlanosScreen() {
         <View style={styles.heroIcon}>
           <Ionicons name="sparkles" size={22} color={Colors.accent} />
         </View>
-        <AppText variant="title" style={styles.heroTitle}>Escolhe o teu plano</AppText>
+        <AppText variant="title" style={styles.heroTitle}>{t('planos.heroTitle')}</AppText>
         <AppText variant="muted">
-          Começa grátis ou desbloqueia todo o potencial do The Magic Trader.
+          {t('planos.heroSubtitle')}
         </AppText>
         {isPremium ? (
           <Badge color={Colors.accent} bg={`${Colors.accent}20`}>
-            {periodEnd ? `Premium ativo até ${periodEnd}` : 'Premium ativo'}
+            {periodEnd ? t('planos.premiumUntil', { date: periodEnd }) : t('planos.premiumActive')}
           </Badge>
         ) : (
           <Badge color={Colors.textMuted} bg={`${Colors.textMuted}20`}>
-            Plano atual: Grátis
+            {t('planos.currentFree')}
           </Badge>
         )}
       </GradientCard>
@@ -237,27 +281,30 @@ export default function PlanosScreen() {
             <Pressable key={c} onPress={() => setCurrency(c)} style={styles.segmentBtn}>
               {active ? <View style={styles.segmentPill} /> : null}
               <AppText variant="small" style={{ color: active ? Colors.bg : Colors.textMuted, fontWeight: '700' }}>
-                {c === 'usd' ? 'USD ($)' : 'AOA (Kz)'}
+                {c === 'usd' ? t('planos.usd') : t('planos.aoa')}
               </AppText>
             </Pressable>
           );
         })}
       </View>
 
-      {PLANS.map(({ id, icon, badge, highlight, featured }) => (
+      {PLANS.map(({ id, icon, highlight, featured }) => (
         <PlanCard
           key={id}
-          name={id === 'basic' ? 'Basic' : id === 'pro' ? 'Pro' : 'Premium'}
+          name={planLabel(id)}
           tagline={
-            id === 'basic' ? 'Para quem está a começar' : id === 'pro' ? 'Para traders a sério' : 'Experiência completa'
+            id === 'basic' ? t('planos.taglineBasic') : id === 'pro' ? t('planos.taglinePro') : t('planos.taglinePremium')
           }
           icon={icon}
           price={PRICES[currency][id]}
           highlight={highlight}
           featured={featured}
-          badge={badge}
+          badge={id === 'pro' ? t('planos.mostPopular') : id === 'premium' ? t('planos.featured') : undefined}
           active={activePlan === id}
-          features={(id === 'basic' ? BASIC_FEATURES : id === 'pro' ? PRO_FEATURES : PREMIUM_FEATURES)}
+          features={(id === 'basic' ? BASIC_FEATURES : id === 'pro' ? PRO_FEATURES : PREMIUM_FEATURES).map((f) => ({
+            ...f,
+            text: tr(f.text),
+          }))}
           buttonTitle={planButton(id).title}
           buttonVariant={planButton(id).variant}
           loading={checkingOut === id || loading}
@@ -266,39 +313,39 @@ export default function PlanosScreen() {
       ))}
 
       <PlanCard
-        name="Gratuito"
-        tagline="Para experimentar"
+        name={t('planos.free')}
+        tagline={t('planos.freeTagline')}
         icon="accessibility-outline"
         price={PRICES[currency].free}
         active={activePlan === 'free'}
         dashed
-        features={FREE_FEATURES}
-        buttonTitle="Plano Atual"
+        features={FREE_FEATURES.map((f) => ({ ...f, text: tr(f.text) }))}
+        buttonTitle={t('planos.currentPlan')}
         buttonVariant="outline"
         disabled
       />
 
       <View style={styles.trustRow}>
-        {TRUST.map((t) => (
-          <View key={t.label} style={styles.trustItem}>
+        {TRUST.map((item) => (
+          <View key={item.label} style={styles.trustItem}>
             <View style={styles.trustIcon}>
-              <Ionicons name={t.icon} size={16} color={Colors.success} />
+              <Ionicons name={item.icon} size={16} color={Colors.success} />
             </View>
-            <AppText variant="small" style={{ color: Colors.textMuted, textAlign: 'center' }}>{t.label}</AppText>
+            <AppText variant="small" style={{ color: Colors.textMuted, textAlign: 'center' }}>{tr(item.label)}</AppText>
           </View>
         ))}
       </View>
 
       <View style={styles.alerts}>
-        <AppText variant="h2" style={styles.sectionTitle}>Alertas Premium</AppText>
+        <AppText variant="h2" style={styles.sectionTitle}>{t('planos.premiumAlerts')}</AppText>
         <View style={styles.alertRow}>
           {ALERTS.map((a) => (
             <View key={a.title} style={styles.alertCard}>
               <View style={[styles.alertIcon, { backgroundColor: `${a.color}14`, borderColor: `${a.color}40` }]}>
                 <Ionicons name={a.icon} size={20} color={a.color} />
               </View>
-              <AppText variant="label">{a.title}</AppText>
-              <AppText variant="small" style={{ color: Colors.textMuted, textAlign: 'center' }}>{a.desc}</AppText>
+              <AppText variant="label">{tr(a.title)}</AppText>
+              <AppText variant="small" style={{ color: Colors.textMuted, textAlign: 'center' }}>{tr(a.desc)}</AppText>
             </View>
           ))}
         </View>
@@ -338,25 +385,25 @@ function PaymentModal({
   onMethodSelect: (method: PaymentMethod) => void;
   availableMethods: typeof PAYMENT_METHODS;
 }) {
-  const planName = plan === 'basic' ? 'Basic' : plan === 'pro' ? 'Pro' : 'Premium';
+  const { t } = useTranslation();
   const selectedMethod = method ? availableMethods.find((m) => m.id === method) : null;
 
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContent}>
         <View style={styles.modalHeader}>
-          <AppText variant="h2">Pagamento: {planName}</AppText>
+          <AppText variant="h2">{t('planos.paymentTitle', { plan: planLabel(plan) })}</AppText>
           <Pressable onPress={onClose} style={styles.closeBtn}>
             <Ionicons name="close" size={24} color={Colors.textMuted} />
           </Pressable>
         </View>
 
         <View style={styles.modalBody}>
-          <AppText variant="label" style={styles.modalLabel}>Valor: {price}/mês</AppText>
+          <AppText variant="label" style={styles.modalLabel}>{t('planos.paymentAmount', { amount: price })}</AppText>
 
           {!method ? (
             <>
-              <AppText variant="label" style={styles.modalLabel}>Escolha o método:</AppText>
+              <AppText variant="label" style={styles.modalLabel}>{t('planos.chooseMethod')}</AppText>
               <View style={styles.methodGrid}>
                 {availableMethods.map((m) => (
                   <Pressable
@@ -398,26 +445,26 @@ function PaymentModal({
                   </AppText>
                 </View>
                 <Pressable onPress={() => onMethodSelect(undefined as any)} style={styles.changeMethodBtn}>
-                  <AppText variant="small" style={{ color: Colors.primary }}>Alterar</AppText>
+                  <AppText variant="small" style={{ color: Colors.primary }}>{t('planos.change')}</AppText>
                 </Pressable>
               </View>
 
               <View style={styles.detailsBox}>
                 <AppText style={styles.detailsText}>
-                  Pague para o {selectedMethod?.id === 'express' ? 'número' : 'UID'} acima
+                  {t('planos.payInstructions')}
                 </AppText>
               </View>
               <AppText variant="small" style={styles.instructions}>
-                Após o pagamento, envie o comprovante para ativação.
+                {t('planos.afterPayment')}
               </AppText>
             </>
           )}
         </View>
 
         <View style={styles.modalActions}>
-          <AppButton title="Cancelar" variant="ghost" onPress={onClose} />
+          <AppButton title={t('planos.cancel')} variant="ghost" onPress={onClose} />
           {method ? (
-            <AppButton title="Já enviei o comprovativo" variant="primary" onPress={onConfirm} />
+            <AppButton title={t('planos.receiptSent')} variant="primary" onPress={onConfirm} />
           ) : null}
         </View>
       </View>

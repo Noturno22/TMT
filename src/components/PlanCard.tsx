@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText } from '@/components/ui';
@@ -45,6 +46,7 @@ export function PlanCard({
   loading,
   disabled,
 }: PlanCardProps) {
+  const { t } = useTranslation();
   const gold = highlight || featured;
 
   const card = (
@@ -78,7 +80,7 @@ export function PlanCard({
             {active ? (
               <View style={styles.activeBadge}>
                 <Ionicons name="checkmark" size={11} color={Colors.bg} />
-                <AppText variant="small" style={{ color: Colors.bg, fontWeight: '800' }}>ATIVO</AppText>
+                <AppText variant="small" style={{ color: Colors.bg, fontWeight: '800' }}>{t('components.planCard.active')}</AppText>
               </View>
             ) : null}
           </View>
@@ -88,7 +90,7 @@ export function PlanCard({
 
       <View style={styles.priceRow}>
         <AppText style={[styles.price, gold && styles.priceGold]}>{price}</AppText>
-        <AppText variant="muted">/mês</AppText>
+        <AppText variant="muted">{t('components.planCard.perMonth')}</AppText>
       </View>
 
       <View style={styles.divider} />

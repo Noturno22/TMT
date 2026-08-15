@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import {
   AudioModule,
@@ -30,6 +31,7 @@ export function AudioRecorderButton({
   onRecorded: (audio: RecordedAudio) => void;
   compact?: boolean;
 }) {
+  const { t } = useTranslation();
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const state = useAudioRecorderState(recorder);
   const [busy, setBusy] = useState(false);
@@ -72,7 +74,7 @@ export function AudioRecorderButton({
         color={state.isRecording ? '#fff' : Colors.text}
       />
       <AppText variant="small" style={{ color: state.isRecording ? '#fff' : Colors.text, fontWeight: '700' }}>
-        {state.isRecording ? `PARAR · ${seconds}s` : 'ÁUDIO'}
+        {state.isRecording ? t('components.audioRecorder.stop', { seconds }) : t('components.audioRecorder.audio')}
       </AppText>
     </Pressable>
   );

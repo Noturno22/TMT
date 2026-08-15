@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { AppText, Badge } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { pad2 } from '@/core/format';
@@ -27,6 +28,7 @@ export function NextBoomCard({
   nextEpochMs?: number;
   nowEpochMs?: number;
 }) {
+  const { t } = useTranslation();
   const [now, setNow] = useState(() => nowEpochMs ?? Date.now());
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function NextBoomCard({
     return (
       <GradientCard colors={GRADIENT} style={styles.card}>
         <AppText variant="small" style={styles.placeholder}>
-          O próximo BOOM está sendo calculado…
+          {t('components.nextBoomCard.calculating')}
         </AppText>
       </GradientCard>
     );
@@ -49,12 +51,12 @@ export function NextBoomCard({
   return (
     <GradientCard colors={GRADIENT} style={styles.card}>
       <View style={styles.header}>
-        <AppText variant="small" style={styles.eyebrow}>PRÓXIMO BOOM</AppText>
-        <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>BOOM</Badge>
+        <AppText variant="small" style={styles.eyebrow}>{t('components.nextBoomCard.title')}</AppText>
+        <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>{t('components.nextBoomCard.boom')}</Badge>
       </View>
       <AppText variant="title" style={styles.countdown}>{getTimeText(remaining)}</AppText>
       <AppText variant="small" style={styles.caption}>
-        Lançamento às {formatClock(nextEpochMs)}
+        {t('components.nextBoomCard.launchAt', { time: formatClock(nextEpochMs) })}
       </AppText>
     </GradientCard>
   );

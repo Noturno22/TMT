@@ -12,6 +12,7 @@ import {
   type TextProps,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { Colors, Fonts, Radius, Spacing } from '@/core/theme';
 
 // ---------- Screen ----------
@@ -157,6 +158,7 @@ export function Chip({
   onPress?: () => void;
   locked?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
@@ -171,7 +173,7 @@ export function Chip({
       <AppText
         variant="small"
         style={{ color: active ? '#1A1A2E' : Colors.textMuted, fontWeight: '600' }}>
-        {locked ? `🔒 ${label}` : label}
+        {locked ? `${t('components.ui.lockedPrefix')}${label}` : label}
       </AppText>
     </Pressable>
   );

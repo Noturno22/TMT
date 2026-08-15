@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { AppText } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { MetricGrid } from '@/components/MetricGrid';
@@ -17,6 +18,7 @@ export function PerformanceCard({
   loading: boolean;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
   const total = stats.total || 0;
   const tpPct = total > 0 ? Math.round((stats.tp / total) * 100) : 0;
   const slPct = total > 0 ? Math.round((stats.sl / total) * 100) : 0;
@@ -27,15 +29,15 @@ export function PerformanceCard({
         colors={[Colors.primaryDim, 'rgba(16,139,177,0.18)']}
         style={styles.card}>
         <View style={styles.header}>
-          <AppText variant="small" style={styles.eyebrow}>DESEMPENHO</AppText>
-          <AppText variant="small" style={styles.link}>Ver histórico ›</AppText>
+          <AppText variant="small" style={styles.eyebrow}>{t('components.performanceCard.title')}</AppText>
+          <AppText variant="small" style={styles.link}>{t('components.performanceCard.viewHistory')}</AppText>
         </View>
 
         <View style={styles.winRow}>
           <AppText variant="title" style={styles.win}>
             {loading ? '—' : `${stats.winRate}%`}
           </AppText>
-          <AppText variant="muted" style={styles.winLabel}>Taxa de acerto</AppText>
+          <AppText variant="muted" style={styles.winLabel}>{t('components.performanceCard.winRate')}</AppText>
         </View>
 
         <View style={styles.bars}>
@@ -47,15 +49,15 @@ export function PerformanceCard({
           </View>
         </View>
         <View style={styles.barLegend}>
-          <AppText variant="small" style={{ color: Colors.success }}>TP {tpPct}%</AppText>
-          <AppText variant="small" style={{ color: Colors.destructive }}>SL {slPct}%</AppText>
+          <AppText variant="small" style={{ color: Colors.success }}>{t('components.performanceCard.tp', { pct: tpPct })}</AppText>
+          <AppText variant="small" style={{ color: Colors.destructive }}>{t('components.performanceCard.sl', { pct: slPct })}</AppText>
         </View>
 
         <MetricGrid
           items={[
-            { label: 'Pips totais', value: loading ? '—' : formatPips(stats.totalPips), accent: Colors.accent },
-            { label: 'Sinais totais', value: loading ? '—' : String(stats.total) },
-            { label: 'Ativos agora', value: String(activeCount), accent: activeCount > 0 ? Colors.success : undefined },
+            { label: t('components.performanceCard.totalPips'), value: loading ? '—' : formatPips(stats.totalPips), accent: Colors.accent },
+            { label: t('components.performanceCard.totalSignals'), value: loading ? '—' : String(stats.total) },
+            { label: t('components.performanceCard.activeNow'), value: String(activeCount), accent: activeCount > 0 ? Colors.success : undefined },
           ]}
         />
       </GradientCard>

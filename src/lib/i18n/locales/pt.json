@@ -63,5 +63,64 @@
       "november": "Novembro",
       "december": "Dezembro"
     }
+  },
+  "components": {
+    "dashboardHeader": {
+      "morning": "Bom dia",
+      "afternoon": "Boa tarde",
+      "evening": "Boa noite",
+      "appName": "The Magic Trader",
+      "pro": "PRO"
+    },
+    "performanceCard": {
+      "title": "DESEMPENHO",
+      "viewHistory": "Ver histórico ›",
+      "winRate": "Taxa de acerto",
+      "tp": "TP {{pct}}%",
+      "sl": "SL {{pct}}%",
+      "totalPips": "Pips totais",
+      "totalSignals": "Sinais totais",
+      "activeNow": "Ativos agora"
+    },
+    "nextBoomCard": {
+      "calculating": "O próximo BOOM está sendo calculado…",
+      "title": "PRÓXIMO BOOM",
+      "boom": "BOOM",
+      "launchAt": "Lançamento às {{time}}"
+    },
+    "boomHourCard": {
+      "live": "● AO VIVO",
+      "upcoming": "PRÓXIMO",
+      "closed": "ENCERRADO",
+      "wat": "WAT",
+      "gmt": "GMT {{h}}",
+      "window": "JANELA EM CURSO",
+      "forEntry": "para a entrada",
+      "volatility": "VOLATILIDADE",
+      "closedHint": "Encerrado · o ciclo recomeça amanhã"
+    },
+    "alarmToggle": {
+      "active": "Alarme ativo",
+      "activate": "Ativar alarme",
+      "hint5min": "Notificamos-te 5 min antes.",
+      "blocked": "Notificações bloqueadas — ativa nas definições do sistema."
+    },
+    "audioRecorder": {
+      "stop": "PARAR · {{seconds}}s",
+      "audio": "ÁUDIO"
+    },
+    "aiFab": {
+      "label": "Suporte por IA"
+    },
+    "ui": {
+      "lockedPrefix": "🔒 "
+    },
+    "planCard": {
+      "active": "ATIVO",
+      "perMonth": "/mês"
+    },
+    "premiumLock": {
+      "viewPlans": "Ver Planos"
+    }
   }
 }

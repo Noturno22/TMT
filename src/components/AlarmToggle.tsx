@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Spinner } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
@@ -18,6 +19,7 @@ export function AlarmToggle({
   boomTime: string;
   title: string;
 }) {
+  const { t } = useTranslation();
   const [armed, setArmed] = useState(false);
   const [busy, setBusy] = useState(true);
   const [blocked, setBlocked] = useState(false);
@@ -68,17 +70,17 @@ export function AlarmToggle({
           color={armed ? Colors.bg : Colors.accent}
         />
         <AppText variant="small" style={{ color: armed ? Colors.bg : Colors.accent, fontWeight: '700' }}>
-          {armed ? 'Alarme ativo' : 'Ativar alarme'}
+          {armed ? t('components.alarmToggle.active') : t('components.alarmToggle.activate')}
         </AppText>
       </Pressable>
       {armed ? (
         <AppText variant="small" style={{ color: Colors.textMuted }}>
-          Notificamos-te 5 min antes.
+          {t('components.alarmToggle.hint5min')}
         </AppText>
       ) : null}
       {blocked ? (
         <AppText variant="small" style={{ color: Colors.destructive }}>
-          Notificações bloqueadas — ativa nas definições do sistema.
+          {t('components.alarmToggle.blocked')}
         </AppText>
       ) : null}
     </View>

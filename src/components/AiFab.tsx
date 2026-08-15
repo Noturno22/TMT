@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { usePathname, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +10,7 @@ const HIDDEN_PREFIXES = ['/(auth)', '/login', '/whatsapp', '/suporte-ia'];
 
 export function AiFab() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const pathname = usePathname();
 
@@ -21,7 +23,7 @@ export function AiFab() {
         onPress={() => router.push('/suporte-ia')}
         style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
         accessibilityRole="button"
-        accessibilityLabel="Suporte por IA">
+        accessibilityLabel={t('components.aiFab.label')}>
         <LinearGradient
           colors={[Colors.primary, 'rgba(22,164,58,0.6)']}
           style={StyleSheet.absoluteFill}

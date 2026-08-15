@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText } from '@/components/ui';
@@ -14,6 +15,7 @@ export function PremiumLock({
   compact?: boolean;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   return (
     <View style={styles.card}>
       <View style={styles.iconWrap}>
@@ -24,7 +26,7 @@ export function PremiumLock({
         {description ? <AppText variant="muted">{description}</AppText> : null}
       </View>
       <AppButton
-        title="Ver Planos"
+        title={t('components.premiumLock.viewPlans')}
         variant="gold"
         onPress={() => router.push('/planos')}
         style={styles.button}

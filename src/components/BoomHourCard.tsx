@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Badge } from '@/components/ui';
 import { AlarmToggle } from '@/components/AlarmToggle';
@@ -16,6 +17,7 @@ export function boomHourStatus(hour: BoomHour, now: Date): BoomHourStatus {
 }
 
 export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
+  const { t } = useTranslation();
   const status = boomHourStatus(hour, now);
   const epoch = boomEpochMs(now, hour.time_wat);
   const diff = epoch - now.getTime();
@@ -32,11 +34,11 @@ export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
       <View style={styles.header}>
         <AppText variant="h2" style={{ flex: 1 }}>{hour.title}</AppText>
         {status === 'live' ? (
-          <Badge color={Colors.live} bg={`${Colors.live}1F`}>● AO VIVO</Badge>
+          <Badge color={Colors.live} bg={`${Colors.live}1F`}>{t('components.boomHourCard.live')}</Badge>
         ) : status === 'upcoming' ? (
-          <Badge color={Colors.warning} bg={`${Colors.warning}1F`}>PRÓXIMO</Badge>
+          <Badge color={Colors.warning} bg={`${Colors.warning}1F`}>{t('components.boomHourCard.upcoming')}</Badge>
         ) : (
-          <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>ENCERRADO</Badge>
+          <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>{t('components.boomHourCard.closed')}</Badge>
         )}
       </View>
 
@@ -45,15 +47,15 @@ export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
           {hour.time_wat}
         </AppText>
         <View style={{ gap: 1 }}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>WAT</AppText>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>GMT {hour.time_gmt}</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.boomHourCard.wat')}</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.boomHourCard.gmt', { h: hour.time_gmt })}</AppText>
         </View>
       </View>
 
       {status === 'live' ? (
         <View style={{ gap: Spacing.xs }}>
           <View style={styles.progressRow}>
-            <AppText variant="small" style={{ color: Colors.textMuted }}>JANELA EM CURSO</AppText>
+            <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.boomHourCard.window')}</AppText>
             <AppText variant="small" style={{ color: Colors.live, fontWeight: '700' }}>
               {Math.round(livePct)}%
             </AppText>
@@ -65,7 +67,7 @@ export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
       ) : status === 'upcoming' ? (
         <View style={styles.countdownRow}>
           <AppText variant="mono" style={styles.countdown}>{boomCountdown(new Date(epoch).toISOString())}</AppText>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>para a entrada</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.boomHourCard.forEntry')}</AppText>
         </View>
       ) : null}
 
@@ -83,7 +85,7 @@ export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
       </View>
 
       <View style={styles.volRow}>
-        <AppText variant="small" style={{ color: Colors.textMuted }}>VOLATILIDADE</AppText>
+        <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.boomHourCard.volatility')}</AppText>
         <View style={styles.flames}>
           {level > 0
             ? Array.from({ length: level }).map((_, i) => (
@@ -99,7 +101,7 @@ export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
       ) : null}
 
       {status === 'expired' ? (
-        <AppText variant="small" style={{ color: Colors.textFaint }}>Encerrado · o ciclo recomeça amanhã</AppText>
+        <AppText variant="small" style={{ color: Colors.textFaint }}>{t('components.boomHourCard.closedHint')}</AppText>
       ) : (
         <AlarmToggle
           boomId={hour.id}

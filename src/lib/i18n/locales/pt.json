@@ -49,6 +49,41 @@
     "emptyBody": "Ainda não há sinais disponíveis.",
     "filterAll": "Todos"
   },
+  "historico": {
+    "allPairs": "Todos os pares",
+    "totalSignals": "Total Sinais",
+    "winRate": "Taxa de Acerto",
+    "totalPips": "Pips Totais",
+    "closedSignals": "SINAIS FECHADOS",
+    "entry": "Entrada",
+    "stopLoss": "Stop Loss",
+    "takeProfit": "Take Profit",
+    "rr": "R:R",
+    "result": "Resultado",
+    "dateTime": "Data/Hora (WAT)",
+    "tpHit": "✅ TAKE PROFIT",
+    "slHit": "❌ STOP LOSS",
+    "loading": "A carregar histórico…",
+    "emptyTitle": "Sem sinais fechados",
+    "emptyBody": "Os sinais fechados aparecem aqui."
+  },
+  "horarios": {
+    "watAngola": "WAT · ANGOLA",
+    "gmt": "GMT",
+    "nextBoom": "PRÓXIMO BOOM",
+    "forEntry": "para a entrada",
+    "title": "Hora do Boom",
+    "watUtc": "WAT (UTC-1)",
+    "description": "Janelas de alta volatilidade. Ativa alarmes para não perderes a entrada.",
+    "filtersActive": "Filtros ativos · {{count}} boom(s) oculto(s)",
+    "loading": "A carregar horários…",
+    "emptyTitle": "Sem horários",
+    "emptyBody": "Ainda não há horários ativos.",
+    "adjustFilters": "Ajustar filtros",
+    "live": "AO VIVO",
+    "upcoming": "PRÓXIMOS",
+    "closed": "ENCERRADOS"
+  },
   "language": {
     "title": "Idioma"
   },

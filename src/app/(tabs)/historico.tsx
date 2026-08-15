@@ -5,6 +5,7 @@ import { AppText, Badge, EmptyState, Screen, SectionTitle, Spinner } from '@/com
 import { useHistory } from '@/hooks/useHistory';
 import { formatShortDate, formatDateTimeWAT } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
+import { useTranslation } from 'react-i18next';
 
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
@@ -16,17 +17,18 @@ function Stat({ label, value, color }: { label: string; value: string; color?: s
 }
 
 export default function HistoricoScreen() {
+  const { t } = useTranslation();
   const { signals, stats, loading } = useHistory();
-  const [pair, setPair] = useState('Todos os pares');
+  const [pair, setPair] = useState(t('historico.allPairs'));
   const [open, setOpen] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const pairs = useMemo(
-    () => ['Todos os pares', ...Array.from(new Set(signals.map((s) => s.pair)))],
-    [signals],
+    () => [t('historico.allPairs'), ...Array.from(new Set(signals.map((s) => s.pair)))],
+    [signals, t],
   );
 
-  const filtered = pair === 'Todos os pares' ? signals : signals.filter((s) => s.pair === pair);
+  const filtered = pair === t('historico.allPairs') ? signals : signals.filter((s) => s.pair === pair);
 
   const selectPair = (p: string) => {
     setPair(p);
@@ -55,27 +57,27 @@ export default function HistoricoScreen() {
     return (
       <View style={styles.details}>
         <View style={styles.detailRow}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>Entrada</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('historico.entry')}</AppText>
           <AppText variant="small" style={{ fontWeight: '600' }}>{s.entry.toFixed(5)}</AppText>
         </View>
         <View style={styles.detailRow}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>Stop Loss</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('historico.stopLoss')}</AppText>
           <AppText variant="small" style={{ color: Colors.destructive, fontWeight: '600' }}>{s.stopLoss.toFixed(5)} ({Math.round(slPips)} pips)</AppText>
         </View>
         <View style={styles.detailRow}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>Take Profit</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('historico.takeProfit')}</AppText>
           <AppText variant="small" style={{ color: Colors.success, fontWeight: '600' }}>{s.takeProfit.toFixed(5)} ({Math.round(tpPips)} pips)</AppText>
         </View>
         <View style={styles.detailRow}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>R:R</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('historico.rr')}</AppText>
           <AppText variant="small" style={{ fontWeight: '600', color: Colors.accent }}>1:{rr}</AppText>
         </View>
         <View style={styles.detailRow}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>Resultado</AppText>
-          <AppText variant="small" style={{ color: accent, fontWeight: '700' }}>{isTp ? '✅ TAKE PROFIT' : '❌ STOP LOSS'}</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('historico.result')}</AppText>
+          <AppText variant="small" style={{ color: accent, fontWeight: '700' }}>{isTp ? t('historico.tpHit') : t('historico.slHit')}</AppText>
         </View>
         <View style={styles.detailRow}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>Data/Hora (WAT)</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('historico.dateTime')}</AppText>
           <AppText variant="small" style={{ color: Colors.text }}>{formatDateTimeWAT(s.date)}</AppText>
         </View>
       </View>
@@ -84,12 +86,12 @@ export default function HistoricoScreen() {
 
   return (
     <Screen>
-      <SectionTitle>Histórico</SectionTitle>
+      <SectionTitle>{t('tabs.historico')}</SectionTitle>
 
       <View style={styles.statsRow}>
-        <Stat label="Total Sinais" value={String(stats.total)} />
-        <Stat label="Taxa de Acerto" value={`${stats.winRate}%`} color={stats.winRate >= 60 ? Colors.success : Colors.warning} />
-        <Stat label="Pips Totais" value={`${stats.totalPips >= 0 ? '+' : ''}${stats.totalPips}`} color={stats.totalPips >= 0 ? Colors.success : Colors.destructive} />
+        <Stat label={t('historico.totalSignals')} value={String(stats.total)} />
+        <Stat label={t('historico.winRate')} value={`${stats.winRate}%`} color={stats.winRate >= 60 ? Colors.success : Colors.warning} />
+        <Stat label={t('historico.totalPips')} value={`${stats.totalPips >= 0 ? '+' : ''}${stats.totalPips}`} color={stats.totalPips >= 0 ? Colors.success : Colors.destructive} />
       </View>
 
       <Pressable onPress={() => setOpen((v) => !v)} style={styles.pairFilter}>
@@ -118,13 +120,13 @@ export default function HistoricoScreen() {
       ) : null}
 
       <AppText variant="label" style={{ color: Colors.textMuted, marginTop: Spacing.md, marginBottom: Spacing.sm }}>
-        SINAIS FECHADOS
+        {t('historico.closedSignals')}
       </AppText>
 
       {loading ? (
-        <Spinner label="A carregar histórico…" />
+        <Spinner label={t('historico.loading')} />
       ) : filtered.length === 0 ? (
-        <EmptyState title="Sem histórico" subtitle="Ainda não há sinais fechados." />
+        <EmptyState title={t('historico.emptyTitle')} subtitle={t('historico.emptyBody')} />
       ) : (
         filtered.map((s) => {
           const isTp = s.result === 'tp';

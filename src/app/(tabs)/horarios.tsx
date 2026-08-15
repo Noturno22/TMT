@@ -20,26 +20,28 @@ import { boomCountdown, boomEpochMs, getNextBoomHour } from '@/core/booms';
 import { formatLongDate, pad2 } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import type { BoomHour } from '@/core/types';
+import { useTranslation } from 'react-i18next';
 
 function watDate(now: Date): Date {
   return new Date(now.getTime() + (now.getTimezoneOffset() + 60) * 60000);
 }
 
 function Clock({ now }: { now: Date }) {
+  const { t } = useTranslation();
   const wat = watDate(now);
   const gmt = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
   return (
     <View style={styles.clock}>
       <View style={styles.liveDot} />
       <View style={styles.clockCol}>
-        <AppText variant="small" style={{ color: Colors.textMuted }}>WAT · ANGOLA</AppText>
+        <AppText variant="small" style={{ color: Colors.textMuted }}>{t('horarios.watAngola')}</AppText>
         <AppText variant="mono" style={styles.clockValue}>
           {pad2(wat.getHours())}:{pad2(wat.getMinutes())}:{pad2(wat.getSeconds())}
         </AppText>
       </View>
       <View style={styles.divider} />
       <View style={styles.clockCol}>
-        <AppText variant="small" style={{ color: Colors.textMuted }}>GMT</AppText>
+        <AppText variant="small" style={{ color: Colors.textMuted }}>{t('horarios.gmt')}</AppText>
         <AppText variant="mono" style={styles.clockValueMuted}>
           {pad2(gmt.getHours())}:{pad2(gmt.getMinutes())}:{pad2(gmt.getSeconds())}
         </AppText>
@@ -49,6 +51,7 @@ function Clock({ now }: { now: Date }) {
 }
 
 function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
+  const { t } = useTranslation();
   const next = getNextBoomHour(hours, now);
   if (!next) return null;
   const epoch = boomEpochMs(now, next.time_wat);
@@ -58,7 +61,7 @@ function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
     <GradientCard colors={[Colors.accentDim, Colors.primaryDim]} style={styles.hero}>
       <View style={styles.heroTop}>
         <View style={{ flex: 1 }}>
-          <AppText variant="small" style={styles.heroEyebrow}>PRÓXIMO BOOM</AppText>
+          <AppText variant="small" style={styles.heroEyebrow}>{t('horarios.nextBoom')}</AppText>
           <AppText variant="h2">{next.title}</AppText>
         </View>
         <View style={styles.heroIcon}>
@@ -75,7 +78,7 @@ function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
         <AppText variant="mono" style={styles.heroCd}>
           {boomCountdown(new Date(epoch).toISOString())}
         </AppText>
-        <AppText variant="small" style={{ color: Colors.textMuted }}>para a entrada</AppText>
+        <AppText variant="small" style={{ color: Colors.textMuted }}>{t('horarios.forEntry')}</AppText>
       </View>
 
       <View style={styles.pairs}>
@@ -93,6 +96,7 @@ function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
 
 export default function HorariosScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { hours, loading, error } = useBoomHours();
   const [now, setNow] = useState(new Date());
@@ -131,12 +135,12 @@ export default function HorariosScreen() {
             <Ionicons name="settings" size={20} color={Colors.textFaint} />
           </Pressable>
         }>
-        Hora do Boom
+        {t('horarios.title')}
       </SectionTitle>
 
       <View style={styles.dateRow}>
         <AppText variant="label">{formatLongDate(now.toISOString())}</AppText>
-        <AppText variant="small" style={{ color: Colors.textMuted }}>WAT (UTC-1)</AppText>
+        <AppText variant="small" style={{ color: Colors.textMuted }}>{t('horarios.watUtc')}</AppText>
       </View>
 
       <NextBoomHero hours={filteredHours} now={now} />
@@ -144,25 +148,25 @@ export default function HorariosScreen() {
       <Clock now={now} />
 
       <AppText variant="muted" style={{ marginBottom: Spacing.md }}>
-        Janelas de alta volatilidade. Ativa alarmes para não perderes a entrada.
+        {t('horarios.description')}
       </AppText>
 
       {filtersActive ? (
         <Pressable onPress={() => router.push('/definicoes-booms')} style={styles.filterRow}>
           <Ionicons name="funnel" size={14} color={Colors.primary} />
           <AppText variant="small" style={{ color: Colors.primary, fontWeight: '600', flex: 1 }}>
-            Filtros ativos · {hiddenCount} boom{hiddenCount === 1 ? '' : 's'} oculto{hiddenCount === 1 ? '' : 's'}
+            {t('horarios.filtersActive', { count: hiddenCount })}
           </AppText>
           <Ionicons name="chevron-forward" size={14} color={Colors.primary} />
         </Pressable>
       ) : null}
 
       {loading ? (
-        <Spinner label="A carregar horários…" />
+        <Spinner label={t('horarios.loading')} />
       ) : error ? (
         <EmptyState title="Erro" subtitle={error} />
       ) : hours.length === 0 ? (
-        <EmptyState title="Sem horários" subtitle="Ainda não há horários ativos." />
+        <EmptyState title={t('horarios.emptyTitle')} subtitle={t('horarios.emptyBody')} />
       ) : filteredHours.length === 0 ? (
         <>
           <EmptyState
@@ -170,7 +174,7 @@ export default function HorariosScreen() {
             subtitle="Nenhum boom corresponde aos teus filtros. Ajusta-os nas definições."
           />
           <AppButton
-            title="Ajustar filtros"
+            title={t('horarios.adjustFilters')}
             variant="secondary"
             icon={<Ionicons name="options" size={18} color={Colors.accent} />}
             onPress={() => router.push('/definicoes-booms')}
@@ -180,19 +184,19 @@ export default function HorariosScreen() {
         <View>
           {live.length > 0 ? (
             <View style={styles.group}>
-              <SectionHeader title="AO VIVO" subtitle={`${live.length} janela${live.length > 1 ? 's' : ''} em curso`} />
+              <SectionHeader title={t('horarios.live')} subtitle={`${live.length} janela${live.length > 1 ? 's' : ''} em curso`} />
               {live.map((h) => <BoomHourCard key={h.id} hour={h} now={now} />)}
             </View>
           ) : null}
           {upcoming.length > 0 ? (
             <View style={styles.group}>
-              <SectionHeader title="PRÓXIMOS" subtitle="Hoje" />
+              <SectionHeader title={t('horarios.upcoming')} subtitle="Hoje" />
               {upcoming.map((h) => <BoomHourCard key={h.id} hour={h} now={now} />)}
             </View>
           ) : null}
           {expired.length > 0 ? (
             <View style={styles.group}>
-              <SectionHeader title="ENCERRADOS" subtitle="Hoje" />
+              <SectionHeader title={t('horarios.closed')} subtitle="Hoje" />
               {expired.map((h) => <BoomHourCard key={h.id} hour={h} now={now} />)}
             </View>
           ) : null}

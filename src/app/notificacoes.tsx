@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AppButton, AppText, Card, EmptyState, Screen, Spinner } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 interface NotifItem {
   identifier: string;
@@ -29,15 +31,15 @@ function kindOf(title: string | null): NotifItem['kind'] {
   return 'other';
 }
 
-function formatFire(fireAt: Date | null): string {
-  if (!fireAt) return 'Em breve';
+function formatFire(fireAt: Date | null, t: TFunction): string {
+  if (!fireAt) return t('notificacoes.soon');
   const diff = fireAt.getTime() - Date.now();
-  if (diff <= 0) return 'Entregue';
+  if (diff <= 0) return t('notificacoes.delivered');
   const mins = Math.ceil(diff / 60_000);
-  if (mins < 60) return `Em ${mins} min`;
+  if (mins < 60) return t('notificacoes.inMin', { count: mins });
   const hh = Math.floor(mins / 60);
   const mm = mins % 60;
-  return mm > 0 ? `Em ${hh}h${String(mm).padStart(2, '0')}` : `Em ${hh}h`;
+  return t('notificacoes.inHm', { h: hh, min: mm });
 }
 
 const KIND_STYLE: Record<NotifItem['kind'], { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
@@ -47,6 +49,7 @@ const KIND_STYLE: Record<NotifItem['kind'], { icon: keyof typeof Ionicons.glyphM
 };
 
 export default function NotificacoesScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [items, setItems] = useState<NotifItem[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -56,13 +59,13 @@ export default function NotificacoesScreen() {
     return scheduled
       .map((n) => ({
         identifier: n.identifier,
-        title: n.content.title ?? 'Notificação',
+        title: n.content.title ?? t('notificacoes.title'),
         body: n.content.body ?? '',
         fireAt: getFireDate(n.trigger),
         kind: kindOf(n.content.title),
       }))
       .sort((a, b) => (a.fireAt?.getTime() ?? 0) - (b.fireAt?.getTime() ?? 0));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load().then(setItems).catch(() => setItems([]));
@@ -91,15 +94,15 @@ export default function NotificacoesScreen() {
   return (
     <Screen>
       {items === null ? (
-        <Spinner label="A carregar…" />
+        <Spinner label={t('notificacoes.loading')} />
       ) : items.length === 0 ? (
         <>
           <EmptyState
-            title="Sem notificações"
-            subtitle="Os alarmes da Hora do Boom aparecem aqui. Ativa-os para receberes o aviso 5 minutos antes."
+            title={t('notificacoes.emptyTitle')}
+            subtitle={t('notificacoes.emptyBody')}
           />
           <AppButton
-            title="Ativar alarmes"
+            title={t('notificacoes.enableAlarms')}
             variant="secondary"
             icon={<Ionicons name="alarm-outline" size={18} color={Colors.accent} />}
             onPress={() => router.push('/(tabs)/horarios')}
@@ -121,7 +124,7 @@ export default function NotificacoesScreen() {
                     {item.body ? (
                       <AppText variant="small" style={{ color: Colors.textMuted }}>{item.body}</AppText>
                     ) : null}
-                    <AppText variant="small" style={{ color: Colors.textFaint }}>{formatFire(item.fireAt)}</AppText>
+                    <AppText variant="small" style={{ color: Colors.textFaint }}>{formatFire(item.fireAt, t)}</AppText>
                   </View>
                   <Pressable onPress={() => remove(item.identifier)} disabled={busy} hitSlop={8}>
                     <Ionicons name="trash-outline" size={18} color={busy ? Colors.textFaint : Colors.textMuted} />
@@ -132,14 +135,14 @@ export default function NotificacoesScreen() {
           </View>
 
           <AppButton
-            title="Gerenciar Alertas"
+            title={t('notificacoes.manageAlerts')}
             variant="secondary"
             icon={<Ionicons name="alarm-outline" size={18} color={Colors.accent} />}
             onPress={() => router.push('/(tabs)/horarios')}
             style={{ marginBottom: Spacing.sm }}
           />
           <AppButton
-            title="Limpar tudo"
+            title={t('notificacoes.clearAll')}
             variant="ghost"
             loading={busyId === 'all'}
             icon={<Ionicons name="trash-outline" size={18} color={Colors.textMuted} />}

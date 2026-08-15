@@ -7,8 +7,10 @@ import { formatMoney } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTranslation } from 'react-i18next';
 
 export default function BancaScreen() {
+  const { t } = useTranslation();
   const { canAccessBanca } = useSubscription();
   const { config, loading, save } = useBanca();
   const [editing, setEditing] = useState(false);
@@ -21,8 +23,8 @@ export default function BancaScreen() {
     return (
       <Screen>
         <PremiumLock
-          label="Gestão de Banca Premium"
-          description="Capital, metas e risco por operação com análise personalizada. Disponível apenas no plano Premium."
+          label={t('banca.lockTitle')}
+          description={t('banca.lockDesc')}
         />
       </Screen>
     );
@@ -42,19 +44,19 @@ export default function BancaScreen() {
     const metaPercent = Number(metaInput);
     const riskPercent = Number(riskInput);
     if (!isFinite(capital) || capital <= 0) {
-      Alert.alert('Valor inválido', 'O capital tem de ser um número positivo.');
+      Alert.alert(t('banca.invalidValue'), t('banca.positiveCapital'));
       return;
     }
     if (!isFinite(achieved) || achieved < 0) {
-      Alert.alert('Valor inválido', 'O valor atualizado tem de ser positivo.');
+      Alert.alert(t('banca.invalidValue'), t('banca.invalidAchieved'));
       return;
     }
     if (!isFinite(metaPercent) || metaPercent <= 0) {
-      Alert.alert('Valor inválido', 'A meta tem de ser uma percentagem positiva.');
+      Alert.alert(t('banca.invalidValue'), t('banca.invalidMeta'));
       return;
     }
     if (!isFinite(riskPercent) || riskPercent <= 0 || riskPercent > 100) {
-      Alert.alert('Valor inválido', 'O risco tem de estar entre 1 e 100.');
+      Alert.alert(t('banca.invalidValue'), t('banca.invalidRisk'));
       return;
     }
     save({ capital, achieved, metaPercent, riskPercent, metaMonths: config.metaMonths });
@@ -66,18 +68,18 @@ export default function BancaScreen() {
   const progressPct = metaValue > 0 ? Math.min(100, Math.max(0, (progress / metaValue) * 100)) : 0;
   const riskValue = config.capital * (config.riskPercent / 100);
 
-  if (loading) return <Screen><AppText variant="muted">A carregar…</AppText></Screen>;
+  if (loading) return <Screen><AppText variant="muted">{t('banca.loading')}</AppText></Screen>;
 
   return (
     <Screen>
-      <SectionTitle>Gestão de Banca</SectionTitle>
+      <SectionTitle>{t('banca.title')}</SectionTitle>
       <AppText variant="muted" style={{ marginBottom: Spacing.md }}>
-        Controla o teu capital, metas e risco por operação.
+        {t('banca.subtitle')}
       </AppText>
 
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <AppText variant="muted">CAPITAL TOTAL</AppText>
+          <AppText variant="muted">{t('banca.totalCapital')}</AppText>
           <Ionicons name="wallet" size={20} color={Colors.success} />
         </View>
         <AppText variant="title" style={styles.capitalValue}>
@@ -87,12 +89,12 @@ export default function BancaScreen() {
 
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <AppText variant="label">Meta de Retorno</AppText>
+          <AppText variant="label">{t('banca.targetReturn')}</AppText>
           <Ionicons name="flag" size={18} color={Colors.accent} />
         </View>
         <View style={styles.metaRow}>
           <AppText style={styles.metaBig}>{config.metaPercent}%</AppText>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>em {config.metaMonths}</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('banca.inMonths', { count: config.metaMonths })}</AppText>
         </View>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${progressPct}%` }]} />
@@ -109,8 +111,8 @@ export default function BancaScreen() {
 
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <AppText variant="label">Risco por Operação</AppText>
-          <Badge color={Colors.success} bg={`${Colors.success}20`}>RECOMENDADO</Badge>
+          <AppText variant="label">{t('banca.riskPerOp')}</AppText>
+          <Badge color={Colors.success} bg={`${Colors.success}20`}>{t('banca.recommended')}</Badge>
         </View>
         <View style={styles.metaRow}>
           <AppText style={styles.metaBig}>{config.riskPercent}%</AppText>
@@ -119,27 +121,27 @@ export default function BancaScreen() {
       </Card>
 
       <View style={styles.sectionRow}>
-        <AppText variant="label">Desempenho</AppText>
+        <AppText variant="label">{t('banca.performance')}</AppText>
         {editing ? (
-          <AppButton title="Guardar" onPress={commitEdit} style={{ paddingVertical: 8, minHeight: 36 }} />
+          <AppButton title={t('banca.save')} onPress={commitEdit} style={{ paddingVertical: 8, minHeight: 36 }} />
         ) : (
-          <AppButton title="Editar" variant="outline" onPress={beginEdit} style={{ paddingVertical: 8, minHeight: 36 }} />
+          <AppButton title={t('banca.edit')} variant="outline" onPress={beginEdit} style={{ paddingVertical: 8, minHeight: 36 }} />
         )}
       </View>
 
       {editing ? (
         <Card style={styles.card}>
-          <AppInput label="CAPITAL (USD)" value={capitalInput} onChangeText={setCapitalInput} keyboardType="numeric" />
-          <AppInput label="VALOR ATUAL (USD)" value={achievedInput} onChangeText={setAchievedInput} keyboardType="numeric" />
-          <AppInput label="META (%)" value={metaInput} onChangeText={setMetaInput} keyboardType="numeric" />
-          <AppInput label="RISCO POR OPERAÇÃO (%)" value={riskInput} onChangeText={setRiskInput} keyboardType="numeric" />
+          <AppInput label={t('banca.inputCapital')} value={capitalInput} onChangeText={setCapitalInput} keyboardType="numeric" />
+          <AppInput label={t('banca.inputCurrent')} value={achievedInput} onChangeText={setAchievedInput} keyboardType="numeric" />
+          <AppInput label={t('banca.inputTarget')} value={metaInput} onChangeText={setMetaInput} keyboardType="numeric" />
+          <AppInput label={t('banca.inputRisk')} value={riskInput} onChangeText={setRiskInput} keyboardType="numeric" />
         </Card>
       ) : (
         <Card style={styles.card}>
           {[
-            { label: 'Semanal', value: '+220.50 USD' },
-            { label: 'Mensal', value: '+1,150.75 USD' },
-            { label: 'Total', value: `+${formatMoney(progress)} USD` },
+            { label: t('banca.weekly'), value: '+220.50 USD' },
+            { label: t('banca.monthly'), value: '+1,150.75 USD' },
+            { label: t('banca.total'), value: `+${formatMoney(progress)} USD` },
           ].map((item, i) => (
             <View key={item.label}>
               {i > 0 ? <Divider /> : null}

@@ -18,15 +18,25 @@ import {
   type BoomPrefs,
 } from '@/lib/boomPrefs';
 import { Colors, Radius, Spacing } from '@/core/theme';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
-async function enableNotifications() {
+const VOL_TIER_KEYS = {
+  todas: 'definicoesBooms.volAll',
+  alta: 'definicoesBooms.volHigh',
+  media: 'definicoesBooms.volMedium',
+  baixa: 'definicoesBooms.volLow',
+} as const;
+
+async function enableNotifications(t: TFunction) {
   const granted = await requestNotificationPermission();
   if (!granted) {
-    Alert.alert('Notificações', 'Ativa as notificações nas definições do teu telemóvel.');
+    Alert.alert(t('notificacoes.title'), t('definicoesBooms.enableNotification'));
   }
 }
 
 export default function DefinicoesBoomsScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { isPremium, planTier, loading: subLoading } = useSubscription();
   const { hours, loading: hoursLoading, error: hoursError } = useBoomHours();
@@ -85,67 +95,66 @@ export default function DefinicoesBoomsScreen() {
           <Ionicons name="notifications-outline" size={20} color={Colors.primary} />
         </View>
         <View style={{ flex: 1, gap: 2 }}>
-          <AppText variant="label">Alarmes & Notificações</AppText>
+          <AppText variant="label">{t('definicoesBooms.alarmsTitle')}</AppText>
           <AppText variant="small" style={{ color: Colors.textMuted }}>
-            Recebe avisos 5 minutos antes de cada boom.
+            {t('definicoesBooms.alarmsDesc')}
           </AppText>
         </View>
-        <Pressable onPress={enableNotifications} hitSlop={8}>
-          <AppText style={{ color: Colors.primary, fontWeight: '700' }}>Ativar</AppText>
+        <Pressable onPress={() => enableNotifications(t)} hitSlop={8}>
+          <AppText style={{ color: Colors.primary, fontWeight: '700' }}>{t('definicoesBooms.enable')}</AppText>
         </Pressable>
       </View>
 
       {subLoading || prefs === null ? (
-        <Spinner label="A carregar definições…" />
+        <Spinner label={t('definicoesBooms.loading')} />
       ) : !premium ? (
         <View style={{ marginTop: Spacing.md }}>
           <PremiumLock
-            label="Personalização Premium"
-            description="Filtra os booms por tendência e pares e esconde janelas que não te interessam. Disponível apenas no plano Premium."
+            label={t('definicoesBooms.lockTitle')}
+            description={t('definicoesBooms.lockDesc')}
           />
         </View>
       ) : hoursLoading ? (
-        <Spinner label="A carregar booms…" />
+        <Spinner label={t('definicoesBooms.loadingBooms')} />
       ) : hoursError ? (
         <EmptyState title="Erro" subtitle={hoursError} />
       ) : (
         <>
           <AppText variant="muted" style={{ marginBottom: Spacing.md }}>
-            {visibleCount} de {hours.length} booms visíveis no teu horário.
+            {t('definicoesBooms.visibleCount', { visible: visibleCount, total: hours.length })}
           </AppText>
 
-          <SectionHeader title="Tendência" subtitle="Janelas por volatilidade" />
+          <SectionHeader title={t('definicoesBooms.trend')} subtitle={t('definicoesBooms.windowsByVol')} />
           <View style={styles.chips}>
-            {VOL_TIERS.map((t) => (
+            {VOL_TIERS.map((tier) => (
               <Chip
-                key={t.key}
-                label={t.label}
-                active={prefs.volTier === t.key}
-                onPress={() => update({ volTier: t.key })}
+                key={tier.key}
+                label={t(VOL_TIER_KEYS[tier.key])}
+                active={prefs.volTier === tier.key}
+                onPress={() => update({ volTier: tier.key })}
               />
             ))}
           </View>
           <AppText variant="small" style={{ color: Colors.textMuted, marginBottom: Spacing.lg }}>
-            {VOL_TIERS.find((t) => t.key === prefs.volTier)?.label} · janelas de volatilidade{' '}
-            {VOL_TIERS.find((t) => t.key === prefs.volTier)?.hint} de 1–5
+            {t('definicoesBooms.volHint')}
           </AppText>
 
-          <SectionHeader title="Pares" subtitle="Só vês booms com estes pares" />
+          <SectionHeader title={t('definicoesBooms.pairs')} subtitle={t('definicoesBooms.pairsHint')} />
           <View style={styles.chips}>
-            <Chip label="Todos" active={prefs.pairs.length === 0} onPress={() => update({ pairs: [] })} />
+            <Chip label={t('definicoesBooms.all')} active={prefs.pairs.length === 0} onPress={() => update({ pairs: [] })} />
             {allPairs.map((p) => (
               <Chip key={p} label={p} active={prefs.pairs.includes(p)} onPress={() => togglePair(p)} />
             ))}
           </View>
           {allPairs.length === 0 ? (
             <AppText variant="muted" style={{ marginBottom: Spacing.lg }}>
-              Nenhum par associado aos booms.
+              {t('definicoesBooms.noPairs')}
             </AppText>
           ) : null}
 
-          <SectionHeader title="Filtrar booms" subtitle="Oculta janelas que não queres ver" />
+          <SectionHeader title={t('definicoesBooms.filterBooms')} subtitle={t('definicoesBooms.filterDesc')} />
           {hours.length === 0 ? (
-            <EmptyState title="Sem booms" />
+            <EmptyState title={t('definicoesBooms.emptyTitle')} />
           ) : (
             hours.map((h) => {
               const hidden = prefs.hiddenIds.includes(h.id);
@@ -169,7 +178,7 @@ export default function DefinicoesBoomsScreen() {
           )}
 
           <View style={{ marginTop: Spacing.md }}>
-            <AppButton title="Repor predefinições" variant="ghost" onPress={reset} />
+            <AppButton title={t('definicoesBooms.reset')} variant="ghost" onPress={reset} />
           </View>
         </>
       )}

@@ -7,6 +7,7 @@ import { AppText, Badge, Divider, EmptyState, Screen, Spinner } from '@/componen
 import { SignalCard } from '@/components/SignalCard';
 import { TradingViewChart } from '@/components/TradingViewChart';
 import { useLivePrices } from '@/hooks/useLivePrices';
+import { useTranslation } from 'react-i18next';
 import { formatDateTimeWAT, formatSymbol, formatTimeframe, formatType } from '@/core/format';
 import { getPipMultiplier } from '@/core/pips';
 import { Colors, Spacing } from '@/core/theme';
@@ -21,6 +22,7 @@ function determineStatus(status: string | null, confidence: number): SignalStatu
 
 export default function SignalDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { t } = useTranslation();
 
   const { data: signal, isLoading, error } = useQuery<Signal | null, Error>({
     queryKey: ['signal', id],
@@ -47,8 +49,8 @@ export default function SignalDetailScreen() {
 
   const { prices } = useLivePrices(signal ? [signal.pair] : []);
 
-  if (isLoading) return <Screen><Spinner label="A carregar análise…" /></Screen>;
-  if (error || !signal) return <Screen><EmptyState title="Sinal não encontrado" subtitle={error?.message} /></Screen>;
+  if (isLoading) return <Screen><Spinner label={t('sinal.loading')} /></Screen>;
+  if (error || !signal) return <Screen><EmptyState title={t('sinal.notFound')} subtitle={error?.message} /></Screen>;
 
   const mult = getPipMultiplier(signal.pair);
   const slPips = Math.abs(signal.stopLoss - signal.entry) * mult;
@@ -56,14 +58,12 @@ export default function SignalDetailScreen() {
   const rr = slPips > 0 ? (tpPips / slPips).toFixed(1) : '—';
 
   const share = () => {
-    const text = [
-      `💹 ${signal.pair} ${signal.type} · ${signal.timeframe}`,
-      `Entrada: ${signal.entry}`,
-      `SL: ${signal.stopLoss}`,
-      `TP: ${signal.takeProfit}`,
-      `Confiança: ${signal.confidence}%`,
-      `The Magic Trader`,
-    ].join('\n');
+    const text = t('sinal.shareText', {
+      entry: signal.entry,
+      sl: signal.stopLoss,
+      tp: signal.takeProfit,
+      confidence: `${signal.confidence}%`,
+    });
     Share.share({ message: text }).catch(() => {});
   };
 
@@ -107,24 +107,24 @@ export default function SignalDetailScreen() {
 
       <View style={styles.pipsRow}>
         <View style={styles.pipsCard}>
-          <AppText variant="small" style={{ color: Colors.destructive }}>SL PIPS</AppText>
+          <AppText variant="small" style={{ color: Colors.destructive }}>{t('sinal.slPips')}</AppText>
           <AppText variant="h1" style={{ color: Colors.destructive }}>{Math.round(slPips)}</AppText>
         </View>
         <View style={styles.pipsCard}>
-          <AppText variant="small" style={{ color: Colors.success }}>TP PIPS</AppText>
+          <AppText variant="small" style={{ color: Colors.success }}>{t('sinal.tpPips')}</AppText>
           <AppText variant="h1" style={{ color: Colors.success }}>{Math.round(tpPips)}</AppText>
         </View>
         <View style={styles.pipsCard}>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>RR</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('sinal.rr')}</AppText>
           <AppText variant="h1">1:{rr}</AppText>
         </View>
       </View>
 
       <AppText variant="label" style={{ color: Colors.textMuted, marginVertical: Spacing.sm }}>
-        ANÁLISE TÉCNICA
+        {t('sinal.technical')}
       </AppText>
       {signal.reasons.length === 0 ? (
-        <EmptyState title="Sem justificações" />
+        <EmptyState title={t('sinal.noReasons')} />
       ) : (
         signal.reasons.map((r, i) => (
           <View key={i} style={styles.reasonRow}>
@@ -138,9 +138,7 @@ export default function SignalDetailScreen() {
 
       <View style={[styles.warning, { marginBottom: Spacing.md }]}>
         <AppText variant="small" style={{ color: Colors.warning }}>
-          ⚠️ Aviso de risco: esta análise tem fins educacionais e não constitui recomendação
-          financeira. Negociar CFDs e forex envolve risco elevado. Nunca invistas mais do que
-          estás disposto a perder.
+          ⚠️ {t('sinal.riskWarning')}
         </AppText>
       </View>
     </Screen>

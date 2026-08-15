@@ -17,15 +17,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { askAssistant, type AiMessage } from '@/lib/aiSupport';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'tmt_ai_chat';
 
 const SUGGESTIONS = [
-  'O que é o The Magic Trader?',
-  'Como assino o plano Pro?',
-  'O que significa um sinal BUY com RR 1:2.5?',
-  'Como funciona a gestão de banca?',
-];
+  'suporteIa.suggestion1',
+  'suporteIa.suggestion2',
+  'suporteIa.suggestion3',
+  'suporteIa.suggestion4',
+] as const;
 
 const AI_COLORS: [string, string] = [Colors.primary, 'rgba(22,164,58,0.55)'];
 
@@ -41,6 +42,7 @@ function isAiMessage(v: unknown): v is AiMessage {
 
 export default function SuporteIaScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -107,16 +109,16 @@ export default function SuporteIaScreen() {
               hitSlop={10}
               style={styles.headerBtn}
               accessibilityRole="button"
-              accessibilityLabel="Fechar suporte">
+              accessibilityLabel={t('suporteIa.close')}>
               <Ionicons name="close" size={22} color={Colors.text} />
             </Pressable>
             <LinearGradient colors={AI_COLORS} style={styles.logoGlow}>
               <Ionicons name="sparkles" size={22} color="#FFFFFF" />
             </LinearGradient>
             <View style={styles.headerText}>
-              <AppText variant="h2">Suporte IA</AppText>
+              <AppText variant="h2">{t('suporteIa.title')}</AppText>
               <AppText variant="small" style={{ color: Colors.textMuted }}>
-                Assistente The Magic Trader
+                {t('suporteIa.subtitle')}
               </AppText>
             </View>
             <Pressable
@@ -124,7 +126,7 @@ export default function SuporteIaScreen() {
               hitSlop={10}
               style={styles.headerBtn}
               accessibilityRole="button"
-              accessibilityLabel="Limpar conversa">
+              accessibilityLabel={t('suporteIa.clear')}>
               <Ionicons name="trash-outline" size={20} color={Colors.textMuted} />
             </Pressable>
           </View>
@@ -139,9 +141,9 @@ export default function SuporteIaScreen() {
             ListHeaderComponent={
               messages.length === 0 ? (
                 <View style={styles.welcome}>
-                  <AppText variant="h1" style={styles.welcomeTitle}>Olá, sou o assistente do TMT 👋</AppText>
+                  <AppText variant="h1" style={styles.welcomeTitle}>{t('suporteIa.welcome')}</AppText>
                   <AppText variant="muted" style={styles.welcomeSub}>
-                    Tiro dúvidas sobre sinais, planos, alertas, banca e a app.
+                    {t('suporteIa.welcomeDesc')}
                   </AppText>
                   <View style={styles.suggestions}>
                     {SUGGESTIONS.map((s) => (
@@ -151,7 +153,7 @@ export default function SuporteIaScreen() {
                         disabled={sending}
                         style={({ pressed }) => [styles.suggestion, pressed && { opacity: 0.7 }]}>
                         <AppText variant="small" style={{ color: Colors.primary, fontWeight: '600' }}>
-                          {s}
+                          {t(s)}
                         </AppText>
                       </Pressable>
                     ))}
@@ -186,7 +188,7 @@ export default function SuporteIaScreen() {
             <TextInput
               value={input}
               onChangeText={setInput}
-              placeholder="Escreve a tua pergunta…"
+              placeholder={t('suporteIa.placeholder')}
               placeholderTextColor={Colors.textMuted}
               style={styles.input}
               maxLength={2000}
@@ -197,7 +199,7 @@ export default function SuporteIaScreen() {
               onPress={() => send()}
               disabled={!input.trim() || sending}
               accessibilityRole="button"
-              accessibilityLabel="Enviar"
+              accessibilityLabel={t('suporteIa.send')}
               style={[styles.sendBtn, (!input.trim() || sending) && { opacity: 0.5 }]}>
               <Ionicons name="send" size={18} color="#FFFFFF" />
             </Pressable>

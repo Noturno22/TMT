@@ -4,22 +4,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText, Card, Screen, SectionTitle } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
+import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'growth_plan';
 
 interface GrowthPlan {
   id: string;
-  name: string;
-  goal: string;
+  nameKey: 'planoCrescimento.conservative' | 'planoCrescimento.balanced' | 'planoCrescimento.aggressive';
+  descKey: 'planoCrescimento.conservativeDesc' | 'planoCrescimento.balancedDesc' | 'planoCrescimento.aggressiveDesc';
   returnPct: number;
   months: number;
-  description: string;
 }
 
 const PLANS: GrowthPlan[] = [
-  { id: 'conservador', name: 'Conservador', goal: '+20% em 3 meses', returnPct: 20, months: 3, description: 'Menor risco, consistência' },
-  { id: 'equilibrado', name: 'Equilibrado', goal: '+35% em 2 meses', returnPct: 35, months: 2, description: 'Risco moderado' },
-  { id: 'agressivo', name: 'Agressivo', goal: '+50% em 3 meses', returnPct: 50, months: 3, description: 'Maior retorno potencial' },
+  { id: 'conservador', nameKey: 'planoCrescimento.conservative', descKey: 'planoCrescimento.conservativeDesc', returnPct: 20, months: 3 },
+  { id: 'equilibrado', nameKey: 'planoCrescimento.balanced', descKey: 'planoCrescimento.balancedDesc', returnPct: 35, months: 2 },
+  { id: 'agressivo', nameKey: 'planoCrescimento.aggressive', descKey: 'planoCrescimento.aggressiveDesc', returnPct: 50, months: 3 },
 ];
 
 function formatMoney(n: number): string {
@@ -27,6 +27,7 @@ function formatMoney(n: number): string {
 }
 
 export default function PlanoCrescimentoScreen() {
+  const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState<string>('conservador');
   const [capital, setCapital] = useState(10000);
   const [activated, setActivated] = useState(false);
@@ -60,8 +61,8 @@ export default function PlanoCrescimentoScreen() {
 
   return (
     <Screen>
-      <SectionTitle>Plano de Crescimento</SectionTitle>
-      <AppText variant="muted" style={{ marginBottom: Spacing.md }}>Selecione seu plano</AppText>
+      <SectionTitle>{t('planoCrescimento.title')}</SectionTitle>
+      <AppText variant="muted" style={{ marginBottom: Spacing.md }}>{t('planoCrescimento.select')}</AppText>
 
       <View style={styles.plans}>
         {PLANS.map((p) => {
@@ -76,9 +77,8 @@ export default function PlanoCrescimentoScreen() {
                     color={selected ? Colors.success : Colors.textFaint}
                   />
                   <View style={{ flex: 1 }}>
-                    <AppText variant="label">{p.name}</AppText>
-                    <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>{p.goal}</AppText>
-                    <AppText variant="small" style={{ color: Colors.textMuted }}>{p.description}</AppText>
+                    <AppText variant="label">{t(p.nameKey)}</AppText>
+                    <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>{t(p.descKey)}</AppText>
                   </View>
                 </View>
               </Card>
@@ -88,30 +88,30 @@ export default function PlanoCrescimentoScreen() {
       </View>
 
       <Card style={styles.projection}>
-        <AppText variant="label" style={{ marginBottom: Spacing.sm }}>Projeção</AppText>
+        <AppText variant="label" style={{ marginBottom: Spacing.sm }}>{t('planoCrescimento.projection')}</AppText>
         <View style={styles.projRow}>
-          <AppText style={{ color: Colors.textBody }}>Investimento</AppText>
+          <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.investment')}</AppText>
           <AppText variant="label">{formatMoney(capital)} USD</AppText>
         </View>
         <View style={styles.projRow}>
-          <AppText style={{ color: Colors.textBody }}>Retorno Estimado</AppText>
+          <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.estimatedReturn')}</AppText>
           <AppText variant="label" style={{ color: Colors.success }}>{formatMoney(projectedReturn)} USD</AppText>
         </View>
         <View style={styles.projRow}>
-          <AppText style={{ color: Colors.textBody }}>Período</AppText>
-          <AppText variant="label">{plan.months} meses</AppText>
+          <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.period')}</AppText>
+          <AppText variant="label">{t('planoCrescimento.months', { count: plan.months })}</AppText>
         </View>
         <View style={styles.profitBadge}>
           <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>
-            Lucro estimado: +{formatMoney(profit)} USD
+            {t('planoCrescimento.estimatedProfit', { value: formatMoney(profit) })}
           </AppText>
         </View>
       </Card>
 
       {activated ? (
-        <AppButton title="✓ Plano Ativo" variant="secondary" disabled />
+        <AppButton title={t('planoCrescimento.planActive')} variant="secondary" disabled />
       ) : (
-        <AppButton title="Ativar Plano" variant="primary" onPress={activate} />
+        <AppButton title={t('planoCrescimento.activate')} variant="primary" onPress={activate} />
       )}
     </Screen>
   );

@@ -130,7 +130,16 @@
     "title": "Idioma"
   },
   "sinal": {
-    "title": "Análise Completa"
+    "title": "Análise Completa",
+    "loading": "A carregar análise…",
+    "notFound": "Sinal não encontrado",
+    "shareText": "Entrada: {{entry}}\nSL: {{sl}}\nTP: {{tp}}\nConfiança: {{confidence}}\nThe Magic Trader",
+    "slPips": "SL PIPS",
+    "tpPips": "TP PIPS",
+    "rr": "RR",
+    "technical": "ANÁLISE TÉCNICA",
+    "noReasons": "Sem justificações",
+    "riskWarning": "Aviso de risco: esta análise tem fins educacionais…"
   },
   "planos": {
     "title": "Planos",
@@ -279,10 +288,41 @@
     "emptyTitle": "Sem booms"
   },
   "suporteIa": {
-    "title": "Suporte IA"
+    "title": "Suporte IA",
+    "subtitle": "Assistente The Magic Trader",
+    "close": "Fechar suporte",
+    "clear": "Limpar conversa",
+    "send": "Enviar",
+    "welcome": "Olá, sou o assistente do TMT 👋",
+    "welcomeDesc": "Tiro dúvidas sobre sinais, planos, alertas, banca e a app.",
+    "placeholder": "Escreve a tua pergunta…",
+    "suggestion1": "Como funcionam os planos?",
+    "suggestion2": "O que é a Hora do Boom?",
+    "suggestion3": "Como ativo os alarmes?",
+    "suggestion4": "Como gero a minha banca?"
   },
   "planoCrescimento": {
-    "title": "Plano de Crescimento"
+    "title": "Plano de Crescimento",
+    "select": "Selecione seu plano",
+    "conservative": "Conservador",
+    "conservativeDesc": "+20% em 3 meses · Menor risco, consistência",
+    "balanced": "Equilibrado",
+    "balancedDesc": "+35% em 2 meses · Risco moderado",
+    "aggressive": "Agressivo",
+    "aggressiveDesc": "+50% em 3 meses · Maior retorno potencial",
+    "projection": "Projeção",
+    "investment": "Investimento",
+    "estimatedReturn": "Retorno Estimado",
+    "period": "Período",
+    "months": "{{count}} meses",
+    "estimatedProfit": "Lucro estimado: +{{value}} USD",
+    "planActive": "✓ Plano Ativo",
+    "activate": "Ativar Plano"
+  },
+  "aiErrors": {
+    "contact": "Erro ao contactar o suporte. Tenta novamente.",
+    "noResponse": "A IA não devolveu uma resposta.",
+    "connection": "Erro de ligação. Verifica a tua internet e tenta novamente."
   },
   "legal": {
     "termosTitle": "Termos de Uso",

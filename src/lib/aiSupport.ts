@@ -1,4 +1,5 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from './env';
+import { i18n } from '@/lib/i18n';
 
 export interface AiMessage {
   role: 'user' | 'model';
@@ -28,14 +29,14 @@ export async function askAssistant(messages: AiMessage[]): Promise<AiResult> {
     if (!res.ok || data.error) {
       return {
         reply: '',
-        error: typeof data.error === 'string' ? data.error : 'Erro ao contactar o suporte. Tenta novamente.',
+        error: typeof data.error === 'string' ? data.error : i18n.t('aiErrors.contact'),
       };
     }
     if (typeof data.reply !== 'string' || !data.reply.trim()) {
-      return { reply: '', error: 'A IA não devolveu uma resposta.' };
+      return { reply: '', error: i18n.t('aiErrors.noResponse') };
     }
     return { reply: data.reply, error: null };
   } catch {
-    return { reply: '', error: 'Erro de ligação. Verifica a tua internet e tenta novamente.' };
+    return { reply: '', error: i18n.t('aiErrors.connection') };
   }
 }

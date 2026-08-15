@@ -1,3 +1,4 @@
+import { i18n } from '@/lib/i18n';
 import type { SignalType } from './types';
 
 export function formatSymbol(symbol: string): string {
@@ -37,20 +38,24 @@ export function formatPrice(n: number, decimals = 2): string {
 
 export function timeAgo(dateStr: string): string {
   const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
-  if (diff < 60) return 'agora mesmo';
-  if (diff < 3600) return `há ${Math.floor(diff / 60)}min`;
-  if (diff < 86400) return `há ${Math.floor(diff / 3600)}h`;
-  return `há ${Math.floor(diff / 86400)}d`;
+  if (diff < 60) return i18n.t('format.now');
+  if (diff < 3600) return i18n.t('format.minutesAgo', { count: Math.floor(diff / 60) });
+  if (diff < 86400) return i18n.t('format.hoursAgo', { count: Math.floor(diff / 3600) });
+  return i18n.t('format.daysAgo', { count: Math.floor(diff / 86400) });
 }
 
-const MONTHS_PT = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-];
+const MONTH_KEYS = [
+  'january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december',
+] as const;
 
 export function formatLongDate(dateStr: string): string {
   const d = new Date(dateStr);
-  return `${d.getDate()} de ${MONTHS_PT[d.getMonth()]} de ${d.getFullYear()}`;
+  return i18n.t('format.longDate', {
+    day: d.getDate(),
+    month: i18n.t(`format.months.${MONTH_KEYS[d.getMonth()]}`),
+    year: d.getFullYear(),
+  });
 }
 
 export function formatShortDate(dateStr: string): string {
@@ -66,7 +71,7 @@ export function formatDateTimeWAT(dateStr: string): string {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const hh = String(d.getHours()).padStart(2, '0');
   const min = String(d.getMinutes()).padStart(2, '0');
-  return `${dd}/${mm}/${d.getFullYear()} às ${hh}:${min} WAT`;
+  return i18n.t('format.datetimeWAT', { dd, mm, yyyy: d.getFullYear(), hh, min });
 }
 
 export function pad2(n: number): string {
@@ -89,8 +94,8 @@ export function displayName(user: { user_metadata?: Record<string, unknown>; ema
   if (full) return full;
   if (user?.phone) return user.phone;
   const email = user?.email || '';
-  if (isSyntheticEmail(email)) return 'Trader';
-  return email.split('@')[0] || 'Trader';
+  if (isSyntheticEmail(email)) return i18n.t('common.trader');
+  return email.split('@')[0] || i18n.t('common.trader');
 }
 
 export function avatarLetter(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {

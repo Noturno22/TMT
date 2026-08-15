@@ -41,5 +41,27 @@
     "termosTitle": "Termos de Uso",
     "privacidadeTitle": "Privacidade",
     "avisoRiscoTitle": "Aviso de Risco"
+  },
+  "format": {
+    "now": "agora mesmo",
+    "minutesAgo": "há {{count}}min",
+    "hoursAgo": "há {{count}}h",
+    "daysAgo": "há {{count}}d",
+    "longDate": "{{day}} de {{month}} de {{year}}",
+    "datetimeWAT": "{{dd}}/{{mm}}/{{yyyy}} às {{hh}}:{{min}} WAT",
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro"
+    }
   }
 }

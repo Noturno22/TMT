@@ -129,6 +129,17 @@
   "language": {
     "title": "Idioma"
   },
+  "admin": {
+    "title": "Admin",
+    "exportSignals": "Exportar sinais",
+    "exporting": "A exportar…",
+    "noSignals": "Sem sinais para exportar",
+    "loadError": "Erro ao carregar sinais"
+  },
+  "adminErrors": {
+    "load": "Erro ao carregar sinais",
+    "export": "Erro ao exportar sinais"
+  },
   "auth": {
     "tagline": "Análise inteligente. Entradas estratégicas.",
     "continueGoogle": "Continuar com Google",

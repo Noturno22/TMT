@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import * as adminApi from '@/lib/adminApi';
 import { formatSymbol, formatTimeframe } from '@/core/format';
 import type { BoomHour, BoomTime } from '@/core/types';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users';
 
@@ -32,6 +33,7 @@ interface PostRow {
 }
 
 export default function AdminScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('dashboard');
   const [loading, setLoading] = useState(true);
@@ -120,7 +122,7 @@ export default function AdminScreen() {
             <Ionicons name="refresh" size={18} color={Colors.primary} />
           </Pressable>
         }>
-        Painel Admin
+        {t('admin.title')}
       </SectionTitle>
 
       <View style={styles.tabs}>

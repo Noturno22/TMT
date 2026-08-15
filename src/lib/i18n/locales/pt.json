@@ -15,5 +15,31 @@
   },
   "language": {
     "title": "Idioma"
+  },
+  "sinal": {
+    "title": "Análise Completa"
+  },
+  "planos": {
+    "title": "Planos"
+  },
+  "banca": {
+    "title": "Gestão de Banca"
+  },
+  "notificacoes": {
+    "title": "Notificações"
+  },
+  "definicoesBooms": {
+    "title": "Definições do Boom"
+  },
+  "suporteIa": {
+    "title": "Suporte IA"
+  },
+  "planoCrescimento": {
+    "title": "Plano de Crescimento"
+  },
+  "legal": {
+    "termosTitle": "Termos de Uso",
+    "privacidadeTitle": "Privacidade",
+    "avisoRiscoTitle": "Aviso de Risco"
   }
 }

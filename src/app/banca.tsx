@@ -2,17 +2,31 @@ import { useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText, Badge, Card, Divider, Screen, SectionTitle } from '@/components/ui';
+import { PremiumLock } from '@/components/PremiumLock';
 import { formatMoney } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import { useBanca } from '@/hooks/useBanca';
+import { useSubscription } from '@/hooks/useSubscription';
 
 export default function BancaScreen() {
+  const { canAccessBanca } = useSubscription();
   const { config, loading, save } = useBanca();
   const [editing, setEditing] = useState(false);
   const [capitalInput, setCapitalInput] = useState('');
   const [achievedInput, setAchievedInput] = useState('');
   const [metaInput, setMetaInput] = useState('');
   const [riskInput, setRiskInput] = useState('');
+
+  if (!canAccessBanca) {
+    return (
+      <Screen>
+        <PremiumLock
+          label="Gestão de Banca Premium"
+          description="Capital, metas e risco por operação com análise personalizada. Disponível apenas no plano Premium."
+        />
+      </Screen>
+    );
+  }
 
   const beginEdit = () => {
     setCapitalInput(String(config.capital));

@@ -3,13 +3,17 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Badge, Screen } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
+import { PremiumLock } from '@/components/PremiumLock';
 import { SectionHeader } from '@/components/SectionHeader';
 import { WalletCard } from '@/components/WalletCard';
-import { avatarLetter, displayName } from '@/core/format';
+import { avatarLetter, contactInfo, displayName } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
+
+const BINANCE_ID = '547723572';
+const EXPRESS_PHONE = '+244926717730';
 
 function MenuRow({
   icon,
@@ -42,7 +46,7 @@ function MenuRow({
 export default function PerfilScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const { isPremium, subscription } = useSubscription();
+  const { isPremium, canAccessBanca, subscription } = useSubscription();
   const { config: banca } = useBanca();
 
   const periodEnd = subscription?.current_period_end
@@ -66,7 +70,7 @@ export default function PerfilScreen() {
             <AppText style={styles.avatarText}>{user ? avatarLetter(user) : 'T'}</AppText>
           </View>
           <AppText variant="h1">{user ? displayName(user) : 'Trader'}</AppText>
-          <AppText variant="muted">{user?.email ?? 'Não autenticado'}</AppText>
+          <AppText variant="muted">{user ? (contactInfo(user) ?? 'Conta verificada') : 'Não autenticado'}</AppText>
           {user ? (
             <View style={styles.badgeWrap}>
               {isPremium ? (
@@ -83,10 +87,20 @@ export default function PerfilScreen() {
         <View style={styles.section}>
           <SectionHeader
             title="Carteira"
-            subtitle="Gestão de banca"
-            action={{ label: 'Ver banca ›', onPress: () => router.push('/banca') }}
+            subtitle={canAccessBanca ? 'Gestão de banca' : 'Disponível no plano Premium'}
+            action={
+              canAccessBanca ? { label: 'Ver banca ›', onPress: () => router.push('/banca') } : undefined
+            }
           />
-          <WalletCard config={banca} />
+          {canAccessBanca ? (
+            <WalletCard config={banca} />
+          ) : (
+            <PremiumLock
+              compact
+              label="Carteira & Gestão de Banca"
+              description="Controla capital, metas e risco por operação."
+            />
+          )}
         </View>
 
         <View style={styles.section}>
@@ -103,10 +117,36 @@ export default function PerfilScreen() {
         <View style={styles.section}>
           <AppText variant="label" style={styles.sectionLabel}>PREFERÊNCIAS</AppText>
           <View style={styles.menu}>
-            <MenuRow icon="notifications" label="Notificações" onPress={() => router.push('/horarios')} />
+            <MenuRow icon="notifications" label="Notificações" onPress={() => router.push('/notificacoes')} />
             <MenuRow icon="alarm" label="Gerenciar Alertas" onPress={() => router.push('/horarios')} />
             <MenuRow icon="shield-checkmark" label="Segurança" onPress={() => Alert.alert('Segurança', 'Funcionalidade em breve.')} />
             <MenuRow icon="settings" label="Preferências" onPress={() => Alert.alert('Preferências', 'Funcionalidade em breve.')} />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <AppText variant="label" style={styles.sectionLabel}>SAQUE E DEPÓSITO</AppText>
+          <View style={styles.menu}>
+            <Pressable style={styles.paymentRow}>
+              <View style={[styles.paymentIcon, { backgroundColor: '#F0B90B1A' }]}>
+                <Ionicons name="logo-bitcoin" size={20} color="#F0B90B" />
+              </View>
+              <View style={styles.paymentInfo}>
+                <AppText style={styles.paymentLabel}>Binance</AppText>
+                <AppText variant="small" style={styles.paymentDetail}>ID: {BINANCE_ID}</AppText>
+              </View>
+              <Ionicons name="copy" size={20} color={Colors.textFaint} />
+            </Pressable>
+            <Pressable style={[styles.paymentRow, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border }]}>
+              <View style={[styles.paymentIcon, { backgroundColor: '#00C8531A' }]}>
+                <Ionicons name="cash" size={20} color="#00C853" />
+              </View>
+              <View style={styles.paymentInfo}>
+                <AppText style={styles.paymentLabel}>Express</AppText>
+                <AppText variant="small" style={styles.paymentDetail}>{EXPRESS_PHONE}</AppText>
+              </View>
+              <Ionicons name="copy" size={20} color={Colors.textFaint} />
+            </Pressable>
           </View>
         </View>
 
@@ -170,6 +210,30 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
+  },
+  paymentIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  paymentLabel: {
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  paymentDetail: {
+    color: Colors.textMuted,
   },
   version: { textAlign: 'center', color: Colors.textFaint, marginTop: Spacing.lg },
 });

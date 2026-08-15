@@ -1,24 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { AppButton, AppText, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AlarmToggle } from '@/components/AlarmToggle';
 import { BoomHourCard, boomHourStatus } from '@/components/BoomHourCard';
 import { useBoomHours } from '@/hooks/useBoomHours';
-import { requestNotificationPermission } from '@/lib/notifications';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  DEFAULT_BOOM_PREFS,
+  applyBoomPrefs,
+  hasActiveFilters,
+  loadBoomPrefs,
+  type BoomPrefs,
+} from '@/lib/boomPrefs';
 import { boomCountdown, boomEpochMs, getNextBoomHour } from '@/core/booms';
 import { formatLongDate, pad2 } from '@/core/format';
-import { Colors, Spacing } from '@/core/theme';
+import { Colors, Radius, Spacing } from '@/core/theme';
 import type { BoomHour } from '@/core/types';
-
-async function openNotificationSettings() {
-  const granted = await requestNotificationPermission();
-  if (!granted) {
-    Alert.alert('Notificações', 'Ativa as notificações nas definições do teu telemóvel.');
-  }
-}
 
 function watDate(now: Date): Date {
   return new Date(now.getTime() + (now.getTimezoneOffset() + 60) * 60000);
@@ -91,23 +92,42 @@ function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
 }
 
 export default function HorariosScreen() {
+  const router = useRouter();
+  const { user } = useAuth();
   const { hours, loading, error } = useBoomHours();
   const [now, setNow] = useState(new Date());
+  const [prefs, setPrefs] = useState<BoomPrefs>(DEFAULT_BOOM_PREFS);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      loadBoomPrefs(user?.id).then((p) => {
+        if (active) setPrefs(p);
+      });
+      return () => {
+        active = false;
+      };
+    }, [user?.id]),
+  );
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const live = hours.filter((h) => boomHourStatus(h, now) === 'live');
-  const upcoming = hours.filter((h) => boomHourStatus(h, now) === 'upcoming');
-  const expired = hours.filter((h) => boomHourStatus(h, now) === 'expired');
+  const filteredHours = useMemo(() => applyBoomPrefs(hours, prefs), [hours, prefs]);
+  const hiddenCount = Math.max(0, hours.length - filteredHours.length);
+  const filtersActive = hasActiveFilters(prefs);
+
+  const live = filteredHours.filter((h) => boomHourStatus(h, now) === 'live');
+  const upcoming = filteredHours.filter((h) => boomHourStatus(h, now) === 'upcoming');
+  const expired = filteredHours.filter((h) => boomHourStatus(h, now) === 'expired');
 
   return (
     <Screen>
       <SectionTitle
         right={
-          <Pressable onPress={openNotificationSettings} hitSlop={8}>
+          <Pressable onPress={() => router.push('/definicoes-booms')} hitSlop={8}>
             <Ionicons name="settings" size={20} color={Colors.textFaint} />
           </Pressable>
         }>
@@ -119,7 +139,7 @@ export default function HorariosScreen() {
         <AppText variant="small" style={{ color: Colors.textMuted }}>WAT (UTC-1)</AppText>
       </View>
 
-      <NextBoomHero hours={hours} now={now} />
+      <NextBoomHero hours={filteredHours} now={now} />
 
       <Clock now={now} />
 
@@ -127,12 +147,35 @@ export default function HorariosScreen() {
         Janelas de alta volatilidade. Ativa alarmes para não perderes a entrada.
       </AppText>
 
+      {filtersActive ? (
+        <Pressable onPress={() => router.push('/definicoes-booms')} style={styles.filterRow}>
+          <Ionicons name="funnel" size={14} color={Colors.primary} />
+          <AppText variant="small" style={{ color: Colors.primary, fontWeight: '600', flex: 1 }}>
+            Filtros ativos · {hiddenCount} boom{hiddenCount === 1 ? '' : 's'} oculto{hiddenCount === 1 ? '' : 's'}
+          </AppText>
+          <Ionicons name="chevron-forward" size={14} color={Colors.primary} />
+        </Pressable>
+      ) : null}
+
       {loading ? (
         <Spinner label="A carregar horários…" />
       ) : error ? (
         <EmptyState title="Erro" subtitle={error} />
       ) : hours.length === 0 ? (
         <EmptyState title="Sem horários" subtitle="Ainda não há horários ativos." />
+      ) : filteredHours.length === 0 ? (
+        <>
+          <EmptyState
+            title="Sem booms nos filtros"
+            subtitle="Nenhum boom corresponde aos teus filtros. Ajusta-os nas definições."
+          />
+          <AppButton
+            title="Ajustar filtros"
+            variant="secondary"
+            icon={<Ionicons name="options" size={18} color={Colors.accent} />}
+            onPress={() => router.push('/definicoes-booms')}
+          />
+        </>
       ) : (
         <View>
           {live.length > 0 ? (
@@ -161,6 +204,18 @@ export default function HorariosScreen() {
 
 const styles = StyleSheet.create({
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.md },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: `${Colors.primary}0D`,
+    borderColor: `${Colors.primary}40`,
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    marginBottom: Spacing.md,
+  },
   hero: {
     gap: Spacing.md,
     marginBottom: Spacing.md,

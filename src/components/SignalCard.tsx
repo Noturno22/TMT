@@ -69,6 +69,14 @@ function LevelLadder({
     borderRadius: width / 2,
   });
 
+  // Ordenar níveis para empilhar labels sem overlap
+  const levels = [
+    { key: 'tp', price: takeProfit, color: Colors.success, label: 'TP', pips: tpPips },
+    ...(live !== null ? [{ key: 'live', price: live, color: Colors.text, label: '●', pips: null, isLive: true }] : []),
+    { key: 'entry', price: entry, color: Colors.accent, label: 'ENTRADA', pips: 0 },
+    { key: 'sl', price: stopLoss, color: Colors.destructive, label: 'SL', pips: slPips },
+  ];
+
   return (
     <View style={styles.ladder}>
       <View style={styles.ladderTrack}>
@@ -83,27 +91,26 @@ function LevelLadder({
       </View>
 
       <View style={styles.ladderLabels}>
-        <View style={[styles.ladderRow, { top: pos(takeProfit) }]}>
-          <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>TP</AppText>
-          <AppText variant="mono" style={{ color: Colors.success }}>{formatNumber(takeProfit, decimalsFor(pair))}</AppText>
-          <AppText variant="small" style={{ color: Colors.success }}>{Math.round(tpPips)} pips</AppText>
-        </View>
-        {live !== null ? (
-          <View style={[styles.ladderRow, { top: pos(live) }]}>
-            <AppText variant="small" style={{ color: Colors.text, fontWeight: '800' }}>●</AppText>
-            <AppText variant="mono" style={{ color: Colors.text, fontWeight: '700' }}>{formatNumber(live, decimalsFor(pair))}</AppText>
-            <AppText variant="small" style={{ color: Colors.textMuted }}>agora</AppText>
+        {levels.map((lvl, idx) => (
+          <View key={lvl.key} style={styles.ladderRow}>
+            <View style={styles.ladderLabelBox}>
+              <AppText variant="small" style={{ color: lvl.color, fontWeight: '700' }}>
+                {lvl.label}
+              </AppText>
+              <AppText variant="mono" style={{ color: lvl.color, fontWeight: '700' }}>
+                {formatNumber(lvl.price, decimalsFor(pair))}
+              </AppText>
+              {lvl.pips !== null && lvl.pips !== undefined && (
+                <AppText variant="small" style={{ color: lvl.color }}>
+                  {Math.round(lvl.pips)} pips
+                </AppText>
+              )}
+              {lvl.isLive && (
+                <AppText variant="small" style={{ color: Colors.textMuted }}>agora</AppText>
+              )}
+            </View>
           </View>
-        ) : null}
-        <View style={[styles.ladderRow, { top: pos(entry) }]}>
-          <AppText variant="small" style={{ color: Colors.accent, fontWeight: '700' }}>ENTRADA</AppText>
-          <AppText variant="mono" style={{ color: Colors.accent }}>{formatNumber(entry, decimalsFor(pair))}</AppText>
-        </View>
-        <View style={[styles.ladderRow, { top: pos(stopLoss) }]}>
-          <AppText variant="small" style={{ color: Colors.destructive, fontWeight: '700' }}>SL</AppText>
-          <AppText variant="mono" style={{ color: Colors.destructive }}>{formatNumber(stopLoss, decimalsFor(pair))}</AppText>
-          <AppText variant="small" style={{ color: Colors.destructive }}>{Math.round(slPips)} pips</AppText>
-        </View>
+        ))}
       </View>
     </View>
   );
@@ -240,15 +247,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     transform: [{ translateY: -9 }],
   },
-  ladderLabels: { flex: 1, position: 'relative', height: 150 },
+  ladderLabels: { flex: 1, position: 'relative', gap: 4 },
   ladderRow: {
-    position: 'absolute',
     left: 0,
     right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    transform: [{ translateY: -8 }],
+  },
+  ladderLabelBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
   liveRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   levels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.xs },

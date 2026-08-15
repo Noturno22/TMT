@@ -13,14 +13,26 @@ Notifications.setNotificationHandler({
 
 const ALARMS_KEY = 'boom_alarms';
 const CHANNEL_ID = 'booms';
+const CHANNEL_ID_ALARM = 'booms_alarm';
+const UPGRADE_KEY_PREFIX = 'plan_upgrade_prompt';
+const UPGRADE_CHANNEL_ID = 'planos';
 
 export async function ensureChannel(): Promise<void> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: 'Alarmes da Hora do Boom',
+      name: 'Avisos da Hora do Boom (5 min)',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#16A43A',
+    });
+
+    await Notifications.setNotificationChannelAsync(CHANNEL_ID_ALARM, {
+      name: 'Alarme da Hora do Boom (exato)',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 500, 200, 500, 200, 500],
+      lightColor: '#FF3B30',
+      bypassDnd: true,
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     });
   }
 }
@@ -43,6 +55,7 @@ export async function loadAlarms(): Promise<string[]> {
 interface AlarmEntry {
   identifier: string;
   boomId: string;
+  warningId?: string;
 }
 
 async function loadAlarmEntries(): Promise<AlarmEntry[]> {
@@ -77,6 +90,7 @@ export async function cancelBoomAlarm(boomId: string): Promise<boolean> {
   for (const entry of matching) {
     try {
       await Notifications.cancelScheduledNotificationAsync(entry.identifier);
+      if (entry.warningId) await Notifications.cancelScheduledNotificationAsync(entry.warningId);
     } catch {
       // ignore
     }
@@ -93,33 +107,73 @@ export interface ScheduledAlarm {
 }
 
 /**
- * Agenda um alarme 5 minutos antes do horário de um boom.
- * O identificador da notificação agendada fica guardado em boom_alarms (local).
+ * Agenda DOIS alarmes para um boom:
+ * 1. Aviso 5 minutos antes (para preparar)
+ * 2. Alarme EXATO na hora do boom (comporta como alarme real: acorda tela, som alto, full-screen)
+ * O identificador fica guardado em boom_alarms (local).
  */
 export async function scheduleBoomAlarm(boomId: string, boomTime: string, title: string): Promise<boolean> {
   const granted = await requestNotificationPermission();
   if (!granted) return false;
 
-  const fireAt = new Date(new Date(boomTime).getTime() - 5 * 60 * 1000);
-  if (fireAt.getTime() <= Date.now()) return false;
+  const boomDate = new Date(boomTime);
+  const warningAt = new Date(boomDate.getTime() - 5 * 60 * 1000);
+  const now = Date.now();
 
-  const identifier = await Notifications.scheduleNotificationAsync({
+  if (warningAt.getTime() <= now && boomDate.getTime() <= now) return false;
+
+  const entries = await loadAlarmEntries();
+  const existing = entries.find((e) => e.boomId === boomId);
+  if (existing) {
+    try {
+      await Notifications.cancelScheduledNotificationAsync(existing.identifier);
+      if (existing.warningId) await Notifications.cancelScheduledNotificationAsync(existing.warningId);
+    } catch {
+      // ignore
+    }
+  }
+
+  let warningId: string | undefined;
+  let alarmId: string;
+
+  if (warningAt.getTime() > now) {
+    warningId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: '⏰ Preparação: Hora do Boom',
+        body: `${title} começa em 5 minutos! Prepare-se.`,
+        data: { url: '/(tabs)/horarios', boomId, type: 'warning' },
+        sound: Platform.OS === 'ios' ? 'default' : undefined,
+        priority: Notifications.AndroidNotificationPriority.HIGH,
+        interruptionLevel: Platform.OS === 'ios' ? 'active' : undefined,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: warningAt,
+        channelId: Platform.OS === 'android' ? CHANNEL_ID : undefined,
+      },
+    });
+  }
+
+  alarmId = await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Hora do Boom',
-      body: `${title} começa em 5 minutos!`,
-      data: { url: '/(tabs)/horarios', boomId },
-      sound: 'default',
+      title: '🚨 HORA DO BOOM!',
+      body: `${title} COMEÇOU AGORA!`,
+      data: { url: '/(tabs)/horarios', boomId, type: 'alarm' },
+      sound: Platform.OS === 'ios' ? 'default' : undefined,
+      priority: Notifications.AndroidNotificationPriority.MAX,
+      categoryIdentifier: 'BOOM_ALARM',
+      interruptionLevel: Platform.OS === 'ios' ? 'timeSensitive' : undefined,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
-      date: fireAt,
-      channelId: Platform.OS === 'android' ? CHANNEL_ID : undefined,
+      date: boomDate,
+      channelId: Platform.OS === 'android' ? CHANNEL_ID_ALARM : undefined,
     },
   });
 
-  const entries = await loadAlarmEntries();
-  entries.push({ identifier, boomId });
-  await saveAlarmEntries(entries);
+  const filtered = entries.filter((e) => e.boomId !== boomId);
+  filtered.push({ identifier: alarmId, boomId, warningId });
+  await saveAlarmEntries(filtered);
   return true;
 }
 
@@ -128,6 +182,7 @@ export async function cancelAllBoomAlarms(): Promise<void> {
   for (const entry of entries) {
     try {
       await Notifications.cancelScheduledNotificationAsync(entry.identifier);
+      if (entry.warningId) await Notifications.cancelScheduledNotificationAsync(entry.warningId);
     } catch {
       // ignore
     }
@@ -157,4 +212,56 @@ export function subscribeToNotificationResponses(onOpen: (url: string) => void):
     const url = getNotificationUrl(response.notification.request.content.data);
     if (url) onOpen(url);
   });
+}
+
+// ---------- Primeira notificação (promoção de plano) ----------
+
+async function ensureUpgradeChannel(): Promise<void> {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync(UPGRADE_CHANNEL_ID, {
+      name: 'Planos e Ofertas',
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FFC915',
+    });
+  }
+}
+
+export async function hasUpgradePromptScheduled(userId: string): Promise<boolean> {
+  const raw = await AsyncStorage.getItem(`${UPGRADE_KEY_PREFIX}:${userId}`);
+  return raw === '1';
+}
+
+/**
+ * Agenda (uma única vez por utilizador) a primeira notificação do plano gratuito,
+ * convidando-o a subscrever Basic, Pro ou Premium para sair do plano grátis.
+ * Ao tocar, o utilizador é levado para a área de Planos.
+ */
+export async function scheduleUpgradePrompt(userId: string): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
+  if (await hasUpgradePromptScheduled(userId)) return false;
+
+  await ensureUpgradeChannel();
+  const granted = await requestNotificationPermission();
+  if (!granted) return false;
+
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Desbloqueia o Premium',
+        body: 'Escolhe Basic, Pro ou Premium e sai do plano gratuito.',
+        data: { url: '/planos' },
+        sound: Platform.OS === 'ios' ? 'default' : undefined,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 20,
+        channelId: Platform.OS === 'android' ? UPGRADE_CHANNEL_ID : undefined,
+      },
+    });
+    await AsyncStorage.setItem(`${UPGRADE_KEY_PREFIX}:${userId}`, '1');
+    return true;
+  } catch {
+    return false;
+  }
 }

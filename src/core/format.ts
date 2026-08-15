@@ -73,11 +73,23 @@ export function pad2(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-export function displayName(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {
+export function isSyntheticEmail(email?: string): boolean {
+  return !!email && email.endsWith('@tmt.local');
+}
+
+export function contactInfo(user: { user_metadata?: Record<string, unknown>; email?: string; phone?: string } | null): string | null {
+  if (user?.phone) return user.phone;
+  if (user?.email && !isSyntheticEmail(user.email)) return user.email;
+  return null;
+}
+
+export function displayName(user: { user_metadata?: Record<string, unknown>; email?: string; phone?: string } | null): string {
   const meta = user?.user_metadata as Record<string, unknown> | undefined;
   const full = typeof meta?.full_name === 'string' ? meta.full_name : '';
   if (full) return full;
+  if (user?.phone) return user.phone;
   const email = user?.email || '';
+  if (isSyntheticEmail(email)) return 'Trader';
   return email.split('@')[0] || 'Trader';
 }
 

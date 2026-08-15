@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText, Badge, Chip, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
@@ -33,7 +32,6 @@ interface PostRow {
 }
 
 export default function AdminScreen() {
-  const router = useRouter();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('dashboard');
   const [loading, setLoading] = useState(true);
@@ -71,20 +69,27 @@ export default function AdminScreen() {
   }, []);
 
   useEffect(() => {
-    if (user && !isAdminEmail(user.email)) {
-      router.replace('/(tabs)/analises');
-      return;
-    }
-    if (user) {
-      const timer = setTimeout(() => {
-        loadData().finally(() => setLoading(false));
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [user, loadData, router]);
+    if (!user || !isAdminEmail(user.email)) return;
+    const timer = setTimeout(() => {
+      loadData().finally(() => setLoading(false));
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [user, loadData]);
 
   if (!user) return <Spinner label="A verificar acesso…" />;
-  if (!isAdminEmail(user.email)) return null;
+  if (!isAdminEmail(user.email)) {
+    return (
+      <Screen>
+        <View style={styles.restricted}>
+          <Ionicons name="lock-closed" size={44} color={Colors.textMuted} />
+          <AppText variant="h1" style={{ textAlign: 'center' }}>Acesso restrito</AppText>
+          <AppText variant="muted" style={{ textAlign: 'center' }}>
+            Esta área é exclusiva para administradores.
+          </AppText>
+        </View>
+      </Screen>
+    );
+  }
   if (loading) return <Spinner label="A carregar admin…" />;
 
   const run = async (label: string, fn: () => Promise<number>) => {
@@ -501,6 +506,7 @@ function UsersPanel({
 }
 
 const styles = StyleSheet.create({
+  restricted: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.md, padding: Spacing.xl },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
   statCard: {
     width: '47%',

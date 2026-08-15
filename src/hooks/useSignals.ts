@@ -1,9 +1,43 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { subscribeToChanges } from '@/lib/realtime';
-import type { Signal, SignalStatus, SignalType } from '@/core/types';
+import type { Signal, SignalStatus, SignalType, SignalTier } from '@/core/types';
 import { formatSymbol, formatTimeframe, formatType } from '@/core/format';
+import { notifyNewSignal } from '@/lib/signalNotifications';
+import { useSubscription } from '@/hooks/useSubscription';
+
+// Pares que NÃO operam fim de semana (mercado fechado)
+const WEEKEND_CLOSED_PAIRS = new Set([
+  'EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'EUR/GBP',
+  'USD/CHF', 'NZD/USD', 'USD/CAD', 'XAU/USD', // Ouro segue forex
+]);
+
+// Pares crypto - apenas Pro/Premium
+const PRO_ONLY_PAIRS = new Set([
+  'BTC/USD', 'ETH/USD', 'BTCUSDT', 'ETHUSDT',
+]);
+
+function isWeekend(): boolean {
+  const day = new Date().getUTCDay(); // 0 = Domingo, 6 = Sábado
+  return day === 0 || day === 6;
+}
+
+function isPairWeekendClosed(pair: string): boolean {
+  return WEEKEND_CLOSED_PAIRS.has(pair);
+}
+
+function isPairProOnly(pair: string): boolean {
+  return PRO_ONLY_PAIRS.has(pair);
+}
+
+// Configuração de qualidade - Sinais sérios para traders sérios
+const SIGNAL_QUALITY = {
+  MIN_CONFIDENCE: 75,        // Mínimo 75% confiança
+  MIN_RISK_REWARD: 1.5,      // Mínimo 1:1.5 R:R
+  MAX_PER_DAY: 12,           // Máximo 12 sinais/dia (qualidade > quantidade)
+  MAX_ACTIVE: 20,            // Máximo 20 sinais ativos simultâneos
+} as const;
 
 function determineStatus(status: string | null, confidence: number): SignalStatus {
   if (status === 'tp') return 'tp';
@@ -13,38 +47,120 @@ function determineStatus(status: string | null, confidence: number): SignalStatu
   return Number(confidence) >= 70 ? 'active' : 'pending';
 }
 
-async function fetchSignals(): Promise<Signal[]> {
+function determineTier(status: string | null, confidence: number, isPremium: boolean): SignalTier {
+  if (isPremium) return 'premium';
+  if (Number(confidence) >= 80) return 'pro';
+  return 'free';
+}
+
+function calculateRiskReward(entry: number, sl: number, tp: number): number | undefined {
+  if (!entry || !sl || !tp) return undefined;
+  const risk = Math.abs(entry - sl);
+  const reward = Math.abs(tp - entry);
+  if (risk === 0) return undefined;
+  return Number((reward / risk).toFixed(1));
+}
+
+function passesQualityFilter(confidence: number, rr: number | undefined): boolean {
+  if (confidence < SIGNAL_QUALITY.MIN_CONFIDENCE) return false;
+  if (rr !== undefined && rr < SIGNAL_QUALITY.MIN_RISK_REWARD) return false;
+  return true;
+}
+
+async function fetchSignals(userTier: SignalTier = 'free'): Promise<Signal[]> {
   const { data, error } = await supabase
     .from('signals')
     .select('*')
+    .in('status', ['active', 'pending']) // Só sinais abertos
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(SIGNAL_QUALITY.MAX_ACTIVE);
 
   if (error) throw error;
 
-  return (data || []).map((row: any) => ({
-    id: String(row.id),
-    pair: formatSymbol(row.symbol),
-    timeframe: formatTimeframe(row.timeframe),
-    type: formatType(row.signal_type),
-    confidence: Number(row.confidence) || 50,
-    entry: Number(row.entry_price) || 0,
-    stopLoss: Number(row.stop_loss) || 0,
-    takeProfit: Number(row.target_price) || 0,
-    reasons: Array.isArray(row.reasons) ? row.reasons : [],
-    createdAt: row.created_at ?? new Date().toISOString(),
-    status: determineStatus(row.status, Number(row.confidence)),
-  }));
+  const isPremium = userTier === 'premium' || userTier === 'pro';
+
+  const mapped = (data || []).map((row: any) => {
+    const entry = Number(row.entry_price) || 0;
+    const sl = Number(row.stop_loss) || 0;
+    const tp = Number(row.target_price) || 0;
+    const confidence = Number(row.confidence) || 50;
+    const tier = determineTier(row.status, confidence, isPremium);
+    const rr = calculateRiskReward(entry, sl, tp);
+
+    return {
+      id: String(row.id),
+      pair: formatSymbol(row.symbol),
+      timeframe: formatTimeframe(row.timeframe),
+      type: formatType(row.signal_type),
+      confidence,
+      entry,
+      stopLoss: sl,
+      takeProfit: tp,
+      reasons: Array.isArray(row.reasons) ? row.reasons : [],
+      createdAt: row.created_at ?? new Date().toISOString(),
+      status: determineStatus(row.status, confidence),
+      tier,
+      riskReward: rr,
+      expiresAt: row.expires_at ?? undefined,
+      analysis: row.analysis ?? undefined,
+      probabilityScore: row.probability_score ?? undefined,
+    };
+  });
+
+  // Filtrar por qualidade e limitar por dia
+  const today = new Date().toISOString().split('T')[0];
+  const todaysSignals = mapped.filter((s) => s.createdAt.startsWith(today));
+  let qualityFiltered = mapped.filter((s) => passesQualityFilter(s.confidence, s.riskReward));
+
+  // Filtrar pares Pro-only para usuários Free
+  if (userTier === 'free') {
+    qualityFiltered = qualityFiltered.filter((s) => !isPairProOnly(s.pair));
+  }
+
+  // Fim de semana: ocultar pares forex/mercado fechado
+  if (isWeekend()) {
+    qualityFiltered = qualityFiltered.filter((s) => !isPairWeekendClosed(s.pair));
+    console.log('[Signals] Fim de semana - filtrados pares forex, restam:', qualityFiltered.length);
+  }
+
+  // Priorizar sinais de hoje com qualidade, completar com anteriores se necessário
+  const result = [
+    ...todaysSignals.filter((s) => passesQualityFilter(s.confidence, s.riskReward)).slice(0, SIGNAL_QUALITY.MAX_PER_DAY),
+    ...qualityFiltered.filter((s) => !todaysSignals.includes(s)).slice(0, SIGNAL_QUALITY.MAX_ACTIVE - SIGNAL_QUALITY.MAX_PER_DAY),
+  ];
+
+  return result.slice(0, SIGNAL_QUALITY.MAX_ACTIVE);
 }
 
 export function useSignals() {
   const queryClient = useQueryClient();
+  const notifiedRef = useRef<Set<string>>(new Set());
+  const { planTier } = useSubscription();
+
+  // Mapear PlanTier → SignalTier (basic = free para fins de sinais)
+  const signalTier: SignalTier = planTier === 'pro' || planTier === 'premium' ? planTier : 'free';
 
   const { data: signals = [], isLoading: loading, error: queryError, refetch } = useQuery<Signal[], Error>({
-    queryKey: ['signals'],
-    queryFn: fetchSignals,
+    queryKey: ['signals', signalTier],
+    queryFn: () => fetchSignals(signalTier),
     staleTime: 30_000,
   });
+
+  // Notificar novos sinais
+  useEffect(() => {
+    if (loading || !signals.length) return;
+    for (const signal of signals) {
+      if (!notifiedRef.current.has(signal.id)) {
+        notifiedRef.current.add(signal.id);
+        notifyNewSignal(signal).catch(() => {});
+      }
+    }
+    // Limpar IDs antigos se muitos
+    if (notifiedRef.current.size > 500) {
+      const arr = Array.from(notifiedRef.current);
+      notifiedRef.current = new Set(arr.slice(-250));
+    }
+  }, [signals, loading]);
 
   useEffect(() => {
     return subscribeToChanges('signals', [

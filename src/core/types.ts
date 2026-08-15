@@ -1,5 +1,6 @@
 export type SignalType = 'BUY' | 'SELL' | 'AGUARDAR';
-export type SignalStatus = 'active' | 'pending' | 'tp' | 'sl';
+export type SignalStatus = 'active' | 'pending' | 'tp' | 'sl' | 'expired';
+export type SignalTier = 'free' | 'pro' | 'premium';
 export type BoomStatus = 'upcoming' | 'live' | 'expired';
 
 export interface Signal {
@@ -14,6 +15,12 @@ export interface Signal {
   reasons: string[];
   status: SignalStatus;
   createdAt: string;
+  // Novos campos para modelo Pro
+  tier: SignalTier;
+  riskReward?: number;        // R:R ratio (ex: 1:2.5)
+  expiresAt?: string;         // expiração do sinal
+  analysis?: string;          // análise técnica detalhada (Pro/Premium)
+  probabilityScore?: number;  // 0-100 score interno de qualidade
 }
 
 export interface HistorySignal {

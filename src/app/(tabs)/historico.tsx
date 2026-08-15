@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Badge, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
 import { useHistory } from '@/hooks/useHistory';
-import { formatShortDate } from '@/core/format';
+import { formatShortDate, formatDateTimeWAT } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
@@ -19,6 +19,7 @@ export default function HistoricoScreen() {
   const { signals, stats, loading } = useHistory();
   const [pair, setPair] = useState('Todos os pares');
   const [open, setOpen] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const pairs = useMemo(
     () => ['Todos os pares', ...Array.from(new Set(signals.map((s) => s.pair)))],
@@ -30,6 +31,55 @@ export default function HistoricoScreen() {
   const selectPair = (p: string) => {
     setPair(p);
     setOpen(false);
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const isExpanded = (id: string) => expandedIds.has(id);
+
+  const renderSignalDetails = (s: typeof signals[0]) => {
+    const isTp = s.result === 'tp';
+    const accent = isTp ? Colors.success : Colors.destructive;
+    const mult = s.pair.includes('JPY') ? 100 : 10000;
+    const slPips = Math.abs(s.stopLoss - s.entry) * mult;
+    const tpPips = Math.abs(s.takeProfit - s.entry) * mult;
+    const rr = slPips > 0 ? (tpPips / slPips).toFixed(2) : '—';
+
+    return (
+      <View style={styles.details}>
+        <View style={styles.detailRow}>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>Entrada</AppText>
+          <AppText variant="small" style={{ fontWeight: '600' }}>{s.entry.toFixed(5)}</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>Stop Loss</AppText>
+          <AppText variant="small" style={{ color: Colors.destructive, fontWeight: '600' }}>{s.stopLoss.toFixed(5)} ({Math.round(slPips)} pips)</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>Take Profit</AppText>
+          <AppText variant="small" style={{ color: Colors.success, fontWeight: '600' }}>{s.takeProfit.toFixed(5)} ({Math.round(tpPips)} pips)</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>R:R</AppText>
+          <AppText variant="small" style={{ fontWeight: '600', color: Colors.accent }}>1:{rr}</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>Resultado</AppText>
+          <AppText variant="small" style={{ color: accent, fontWeight: '700' }}>{isTp ? '✅ TAKE PROFIT' : '❌ STOP LOSS'}</AppText>
+        </View>
+        <View style={styles.detailRow}>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>Data/Hora (WAT)</AppText>
+          <AppText variant="small" style={{ color: Colors.text }}>{formatDateTimeWAT(s.date)}</AppText>
+        </View>
+      </View>
+    );
   };
 
   return (
@@ -79,8 +129,9 @@ export default function HistoricoScreen() {
         filtered.map((s) => {
           const isTp = s.result === 'tp';
           const accent = isTp ? Colors.success : Colors.destructive;
+          const expanded = isExpanded(s.id);
           return (
-            <View key={s.id} style={[styles.row, { borderLeftColor: accent, borderLeftWidth: 3 }]}>
+            <Pressable key={s.id} onPress={() => toggleExpand(s.id)} style={[styles.row, { borderLeftColor: accent, borderLeftWidth: 3 }]}>
               <View style={styles.rowTop}>
                 <View style={styles.rowLeft}>
                   <AppText variant="label" style={{ fontWeight: '700' }}>{s.pair}</AppText>
@@ -99,7 +150,14 @@ export default function HistoricoScreen() {
                 </AppText>
                 <AppText variant="small" style={{ color: Colors.textFaint }}>{formatShortDate(s.date)}</AppText>
               </View>
-            </View>
+              <Ionicons
+                name={expanded ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={Colors.textFaint}
+                style={styles.chevron}
+              />
+              {expanded && renderSignalDetails(s)}
+            </Pressable>
           );
         })
       )}
@@ -149,4 +207,17 @@ const styles = StyleSheet.create({
   rowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   rowBottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  chevron: { marginLeft: Spacing.sm },
+  details: {
+    marginTop: Spacing.xs,
+    paddingTop: Spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: Colors.border,
+    gap: Spacing.xs,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+  },
 });

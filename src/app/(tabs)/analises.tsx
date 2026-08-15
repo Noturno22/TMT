@@ -219,14 +219,14 @@ export default function AnalisesScreen() {
 
 const styles = StyleSheet.create({
   screen: { padding: 0 },
-  content: { padding: Spacing.lg, paddingBottom: Spacing.xl },
+  content: { padding: Spacing.md, paddingBottom: Spacing.xl },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  tickerWrap: { marginBottom: Spacing.md },
+  tickerWrap: { marginBottom: Spacing.sm },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginBottom: Spacing.sm,
+    gap: Spacing.xs,
+    marginBottom: Spacing.xs,
   },
   heroCard: {
     backgroundColor: Colors.surface,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 16,
     padding: Spacing.md,
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xs,
     gap: Spacing.sm,
   },
   heroHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -242,5 +242,5 @@ const styles = StyleSheet.create({
   heroLevels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.xs },
   heroLevel: { gap: 2, flex: 1 },
   heroCta: { color: Colors.primary, fontWeight: '700', textAlign: 'center', marginTop: Spacing.xs },
-  listHeader: { marginVertical: Spacing.md },
+  listHeader: { marginVertical: Spacing.sm },
 });

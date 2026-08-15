@@ -63,7 +63,7 @@ export function Card({ children, style }: { children: ReactNode; style?: object 
 
 // ---------- Button ----------
 
-type ButtonVariant = 'primary' | 'gold' | 'secondary' | 'ghost' | 'danger' | 'outline';
+export type ButtonVariant = 'primary' | 'gold' | 'secondary' | 'ghost' | 'danger' | 'outline';
 
 export function AppButton({
   title,
@@ -214,18 +214,24 @@ export function Divider({ style }: { style?: object }) {
 
 // ---------- Input ----------
 
-export function AppInput(props: TextInputProps & { label?: string }) {
-  const { label, style, ...rest } = props;
+export function AppInput(
+  props: TextInputProps & { label?: string; icon?: ReactNode; accessory?: ReactNode },
+) {
+  const { label, icon, accessory, style, ...rest } = props;
   return (
     <View style={styles.inputWrap}>
       {label ? (
         <AppText variant="label" style={{ marginBottom: Spacing.xs }}>{label}</AppText>
       ) : null}
-      <TextInput
-        placeholderTextColor={Colors.textMuted}
-        style={[styles.input, style]}
-        {...rest}
-      />
+      <View style={styles.inputRow}>
+        {icon ? <View style={styles.inputIcon}>{icon}</View> : null}
+        <TextInput
+          placeholderTextColor={Colors.textMuted}
+          style={[styles.input, style]}
+          {...rest}
+        />
+        {accessory ? <View style={styles.inputAccessory}>{accessory}</View> : null}
+      </View>
     </View>
   );
 }
@@ -276,12 +282,19 @@ const styles = StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.md },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.md },
   inputWrap: { marginBottom: Spacing.md },
-  input: {
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.surface,
     borderColor: Colors.border,
     borderWidth: 1,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
+  },
+  inputIcon: { marginRight: Spacing.sm },
+  inputAccessory: { marginLeft: Spacing.xs },
+  input: {
+    flex: 1,
     paddingVertical: 12,
     color: Colors.text,
     fontSize: 15,

@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginBottom: Spacing.md,
   },
-  win: { fontSize: 48 },
+  win: { fontSize: 48, lineHeight: 52 },
   winLabel: { flex: 1 },
   bars: { gap: 6, marginBottom: Spacing.sm },
   barTrack: {

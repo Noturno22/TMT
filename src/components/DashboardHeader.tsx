@@ -30,7 +30,7 @@ export function DashboardHeader({ isPremium }: { isPremium: boolean }) {
         {isPremium ? (
           <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>PRO</Badge>
         ) : null}
-        <Pressable hitSlop={8} onPress={() => router.push('/(tabs)/horarios')}>
+        <Pressable hitSlop={8} onPress={() => router.push('/notificacoes')}>
           <Ionicons name="notifications" size={20} color={Colors.text} />
         </Pressable>
       </View>

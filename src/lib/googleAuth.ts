@@ -15,6 +15,20 @@ function getRedirectTo(): string {
   return `${scheme}://${REDIRECT_PATH}`;
 }
 
+export function getOAuthErrorParams(): { error: string | null } {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return { error: null };
+  const url = new URL(window.location.href);
+  const search = url.searchParams;
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+  const errorDescription = search.get('error_description') ?? hash.get('error_description');
+  const errorCode = search.get('error') ?? hash.get('error_code') ?? hash.get('error');
+  if (!errorDescription && !errorCode) return { error: null };
+  for (const key of ['error', 'error_code', 'error_description']) search.delete(key);
+  url.hash = '';
+  window.history.replaceState(window.history.state, '', url.toString());
+  return { error: errorDescription ?? errorCode };
+}
+
 function extractParamsFromUrl(url: string): URLSearchParams {
   const parsedUrl = new URL(url);
   const params = new URLSearchParams();

@@ -11,6 +11,8 @@ export interface CheckoutResult {
   error?: string;
 }
 
+export type PlanTier = 'free' | 'basic' | 'pro' | 'premium';
+
 export function useSubscription() {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -53,6 +55,15 @@ export function useSubscription() {
 
   const isPremium = subscription?.status === 'active';
 
+  const planName = (subscription?.plan ?? '').toLowerCase();
+  const planTier: PlanTier = isPremium
+    ? planName === 'basic' || planName === 'pro' || planName === 'premium'
+      ? planName
+      : 'premium'
+    : 'free';
+
+  const canAccessBanca = isPremium && planTier === 'premium';
+
   const checkout = async (priceId: string, currency: string): Promise<CheckoutResult> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return { ok: false, error: 'no_session' };
@@ -76,5 +87,5 @@ export function useSubscription() {
     }
   };
 
-  return { user, subscription, isPremium, loading, checkout };
+  return { user, subscription, isPremium, planTier, canAccessBanca, loading, checkout };
 }

@@ -19,7 +19,7 @@ type Tab = 'feed' | 'workspace';
 
 export default function ComunidadeScreen() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>('feed');
+  const [tab, setTab] = useState<Tab>('workspace');
 
   const channels = useChannels();
   const conversations = useConversations();
@@ -42,12 +42,12 @@ export default function ComunidadeScreen() {
   return (
     <Screen>
       <View style={styles.segment}>
-        <Chip label={t('workspace.feed')} active={tab === 'feed'} onPress={() => setTab('feed')} />
         <Chip
           label={t('workspace.segmented')}
           active={tab === 'workspace'}
           onPress={() => setTab('workspace')}
         />
+        <Chip label={t('workspace.feed')} active={tab === 'feed'} onPress={() => setTab('feed')} />
       </View>
 
       {tab === 'feed' ? (

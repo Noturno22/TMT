@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { WebView } from 'react-native-webview';
@@ -62,6 +62,8 @@ export function TradingViewChart({
   entry,
   stopLoss,
   takeProfit,
+  onPress,
+  style,
 }: {
   pair: string;
   timeframe?: string;
@@ -69,6 +71,8 @@ export function TradingViewChart({
   entry?: number;
   stopLoss?: number;
   takeProfit?: number;
+  onPress?: () => void;
+  style?: object;
 }) {
   const { t } = useTranslation();
   const interval = TV_INTERVALS[timeframe ?? 'M15'] ?? '15';
@@ -148,7 +152,7 @@ export function TradingViewChart({
   }, [symbol, interval, levels, locale]);
 
   return (
-    <View style={[styles.wrap, { height }]}>
+    <View style={[styles.wrap, { height }, style]}>
       <WebView
         originWhitelist={['*']}
         source={{ html }}
@@ -162,6 +166,7 @@ export function TradingViewChart({
           </View>
         )}
       />
+      {onPress ? <Pressable style={styles.overlay} onPress={onPress} /> : null}
     </View>
   );
 }
@@ -174,6 +179,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   webview: { flex: 1, backgroundColor: 'transparent' },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   loading: {
     ...Platform.select({ default: {} }),
     position: 'absolute',

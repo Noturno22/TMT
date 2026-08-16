@@ -6,7 +6,7 @@ import { GradientCard } from '@/components/GradientCard';
 import { pad2 } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 
-const GRADIENT: readonly [string, string] = [Colors.primaryDim, 'rgba(16,139,177,0.18)'];
+const GRADIENT: readonly [string, string] = ['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)'];
 
 function getTimeText(remaining: number): string {
   const hours = Math.floor(remaining / 3600000);

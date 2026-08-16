@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, Badge, Chip, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
+import { AppText, Badge, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
+import { OptionMenu } from '@/components/OptionMenu';
 import { SignalCard } from '@/components/SignalCard';
 import { TradingViewChart } from '@/components/TradingViewChart';
 import { PriceTicker } from '@/components/PriceTicker';
@@ -104,33 +105,30 @@ export default function AnalisesScreen() {
             prices={prices}
             loading={pricesLoading}
             onPressPair={(p) => setPair(p)}
+            selected={pair !== 'Todos' ? pair : undefined}
           />
         </View>
 
-        <View style={styles.chipRow}>
-          {TIMEFRAMES.map((tf) => {
-            const lockedTf = !isPremium && tf !== 'Todos' && tf !== 'M15';
-            return (
-              <Chip
-                key={tf}
-                label={tf === 'Todos' ? t('analises.filterAll') : tf}
-                active={timeframe === tf}
-                locked={lockedTf}
-                onPress={() => setTimeframe(tf)}
-              />
-            );
-          })}
-        </View>
-
-        <View style={styles.chipRow}>
-          {SIGNAL_TYPES.map((st) => (
-            <Chip
-              key={st}
-              label={st === 'Todos' ? t('analises.filterAll') : st}
-              active={type === st}
-              onPress={() => setType(st)}
-            />
-          ))}
+        <View style={styles.filterPanel}>
+          <OptionMenu
+            label={t('analises.filterTimeframe')}
+            value={timeframe}
+            options={TIMEFRAMES.map((tf) => ({
+              label: tf === 'Todos' ? t('analises.filterAll') : tf,
+              value: tf,
+              locked: !isPremium && tf !== 'Todos' && tf !== 'M15',
+            }))}
+            onChange={setTimeframe}
+          />
+          <OptionMenu
+            label={t('analises.filterType')}
+            value={type}
+            options={SIGNAL_TYPES.map((st) => ({
+              label: st === 'Todos' ? t('analises.filterAll') : st,
+              value: st,
+            }))}
+            onChange={setType}
+          />
         </View>
 
         {locked ? (
@@ -148,16 +146,18 @@ export default function AnalisesScreen() {
                 <Badge color={heroTypeColor} bg={`${heroTypeColor}1F`}>{hero.type}</Badge>
                 <Badge color={Colors.textMuted} bg={`${Colors.textMuted}1F`}>{hero.timeframe}</Badge>
               </View>
-              <Badge color={Colors.primary} bg={`${Colors.primary}1F`}>{t('analises.highlight')}</Badge>
+              <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>{t('analises.highlight')}</Badge>
             </View>
 
             <TradingViewChart
               pair={hero.pair}
               timeframe={hero.timeframe}
-              height={300}
+              height={260}
               entry={hero.entry}
               stopLoss={hero.stopLoss}
               takeProfit={hero.takeProfit}
+              style={{ marginHorizontal: -Spacing.md, borderRadius: 0 }}
+              onPress={() => router.push(`/sinal/chart/${hero.id}`)}
             />
 
             <MetricGrid
@@ -191,9 +191,11 @@ export default function AnalisesScreen() {
               </View>
             </View>
 
-            <AppText variant="small" style={styles.heroCta}>
-              {t('analises.viewFull')}
-            </AppText>
+            <View style={styles.heroCtaRow}>
+              <AppText variant="small" style={styles.heroCta}>
+                {t('analises.viewFull')}
+              </AppText>
+            </View>
           </Pressable>
         ) : null}
 
@@ -228,19 +230,20 @@ const styles = StyleSheet.create({
   screen: { padding: 0 },
   content: { padding: Spacing.md, paddingBottom: Spacing.xl },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  tickerWrap: { marginBottom: Spacing.sm },
-  chipRow: {
+  tickerWrap: { marginBottom: Spacing.md },
+  filterPanel: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.xs,
-    marginBottom: Spacing.xs,
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
   heroCard: {
     backgroundColor: Colors.surface,
-    borderColor: Colors.primary,
+    borderColor: Colors.accent,
     borderWidth: 1,
     borderRadius: 16,
+    marginHorizontal: -Spacing.md,
     padding: Spacing.md,
+    paddingTop: Spacing.md,
     marginTop: Spacing.xs,
     gap: Spacing.sm,
   },
@@ -248,6 +251,7 @@ const styles = StyleSheet.create({
   heroHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   heroLevels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.xs },
   heroLevel: { gap: 2, flex: 1 },
-  heroCta: { color: Colors.primary, fontWeight: '700', textAlign: 'center', marginTop: Spacing.xs },
+  heroCtaRow: { alignItems: 'center', marginTop: Spacing.xs },
+  heroCta: { color: Colors.accent, fontWeight: '700', textAlign: 'center' },
   listHeader: { marginVertical: Spacing.sm },
 });

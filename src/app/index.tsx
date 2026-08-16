@@ -60,6 +60,6 @@ export default function SplashScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0A14' },
+  container: { flex: 1, backgroundColor: '#000000' },
   bg: { width: '100%', height: '100%' },
 });

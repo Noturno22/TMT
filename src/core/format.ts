@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { i18n } from '@/lib/i18n';
 import type { SignalType } from './types';
 
@@ -114,6 +115,26 @@ export function displayName(user: { user_metadata?: Record<string, unknown>; ema
 
 export function avatarLetter(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {
   return (displayName(user) || 'T')[0].toUpperCase();
+}
+
+export function avatarUrl(user: User | null): string | null {
+  if (!user) return null;
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const idData = (user.identities?.[0]?.identity_data ?? {}) as Record<string, unknown>;
+  const candidates = [meta.avatar_url, meta.picture, idData.avatar_url, idData.picture];
+  for (const c of candidates) {
+    if (typeof c === 'string' && /^https?:\/\//.test(c.trim())) return c.trim();
+  }
+  return null;
+}
+
+export function isEmailVerified(user: User | null): boolean {
+  if (!user) return false;
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  if (typeof meta.email_verified === 'boolean') return meta.email_verified;
+  const idData = (user.identities?.[0]?.identity_data ?? {}) as Record<string, unknown>;
+  if (typeof idData.email_verified === 'boolean') return idData.email_verified;
+  return Boolean(user.email_confirmed_at);
 }
 
 export function formatPips(n: number): string {

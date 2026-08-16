@@ -1,21 +1,19 @@
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, Badge, Screen } from '@/components/ui';
+import { AppButton, AppInput, AppText, Badge, Screen } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { PremiumLock } from '@/components/PremiumLock';
 import { SectionHeader } from '@/components/SectionHeader';
 import { WalletCard } from '@/components/WalletCard';
-import { avatarLetter, contactInfo, displayName } from '@/core/format';
+import { avatarLetter, avatarUrl, contactInfo, displayName, isEmailVerified } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/lib/i18n';
-
-const BINANCE_ID = '547723572';
-const EXPRESS_PHONE = '+244926717730';
 
 function MenuRow({
   icon,
@@ -48,13 +46,41 @@ function MenuRow({
 export default function PerfilScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateProfile } = useAuth();
   const { isPremium, canAccessBanca, subscription } = useSubscription();
   const { config: banca } = useBanca();
+
+  const [editing, setEditing] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [savingName, setSavingName] = useState(false);
 
   const periodEnd = subscription?.current_period_end
     ? new Date(subscription.current_period_end).toLocaleDateString(i18n.language)
     : null;
+
+  const photo = avatarUrl(user);
+
+  const beginEdit = () => {
+    setNameInput(displayName(user));
+    setEditing(true);
+  };
+
+  const commitName = async () => {
+    const name = nameInput.trim();
+    if (!name) {
+      Alert.alert(t('perfil.nameEmpty'));
+      return;
+    }
+    setSavingName(true);
+    const { ok } = await updateProfile({ full_name: name });
+    setSavingName(false);
+    if (!ok) {
+      Alert.alert(t('perfil.nameSaveError'));
+      return;
+    }
+    setEditing(false);
+    Alert.alert(t('perfil.nameSaved'));
+  };
 
   const confirmSignOut = () => {
     Alert.alert(t('perfil.signOutTitle'), t('perfil.signOutBody'), [
@@ -67,24 +93,74 @@ export default function PerfilScreen() {
     <Screen scroll={false}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <GradientCard
-          colors={[Colors.primaryDim, 'rgba(255,201,21,0.07)']}
+          colors={[Colors.primaryDim, 'rgba(255,159,10,0.07)']}
           style={styles.identity}>
-          <View style={styles.avatar}>
-            <AppText style={styles.avatarText}>{user ? avatarLetter(user) : t('perfil.fallbackAvatar')}</AppText>
+          <View style={styles.glowOne} pointerEvents="none" />
+          <View style={styles.glowTwo} pointerEvents="none" />
+          <View style={styles.avatarWrap}>
+            {photo ? (
+              <Image source={{ uri: photo }} style={styles.avatarImg} />
+            ) : (
+              <View style={styles.avatar}>
+                <AppText style={styles.avatarText}>{user ? avatarLetter(user) : t('perfil.fallbackAvatar')}</AppText>
+              </View>
+            )}
+            {user ? (
+              <Pressable
+                onPress={beginEdit}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={t('perfil.editName')}
+                style={styles.editBtn}>
+                <Ionicons name="pencil" size={13} color="#1A1A2E" />
+              </Pressable>
+            ) : null}
           </View>
-          <AppText variant="h1">{user ? displayName(user) : t('perfil.trader')}</AppText>
-          <AppText variant="muted">{user ? (contactInfo(user) ?? t('perfil.verified')) : t('perfil.notAuthed')}</AppText>
-          {user ? (
-            <View style={styles.badgeWrap}>
-              {isPremium ? (
-                <Badge color={Colors.accent} bg={`${Colors.accent}20`}>
-                  {periodEnd ? t('perfil.premiumUntil', { date: periodEnd }) : t('perfil.premium')}
-                </Badge>
-              ) : (
-                <Badge color={Colors.textMuted} bg={`${Colors.textMuted}20`}>{t('perfil.freePlan')}</Badge>
-              )}
+
+          {editing && user ? (
+            <View style={styles.editWrap}>
+              <AppInput
+                label={t('perfil.nameLabel')}
+                value={nameInput}
+                onChangeText={setNameInput}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={commitName}
+              />
+              <View style={styles.editActions}>
+                <AppButton title={t('common.cancel')} variant="ghost" onPress={() => setEditing(false)} style={styles.editActionBtn} />
+                <AppButton title={t('common.save')} loading={savingName} onPress={commitName} style={styles.editActionBtn} />
+              </View>
             </View>
-          ) : null}
+          ) : (
+            <>
+              <AppText variant="h1">{user ? displayName(user) : t('perfil.trader')}</AppText>
+              {user ? (
+                <View style={styles.contactRow}>
+                  <AppText variant="muted">{contactInfo(user) ?? t('perfil.verified')}</AppText>
+                  {isEmailVerified(user) ? (
+                    <Ionicons name="checkmark-circle" size={15} color={Colors.success} />
+                  ) : null}
+                </View>
+              ) : (
+                <AppText variant="muted">{t('perfil.notAuthed')}</AppText>
+              )}
+              {user ? (
+                <AppText variant="small" style={styles.memberSince}>
+                  {t('perfil.memberSince', { date: new Date(user.created_at).toLocaleDateString(i18n.language) })}
+                </AppText>
+              ) : null}
+              <View style={styles.badgeWrap}>
+                {isPremium ? (
+                  <Badge color={Colors.accent} bg={`${Colors.accent}20`}>
+                    {periodEnd ? t('perfil.premiumUntil', { date: periodEnd }) : t('perfil.premium')}
+                  </Badge>
+                ) : (
+                  <Badge color={Colors.textMuted} bg={`${Colors.textMuted}20`}>{t('perfil.freePlan')}</Badge>
+                )}
+              </View>
+            </>
+          )}
         </GradientCard>
 
         <View style={styles.section}>
@@ -112,7 +188,6 @@ export default function PerfilScreen() {
             <MenuRow icon="trophy" label={t('perfil.mySubscription')} onPress={() => router.push('/planos')} right={
               isPremium ? <Badge color={Colors.accent} bg={`${Colors.accent}20`}>{t('components.dashboardHeader.pro')}</Badge> : null
             } />
-            <MenuRow icon="trending-up" label={t('perfil.growthPlan')} onPress={() => router.push('/plano-crescimento')} />
             <MenuRow icon="wallet" label={t('perfil.banca')} color={Colors.success} onPress={() => router.push('/banca')} />
           </View>
         </View>
@@ -124,32 +199,6 @@ export default function PerfilScreen() {
             <MenuRow icon="alarm" label={t('perfil.manageAlerts')} onPress={() => router.push('/horarios')} />
             <MenuRow icon="shield-checkmark" label={t('perfil.security')} onPress={() => Alert.alert(t('perfil.security'), t('common.comingSoon'))} />
             <MenuRow icon="globe" label={t('language.title')} onPress={() => router.push('/idioma')} />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <AppText variant="label" style={styles.sectionLabel}>{t('perfil.sectionWithdraw')}</AppText>
-          <View style={styles.menu}>
-            <Pressable style={styles.paymentRow}>
-              <View style={[styles.paymentIcon, { backgroundColor: '#F0B90B1A' }]}>
-                <Ionicons name="logo-bitcoin" size={20} color="#F0B90B" />
-              </View>
-              <View style={styles.paymentInfo}>
-                <AppText style={styles.paymentLabel}>{t('perfil.binance')}</AppText>
-                <AppText variant="small" style={styles.paymentDetail}>ID: {BINANCE_ID}</AppText>
-              </View>
-              <Ionicons name="copy" size={20} color={Colors.textFaint} />
-            </Pressable>
-            <Pressable style={[styles.paymentRow, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border }]}>
-              <View style={[styles.paymentIcon, { backgroundColor: '#00C8531A' }]}>
-                <Ionicons name="cash" size={20} color="#00C853" />
-              </View>
-              <View style={styles.paymentInfo}>
-                <AppText style={styles.paymentLabel}>{t('perfil.express')}</AppText>
-                <AppText variant="small" style={styles.paymentDetail}>{EXPRESS_PHONE}</AppText>
-              </View>
-              <Ionicons name="copy" size={20} color={Colors.textFaint} />
-            </Pressable>
           </View>
         </View>
 
@@ -172,19 +221,77 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
     padding: Spacing.lg,
     marginBottom: Spacing.lg,
+    overflow: 'hidden',
+  },
+  glowOne: {
+    position: 'absolute',
+    top: -100,
+    right: -60,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: `${Colors.primary}12`,
+  },
+  glowTwo: {
+    position: 'absolute',
+    bottom: -90,
+    left: -50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255,159,10,0.08)',
+  },
+  avatarWrap: {
+    marginBottom: Spacing.sm,
   },
   avatar: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
     borderColor: Colors.primary,
     borderWidth: 2,
     backgroundColor: Colors.surfaceElevated,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.sm,
   },
-  avatarText: { fontSize: 26, fontWeight: '800', color: Colors.text },
+  avatarImg: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    borderColor: Colors.primary,
+    borderWidth: 2,
+  },
+  avatarText: { fontSize: 32, fontWeight: '800', color: Colors.text },
+  editBtn: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.bg,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  memberSince: {
+    color: Colors.textFaint,
+  },
+  editWrap: {
+    alignSelf: 'stretch',
+    marginTop: Spacing.xs,
+  },
+  editActions: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  editActionBtn: { flex: 1 },
   badgeWrap: { marginTop: Spacing.sm },
   section: { marginBottom: Spacing.lg },
   sectionLabel: {
@@ -213,30 +320,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  paymentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.md,
-  },
-  paymentIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paymentInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  paymentLabel: {
-    fontWeight: '600',
-    color: Colors.text,
-  },
-  paymentDetail: {
-    color: Colors.textMuted,
   },
   version: { textAlign: 'center', color: Colors.textFaint, marginTop: Spacing.lg },
 });

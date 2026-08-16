@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { buildTestUser, clearTestPhone, getTestPhone, saveTestPhone } from '@/lib/testAuth';
 
@@ -8,6 +9,7 @@ interface AuthContextValue {
   initializing: boolean;
   signInTest: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfile: (metadata: { full_name?: string }) => Promise<{ ok: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -15,6 +17,7 @@ const AuthContext = createContext<AuthContextValue>({
   initializing: true,
   signInTest: async () => {},
   signOut: async () => {},
+  updateProfile: async () => ({ ok: true }),
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -56,14 +59,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(buildTestUser(phone));
   }, []);
 
+  const updateProfile = useCallback(async (metadata: { full_name?: string }) => {
+    const { data, error } = await supabase.auth.updateUser({ data: metadata });
+    if (error || !data.user) return { ok: false, error: error?.message };
+    setUser(data.user);
+    return { ok: true };
+  }, []);
+
   const signOut = useCallback(async () => {
-    await Promise.all([supabase.auth.signOut().catch(() => {}), clearTestPhone()]);
+    await clearTestPhone();
+    await supabase.auth.signOut().catch(() => {});
     setUser(null);
+    router.replace('/(auth)/login');
   }, []);
 
   const value = useMemo(
-    () => ({ user, initializing, signInTest, signOut }),
-    [user, initializing, signInTest, signOut],
+    () => ({ user, initializing, signInTest, signOut, updateProfile }),
+    [user, initializing, signInTest, signOut, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

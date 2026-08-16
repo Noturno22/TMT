@@ -48,7 +48,7 @@ export function WalletCard({ config }: { config: BancaConfig }) {
   return (
     <View style={styles.wrap}>
       <GradientCard
-        colors={[Colors.primaryDim, 'rgba(16,139,177,0.15)']}
+        colors={[Colors.primaryDim, 'rgba(22,164,58,0.15)']}
         style={styles.balance}>
         <View style={styles.balanceHeader}>
           <AppText variant="small" style={styles.eyebrow}>{t('components.walletCard.balance')}</AppText>

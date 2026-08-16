@@ -73,13 +73,14 @@ export default function RootLayout() {
           }}>
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="sinal/[id]" options={{ title: t('sinal.title') }} />
+          <Stack.Screen name="sinal/chart/[id]" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
           <Stack.Screen name="planos" options={{ title: t('planos.title'), presentation: 'modal' }} />
           <Stack.Screen name="banca" options={{ title: t('banca.title') }} />
           <Stack.Screen name="notificacoes" options={{ title: t('notificacoes.title') }} />
           <Stack.Screen name="definicoes-booms" options={{ title: t('definicoesBooms.title'), presentation: 'modal' }} />
           <Stack.Screen name="suporte-ia" options={{ title: t('suporteIa.title'), presentation: 'modal', headerShown: false }} />
-          <Stack.Screen name="plano-crescimento" options={{ title: t('planoCrescimento.title') }} />
           <Stack.Screen name="idioma" options={{ title: t('language.title'), presentation: 'modal' }} />
           <Stack.Screen name="termos" options={{ title: t('legal.termosTitle') }} />
           <Stack.Screen name="privacidade" options={{ title: t('legal.privacidadeTitle') }} />

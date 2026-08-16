@@ -18,7 +18,7 @@ export function GradientCard({
 }) {
   return (
     <LinearGradient
-      colors={colors ?? [Colors.surface, Colors.surfaceElevated]}
+      colors={colors ?? [Colors.surface, 'rgba(255,255,255,0.06)']}
       start={start ?? { x: 0, y: 0 }}
       end={end ?? { x: 1, y: 1 }}
       style={[styles.card, style]}>

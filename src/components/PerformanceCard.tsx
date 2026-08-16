@@ -26,7 +26,7 @@ export function PerformanceCard({
   return (
     <Pressable onPress={onPress}>
       <GradientCard
-        colors={[Colors.primaryDim, 'rgba(16,139,177,0.18)']}
+        colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
         style={styles.card}>
         <View style={styles.header}>
           <AppText variant="small" style={styles.eyebrow}>{t('components.performanceCard.title')}</AppText>

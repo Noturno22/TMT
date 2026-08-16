@@ -48,6 +48,8 @@
     "emptyTitle": "Sem sinais",
     "emptyBody": "Ainda não há sinais disponíveis.",
     "filterAll": "Todos",
+    "filterTimeframe": "TEMPO",
+    "filterType": "TIPO",
     "errorTitle": "Erro a carregar sinais"
   },
   "historico": {
@@ -160,7 +162,13 @@
     "signIn": "Entrar",
     "version": "The Magic Trader · v1.0.0",
     "signOutTitle": "Sair",
-    "signOutBody": "Tens a certeza que queres sair?"
+    "signOutBody": "Tens a certeza que queres sair?",
+    "editName": "Editar nome",
+    "nameLabel": "Nome",
+    "nameEmpty": "O nome não pode ficar vazio",
+    "nameSaveError": "Não foi possível atualizar o nome. Tenta novamente.",
+    "nameSaved": "Nome atualizado",
+    "memberSince": "Membro desde {{date}}"
   },
   "language": {
     "title": "Idioma"

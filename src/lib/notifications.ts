@@ -25,7 +25,7 @@ export async function ensureChannel(): Promise<void> {
       name: i18n.t('notifications.channelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#16A43A',
+      lightColor: '#34C759',
     });
 
     await Notifications.setNotificationChannelAsync(CHANNEL_ID_ALARM, {
@@ -238,7 +238,7 @@ async function ensureUpgradeChannel(): Promise<void> {
       name: i18n.t('notifications.upgradeChannelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FFC915',
+      lightColor: '#FF9F0A',
     });
   }
 }

@@ -18,7 +18,7 @@ async function ensureSignalChannel(): Promise<void> {
       name: i18n.t('notifications.signalChannelName'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#16A43A',
+      lightColor: '#34C759',
     });
   }
 }

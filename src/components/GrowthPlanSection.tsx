@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { AppButton, AppText, Card, Screen, SectionTitle } from '@/components/ui';
+import { AppButton, AppText, Badge, Card } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
 import { useTranslation } from 'react-i18next';
 
@@ -14,22 +14,23 @@ interface GrowthPlan {
   descKey: 'planoCrescimento.conservativeDesc' | 'planoCrescimento.balancedDesc' | 'planoCrescimento.aggressiveDesc';
   returnPct: number;
   months: number;
+  icon: keyof typeof Ionicons.glyphMap;
+  color: string;
 }
 
 const PLANS: GrowthPlan[] = [
-  { id: 'conservador', nameKey: 'planoCrescimento.conservative', descKey: 'planoCrescimento.conservativeDesc', returnPct: 20, months: 3 },
-  { id: 'equilibrado', nameKey: 'planoCrescimento.balanced', descKey: 'planoCrescimento.balancedDesc', returnPct: 35, months: 2 },
-  { id: 'agressivo', nameKey: 'planoCrescimento.aggressive', descKey: 'planoCrescimento.aggressiveDesc', returnPct: 50, months: 3 },
+  { id: 'conservador', nameKey: 'planoCrescimento.conservative', descKey: 'planoCrescimento.conservativeDesc', returnPct: 20, months: 3, icon: 'leaf', color: Colors.success },
+  { id: 'equilibrado', nameKey: 'planoCrescimento.balanced', descKey: 'planoCrescimento.balancedDesc', returnPct: 35, months: 2, icon: 'analytics', color: Colors.accent },
+  { id: 'agressivo', nameKey: 'planoCrescimento.aggressive', descKey: 'planoCrescimento.aggressiveDesc', returnPct: 50, months: 3, icon: 'rocket', color: Colors.destructive },
 ];
 
 function formatMoney(n: number): string {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function PlanoCrescimentoScreen() {
+export function GrowthPlanSection({ capital }: { capital: number }) {
   const { t } = useTranslation();
-  const [selectedId, setSelectedId] = useState<string>('conservador');
-  const [capital, setCapital] = useState(10000);
+  const [selectedId, setSelectedId] = useState('conservador');
   const [activated, setActivated] = useState(false);
 
   useEffect(() => {
@@ -39,7 +40,6 @@ export default function PlanoCrescimentoScreen() {
         const parsed = JSON.parse(raw);
         if (parsed.planId) setSelectedId(parsed.planId);
         if (parsed.activated) setActivated(true);
-        if (parsed.capital) setCapital(parsed.capital);
       } catch {
         // ignore
       }
@@ -47,7 +47,6 @@ export default function PlanoCrescimentoScreen() {
   }, []);
 
   const plan = PLANS.find((p) => p.id === selectedId) ?? PLANS[0];
-
   const projectedReturn = capital * (1 + plan.returnPct / 100);
   const profit = projectedReturn - capital;
 
@@ -60,26 +59,39 @@ export default function PlanoCrescimentoScreen() {
   };
 
   return (
-    <Screen>
-      <SectionTitle>{t('planoCrescimento.title')}</SectionTitle>
-      <AppText variant="muted" style={{ marginBottom: Spacing.md }}>{t('planoCrescimento.select')}</AppText>
+    <View style={styles.wrap}>
+      <View style={styles.header}>
+        <AppText variant="h2">{t('planoCrescimento.title')}</AppText>
+        {activated ? (
+          <Badge color={Colors.success} bg={`${Colors.success}20`}>{t('planoCrescimento.planActive')}</Badge>
+        ) : null}
+      </View>
+      <AppText variant="muted" style={styles.selectHint}>{t('planoCrescimento.select')}</AppText>
 
       <View style={styles.plans}>
         {PLANS.map((p) => {
           const selected = p.id === selectedId;
           return (
-            <Pressable key={p.id} onPress={() => setSelectedId(p.id)}>
+            <Pressable
+              key={p.id}
+              onPress={() => setSelectedId(p.id)}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}>
               <Card style={[styles.planCard, selected && styles.planSelected]}>
                 <View style={styles.planRow}>
+                  <View style={[styles.planIcon, { backgroundColor: `${p.color}1A` }]}>
+                    <Ionicons name={p.icon} size={18} color={p.color} />
+                  </View>
+                  <View style={styles.planText}>
+                    <AppText variant="label">{t(p.nameKey)}</AppText>
+                    <AppText variant="small" style={{ color: Colors.textMuted }}>{t(p.descKey)}</AppText>
+                  </View>
+                  <Badge color={p.color} bg={`${p.color}1A`}>+{p.returnPct}%</Badge>
                   <Ionicons
                     name={selected ? 'radio-button-on' : 'radio-button-off'}
                     size={20}
                     color={selected ? Colors.success : Colors.textFaint}
                   />
-                  <View style={{ flex: 1 }}>
-                    <AppText variant="label">{t(p.nameKey)}</AppText>
-                    <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>{t(p.descKey)}</AppText>
-                  </View>
                 </View>
               </Card>
             </Pressable>
@@ -88,7 +100,7 @@ export default function PlanoCrescimentoScreen() {
       </View>
 
       <Card style={styles.projection}>
-        <AppText variant="label" style={{ marginBottom: Spacing.sm }}>{t('planoCrescimento.projection')}</AppText>
+        <AppText variant="label" style={styles.projTitle}>{t('planoCrescimento.projection')}</AppText>
         <View style={styles.projRow}>
           <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.investment')}</AppText>
           <AppText variant="label">{formatMoney(capital)} USD</AppText>
@@ -113,16 +125,33 @@ export default function PlanoCrescimentoScreen() {
       ) : (
         <AppButton title={t('planoCrescimento.activate')} variant="primary" onPress={activate} />
       )}
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrap: { gap: Spacing.sm },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.xs,
+  },
+  selectHint: { marginBottom: Spacing.sm },
   plans: { gap: Spacing.sm, marginBottom: Spacing.md },
   planCard: { borderColor: Colors.border },
   planSelected: { borderColor: Colors.success, borderWidth: 2, backgroundColor: `${Colors.success}08` },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  planIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planText: { flex: 1, gap: 2 },
   projection: { marginBottom: Spacing.lg, gap: Spacing.sm },
+  projTitle: { marginBottom: Spacing.xs },
   projRow: { flexDirection: 'row', justifyContent: 'space-between' },
   profitBadge: {
     backgroundColor: `${Colors.success}12`,

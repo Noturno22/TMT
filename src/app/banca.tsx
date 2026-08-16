@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText, Badge, Card, Divider, Screen, SectionTitle } from '@/components/ui';
+import { GrowthPlanSection } from '@/components/GrowthPlanSection';
 import { PremiumLock } from '@/components/PremiumLock';
 import { formatMoney } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
@@ -153,6 +154,9 @@ export default function BancaScreen() {
           ))}
         </Card>
       )}
+
+      <Divider style={styles.growthDivider} />
+      <GrowthPlanSection capital={config.capital} />
     </Screen>
   );
 }
@@ -174,4 +178,5 @@ const styles = StyleSheet.create({
   progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
   perfRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm },
+  growthDivider: { marginTop: Spacing.sm, marginBottom: Spacing.lg },
 });

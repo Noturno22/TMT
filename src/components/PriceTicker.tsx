@@ -8,11 +8,13 @@ export function PriceTicker({
   prices,
   onPressPair,
   loading,
+  selected,
 }: {
   pairs: string[];
   prices: Record<string, PriceData>;
   onPressPair?: (pair: string) => void;
   loading?: boolean;
+  selected?: string;
 }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
@@ -26,9 +28,9 @@ export function PriceTicker({
             key={pair}
             disabled={!onPressPair}
             onPress={onPressPair ? () => onPressPair(pair) : undefined}
-            style={styles.chip}>
+            style={[styles.chip, selected === pair && styles.chipSelected]}>
             <AppText variant="small" style={styles.pair}>{pair}</AppText>
-            <AppText variant="mono" style={styles.price}>{loading ? '—' : data.price}</AppText>
+            <AppText variant="mono" style={styles.price} numberOfLines={1}>{loading ? '—' : data.price}</AppText>
             <AppText variant="small" style={[styles.change, { color: changeColor }]}>
               {loading ? '—' : changeText}
             </AppText>
@@ -42,17 +44,21 @@ export function PriceTicker({
 const styles = StyleSheet.create({
   row: { gap: Spacing.sm },
   chip: {
-    minWidth: 96,
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surface,
     borderColor: Colors.border,
     borderWidth: 1,
     borderRadius: Radius.md,
     paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.sm,
-    gap: 2,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  chipSelected: {
+    backgroundColor: Colors.accentDim,
+    borderColor: Colors.accent,
   },
   pair: { color: Colors.textMuted, fontWeight: '600' },
-  price: { color: Colors.text, fontSize: 15, fontWeight: '700' },
-  change: { fontWeight: '700' },
+  price: { color: Colors.text, fontSize: 14, fontWeight: '700' },
+  change: { fontWeight: '700', minWidth: 48, textAlign: 'right' },
 });

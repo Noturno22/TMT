@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     width: 420,
     height: 420,
     borderRadius: 210,
-    backgroundColor: 'rgba(255,201,21,0.04)',
+    backgroundColor: 'rgba(255,159,10,0.04)',
   },
   brand: { gap: Spacing.sm, alignItems: 'center' },
   logoGlow: {

@@ -39,6 +39,9 @@ expo-web.out.log
 .env
 .env*.local
 
+# supabase cli
+supabase/.temp/
+
 # typescript
 *.tsbuildinfo
 

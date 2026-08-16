@@ -107,9 +107,7 @@ async function fetchSignals(userTier: SignalTier = 'free'): Promise<Signal[]> {
     };
   });
 
-  // Filtrar por qualidade e limitar por dia
-  const today = new Date().toISOString().split('T')[0];
-  const todaysSignals = mapped.filter((s) => s.createdAt.startsWith(today));
+  // Filtrar por qualidade
   let qualityFiltered = mapped.filter((s) => passesQualityFilter(s.confidence, s.riskReward));
 
   // Filtrar pares Pro-only para usuários Free
@@ -124,8 +122,10 @@ async function fetchSignals(userTier: SignalTier = 'free'): Promise<Signal[]> {
   }
 
   // Priorizar sinais de hoje com qualidade, completar com anteriores se necessário
+  const today = new Date().toISOString().split('T')[0];
+  const todaysSignals = qualityFiltered.filter((s) => s.createdAt.startsWith(today));
   const result = [
-    ...todaysSignals.filter((s) => passesQualityFilter(s.confidence, s.riskReward)).slice(0, SIGNAL_QUALITY.MAX_PER_DAY),
+    ...todaysSignals.slice(0, SIGNAL_QUALITY.MAX_PER_DAY),
     ...qualityFiltered.filter((s) => !todaysSignals.includes(s)).slice(0, SIGNAL_QUALITY.MAX_ACTIVE - SIGNAL_QUALITY.MAX_PER_DAY),
   ];
 

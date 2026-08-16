@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { subscribeToChanges } from '@/lib/realtime';
+import { isForexSymbol, isWeekendUtc } from '@/core/community';
 import type { Channel } from '@/core/types';
 
 export function useChannels() {
@@ -36,7 +37,9 @@ export function useChannels() {
   }, [refresh]);
 
   const regular = channels.filter((c) => c.type === 'regular');
-  const pairRooms = channels.filter((c) => c.type === 'pair');
+  const pairRooms = channels.filter(
+    (c) => c.type === 'pair' && !(isWeekendUtc() && isForexSymbol(c.pair || c.name)),
+  );
 
   return { channels, regular, pairRooms, loading, error, refresh };
 }

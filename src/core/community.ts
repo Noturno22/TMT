@@ -6,6 +6,20 @@ export const REACTION_EMOJIS = ['👍', '❤️', '🔥', '🚀', '🎯'] as con
 
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
 
+const FOREX_SYMBOLS = new Set([
+  'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURGBP',
+  'USDCHF', 'NZDUSD', 'USDCAD', 'XAUUSD',
+]);
+
+export function isWeekendUtc(now: Date = new Date()): boolean {
+  const day = now.getUTCDay();
+  return day === 0 || day === 6;
+}
+
+export function isForexSymbol(symbol: string): boolean {
+  return FOREX_SYMBOLS.has(symbol.replace(/[^A-Za-z]/g, '').toUpperCase());
+}
+
 const PAIR_ROOM_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
 export function pairRoomState(channel: Channel): 'active' | 'closed' {

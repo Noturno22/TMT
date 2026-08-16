@@ -4,28 +4,14 @@ import { supabase } from '@/lib/supabase';
 import { subscribeToChanges } from '@/lib/realtime';
 import type { Signal, SignalStatus, SignalType, SignalTier } from '@/core/types';
 import { formatSymbol, formatTimeframe, formatType } from '@/core/format';
+import { isForexSymbol, isWeekendUtc } from '@/core/community';
 import { notifyNewSignal } from '@/lib/signalNotifications';
 import { useSubscription } from '@/hooks/useSubscription';
-
-// Pares que NÃO operam fim de semana (mercado fechado)
-const WEEKEND_CLOSED_PAIRS = new Set([
-  'EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'EUR/GBP',
-  'USD/CHF', 'NZD/USD', 'USD/CAD', 'XAU/USD', // Ouro segue forex
-]);
 
 // Pares crypto - apenas Pro/Premium
 const PRO_ONLY_PAIRS = new Set([
   'BTC/USD', 'ETH/USD', 'BTCUSDT', 'ETHUSDT',
 ]);
-
-function isWeekend(): boolean {
-  const day = new Date().getUTCDay(); // 0 = Domingo, 6 = Sábado
-  return day === 0 || day === 6;
-}
-
-function isPairWeekendClosed(pair: string): boolean {
-  return WEEKEND_CLOSED_PAIRS.has(pair);
-}
 
 function isPairProOnly(pair: string): boolean {
   return PRO_ONLY_PAIRS.has(pair);
@@ -115,10 +101,10 @@ async function fetchSignals(userTier: SignalTier = 'free'): Promise<Signal[]> {
     qualityFiltered = qualityFiltered.filter((s) => !isPairProOnly(s.pair));
   }
 
-  // Fim de semana: ocultar pares forex/mercado fechado
-  if (isWeekend()) {
-    qualityFiltered = qualityFiltered.filter((s) => !isPairWeekendClosed(s.pair));
-    console.log('[Signals] Fim de semana - filtrados pares forex, restam:', qualityFiltered.length);
+  // Fim de semana: apenas crypto (forex/ouro com mercado fechado)
+  if (isWeekendUtc()) {
+    qualityFiltered = qualityFiltered.filter((s) => !isForexSymbol(s.pair));
+    console.log('[Signals] Fim de semana - apenas crypto, restam:', qualityFiltered.length);
   }
 
   // Priorizar sinais de hoje com qualidade, completar com anteriores se necessário

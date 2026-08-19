@@ -8,4 +8,5 @@ export { SearchBar } from './SearchBar';
 export { FilterChips } from './FilterChips';
 export { SkeletonList } from './SkeletonList';
 export { Toast } from './Toast';
+export { ExportButton } from './ExportButton';
 export type { ToastType, ToastData } from './Toast';

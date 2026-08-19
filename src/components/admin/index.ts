@@ -7,3 +7,5 @@ export { QuickChips } from './QuickChips';
 export { SearchBar } from './SearchBar';
 export { FilterChips } from './FilterChips';
 export { SkeletonList } from './SkeletonList';
+export { Toast } from './Toast';
+export type { ToastType, ToastData } from './Toast';

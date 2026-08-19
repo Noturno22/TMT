@@ -44,10 +44,6 @@ export async function updateSignalStatus(id: string, status: string) {
   return callAdminFn('update_status', { id, status });
 }
 
-export async function deleteAllActiveSignals() {
-  return callAdminFn('delete_all_active');
-}
-
 export async function addBoomHour(data: {
   title: string;
   time_gmt: string;
@@ -109,29 +105,6 @@ export async function premiumCount(): Promise<number> {
   return data.count ?? 0;
 }
 
-export async function generateSignals(): Promise<number> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error(i18n.t('adminErrors.notAuthenticated'));
-
-  const body = [
-    'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURGBP',
-    'USDCHF', 'NZDUSD', 'USDCAD', 'XAUUSD', 'BTCUSD',
-  ].map((symbol) => ({ symbol, timeframe: '1h' }));
-
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-signal`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok || data.error) throw new Error(data.error || i18n.t('adminErrors.generate'));
-  return data.results?.length ?? 0;
-}
-
 export async function closeSignals(): Promise<number> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error(i18n.t('adminErrors.notAuthenticated'));
@@ -148,4 +121,107 @@ export async function closeSignals(): Promise<number> {
   const data = await res.json();
   if (!res.ok || data.error) throw new Error(data.error || i18n.t('adminErrors.close'));
   return data.closed ?? 0;
+}
+
+// ── Payment Receipts ────────────────────────────────────────────────────
+
+export interface PaymentReceipt {
+  id: string;
+  user_id: string;
+  user_email: string;
+  proof_url: string;
+  plan: string;
+  method: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+}
+
+export async function listReceipts(status?: string): Promise<PaymentReceipt[]> {
+  const data = await callAdminFn('list_receipts', status ? { status } : {});
+  return data.receipts ?? [];
+}
+
+export async function approveReceipt(id: string): Promise<void> {
+  await callAdminFn('approve_receipt', { id });
+}
+
+export async function rejectReceipt(id: string): Promise<void> {
+  await callAdminFn('reject_receipt', { id });
+}
+
+export async function deleteReceipt(id: string): Promise<void> {
+  await callAdminFn('delete_receipt', { id });
+}
+
+export async function saveReceipt(receipt: {
+  user_id: string;
+  user_email?: string;
+  proof_url: string;
+  plan: string;
+  method: string;
+  amount: number;
+  currency: string;
+}): Promise<void> {
+  await callAdminFn('save_receipt', receipt);
+}
+
+// ── Notifications ──────────────────────────────────────────────────────
+
+export async function getNotifications(limit = 50) {
+  const data = await callAdminFn('list_notifications', { limit });
+  return data;
+}
+
+export async function markNotificationRead(id: string) {
+  await callAdminFn('mark_notification_read', { id });
+}
+
+export async function markAllNotificationsRead() {
+  await callAdminFn('mark_all_notifications_read');
+}
+
+export async function getUnreadCount() {
+  const data = await callAdminFn('unread_count');
+  return data?.count ?? 0;
+}
+
+// ── User Management ────────────────────────────────────────────────────
+
+export async function banUser(userId: string) {
+  await callAdminFn('ban_user', { user_id: userId });
+}
+
+export async function updateUserRole(userId: string, role: string) {
+  await callAdminFn('update_user_role', { user_id: userId, role });
+}
+
+export async function updateSubscriptionExpiry(userId: string, expiresAt: string | null) {
+  await callAdminFn('update_subscription_expiry', { user_id: userId, expires_at: expiresAt });
+}
+
+export async function expiringCount() {
+  const data = await callAdminFn('expiring_count');
+  return data?.count ?? 0;
+}
+
+// ── Bulk Delete ────────────────────────────────────────────────────────
+
+export async function bulkDeleteSignals(ids: string[]) {
+  await callAdminFn('bulk_delete_signals', { ids });
+}
+
+export async function bulkDeleteBoomHours(ids: string[]) {
+  await callAdminFn('bulk_delete_boom_hours', { ids });
+}
+
+export async function bulkDeleteBoomTimes(ids: string[]) {
+  await callAdminFn('bulk_delete_boom_times', { ids });
+}
+
+export async function bulkDeletePosts(ids: string[]) {
+  await callAdminFn('bulk_delete_posts', { ids });
 }

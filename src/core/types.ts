@@ -1,6 +1,6 @@
 export type SignalType = 'BUY' | 'SELL' | 'AGUARDAR';
 export type SignalStatus = 'active' | 'pending' | 'tp' | 'sl' | 'expired';
-export type SignalTier = 'free' | 'pro' | 'premium';
+export type SignalTier = 'free' | 'basic' | 'pro' | 'premium';
 export type BoomStatus = 'upcoming' | 'live' | 'expired';
 
 export interface Signal {
@@ -21,6 +21,7 @@ export interface Signal {
   expiresAt?: string;         // expiração do sinal
   analysis?: string;          // análise técnica detalhada (Pro/Premium)
   probabilityScore?: number;  // 0-100 score interno de qualidade
+  smcSetup?: string;          // SMC setup: BOS, CHoCH, OB, FVG, COMBO
 }
 
 export interface HistorySignal {
@@ -117,6 +118,45 @@ export interface BancaConfig {
   metaPercent: number;
   riskPercent: number;
   metaMonths: string;
+  planId: string;
+  startDate: string;
+  nextWithdrawal: string;
+  totalWithdrawn: number;
+  profitEarned: number;
+}
+
+export type TradeDirection = 'BUY' | 'SELL';
+export type TradeResult = 'WIN' | 'LOSS' | 'BREAKEVEN';
+
+export interface TradeEntry {
+  id: string;
+  pair: string;
+  direction: TradeDirection;
+  entryPrice: number;
+  exitPrice: number | null;
+  lotSize: number;
+  result: TradeResult;
+  profitUsd: number;
+  pips: number;
+  notes: string;
+  boomHourId: string | null;
+  createdAt: string;
+  closedAt: string | null;
+}
+
+export interface TradeStats {
+  totalTrades: number;
+  wins: number;
+  losses: number;
+  breakevens: number;
+  winRate: number;
+  totalPnl: number;
+  avgWin: number;
+  avgLoss: number;
+  profitFactor: number;
+  bestTrade: number;
+  worstTrade: number;
+  totalPips: number;
 }
 
 export type ChannelType = 'regular' | 'pair';
@@ -179,4 +219,41 @@ export interface Message {
   created_at: string;
   pending?: boolean;
   failed?: boolean;
+}
+
+export type NotificationType =
+  | 'receipt_pending' | 'receipt_approved' | 'receipt_rejected'
+  | 'signal_closed' | 'signal_tp' | 'signal_sl'
+  | 'new_user' | 'subscription_expired' | 'subscription_expiring'
+  | 'system_error';
+
+export interface AdminNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  entity_type?: string;
+  entity_id?: string;
+  data?: Record<string, unknown>;
+  read: boolean;
+  created_at: string;
+}
+
+export interface AdminPushToken {
+  id: string;
+  user_id: string;
+  token: string;
+  platform: 'ios' | 'android';
+  created_at: string;
+}
+
+export interface UserWithSubscription {
+  id: string;
+  email: string;
+  created_at: string;
+  last_sign_in_at: string | null;
+  role?: string;
+  subscription_status?: string;
+  subscription_expires?: string;
+  banned?: boolean;
 }

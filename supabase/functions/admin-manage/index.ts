@@ -377,6 +377,132 @@ async function handleSaveReceipt(body: Record<string, unknown>) {
   return json({ receipt: data });
 }
 
+// ── Admin → User DM ────────────────────────────────────────────────────────
+
+const EXPO_PUSH_API = 'https://exp.host/--/api/v2/push/send';
+
+async function sendExpoPush(tokens: string[], title: string, body: string, data?: Record<string, unknown>) {
+  const expoToken = Deno.env.get('EXPO_PUSH_ACCESS_TOKEN') ?? '';
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (expoToken) headers['Authorization'] = `Bearer ${expoToken}`;
+
+  let sent = 0;
+  for (let i = 0; i < tokens.length; i += 100) {
+    const chunk = tokens.slice(i, i + 100).map((t) => ({
+      to: t,
+      title,
+      body: body.length > 140 ? body.slice(0, 139) + '…' : body,
+      sound: 'default',
+      channelId: 'comunidade',
+      ...(data ? { data } : {}),
+    }));
+    try {
+      const res = await fetch(EXPO_PUSH_API, { method: 'POST', headers, body: JSON.stringify(chunk) });
+      if (!res.ok) continue;
+      const result = await res.json().catch(() => ({}));
+      const tickets = Array.isArray(result?.data) ? result.data : [];
+      for (const t of tickets) {
+        if (t?.status !== 'error') sent += 1;
+      }
+    } catch { /* skip */ }
+  }
+  return sent;
+}
+
+async function handleSendDm(body: Record<string, unknown>) {
+  const { user_id, text } = body;
+  if (!user_id || !text) return errorJson('user_id e text em falta.');
+
+  const adminBotId = '11111111-1111-1111-1111-111111111111';
+
+  const { data: existing } = await supabase
+    .from('conversation_members')
+    .select('conversation_id')
+    .eq('user_id', user_id);
+
+  let conversationId: string | null = null;
+
+  for (const row of existing ?? []) {
+    const { data: otherMember } = await supabase
+      .from('conversation_members')
+      .select('user_id')
+      .eq('conversation_id', row.conversation_id)
+      .neq('user_id', user_id)
+      .maybeSingle();
+    if (!otherMember) {
+      conversationId = row.conversation_id;
+      break;
+    }
+  }
+
+  if (!conversationId) {
+    const { data: newConv, error: convErr } = await supabase
+      .from('conversations')
+      .insert({})
+      .select('id')
+      .single();
+    if (convErr) return errorJson(convErr.message, 500);
+    conversationId = newConv.id;
+
+    await supabase.from('conversation_members').insert([
+      { conversation_id: conversationId, user_id: adminBotId },
+      { conversation_id: conversationId, user_id },
+    ]);
+  }
+
+  const { data: msg, error: msgErr } = await supabase
+    .from('messages')
+    .insert({
+      conversation_id: conversationId,
+      user_id: adminBotId,
+      text: String(text),
+    })
+    .select('id')
+    .single();
+  if (msgErr) return errorJson(msgErr.message, 500);
+
+  const { data: tokens } = await supabase
+    .from('push_tokens')
+    .select('token')
+    .eq('user_id', user_id);
+  const tokenList = (tokens ?? []).map((t: { token: string }) => t.token);
+
+  let notified = 0;
+  if (tokenList.length > 0) {
+    notified = await sendExpoPush(tokenList, 'TMT Admin', String(text), {
+      url: `/comunidade/dm/${conversationId}`,
+    });
+  }
+
+  return json({ dm: true, conversation_id: conversationId, message_id: msg.id, notified });
+}
+
+async function handleSendPush(body: Record<string, unknown>) {
+  const { user_ids, title, message } = body;
+  if (!title || !message) return errorJson('title e message em falta.');
+
+  let userIds: string[];
+  if (Array.isArray(user_ids) && user_ids.length > 0) {
+    userIds = user_ids.map(String);
+  } else {
+    const { data: allTokens } = await supabase.from('push_tokens').select('user_id');
+    userIds = [...new Set((allTokens ?? []).map((t: { user_id: string }) => t.user_id))];
+  }
+
+  if (userIds.length === 0) return json({ notified: 0 });
+
+  const { data: tokens } = await supabase
+    .from('push_tokens')
+    .select('user_id, token')
+    .in('user_id', userIds);
+
+  const tokenList = (tokens ?? []).map((t: { token: string }) => t.token);
+  if (tokenList.length === 0) return json({ notified: 0 });
+
+  const notified = await sendExpoPush(tokenList, String(title), String(message));
+  return json({ notified, target_users: userIds.length });
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -432,6 +558,10 @@ serve(async (req) => {
       return handleDeleteReceipt(body);
     case 'save_receipt':
       return handleSaveReceipt(body);
+    case 'send_dm':
+      return handleSendDm(body);
+    case 'send_push':
+      return handleSendPush(body);
     default:
       return errorJson(`Ação desconhecida: ${action}`, 400);
   }

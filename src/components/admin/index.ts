@@ -13,3 +13,4 @@ export type { ToastType, ToastData } from './Toast';
 export { NotificationBadge } from './NotificationBadge';
 export { ExportButton } from './ExportButton';
 export { NotificationListModal } from './NotificationListModal';
+export { UserDetailModal } from './UserDetailModal';

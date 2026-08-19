@@ -562,6 +562,116 @@ serve(async (req) => {
       return handleSendDm(body);
     case 'send_push':
       return handleSendPush(body);
+    case 'list_notifications': {
+      const { limit = 50 } = body;
+      const { data, error } = await supabase
+        .from('admin_notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) return errorJson(error.message, 500);
+      return json({ data });
+    }
+    case 'mark_notification_read': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { error } = await supabase
+        .from('admin_notifications')
+        .update({ read: true })
+        .eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ updated: true });
+    }
+    case 'mark_all_notifications_read': {
+      const { error } = await supabase
+        .from('admin_notifications')
+        .update({ read: true })
+        .eq('read', false);
+      if (error) return errorJson(error.message, 500);
+      return json({ updated: true });
+    }
+    case 'unread_count': {
+      const { count, error } = await supabase
+        .from('admin_notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('read', false);
+      if (error) return errorJson(error.message, 500);
+      return json({ count: count ?? 0 });
+    }
+    case 'ban_user': {
+      const { user_id } = body;
+      if (!user_id) return errorJson('user_id em falta.');
+      const { error } = await supabase.auth.admin.updateUserById(user_id, {
+        user_metadata: { banned: true },
+      });
+      if (error) return errorJson(error.message, 500);
+      return json({ banned: true });
+    }
+    case 'update_user_role': {
+      const { user_id, role } = body;
+      if (!user_id || !role) return errorJson('user_id e role em falta.');
+      const { error } = await supabase.auth.admin.updateUserById(user_id, {
+        user_metadata: { role },
+      });
+      if (error) return errorJson(error.message, 500);
+      return json({ updated: true });
+    }
+    case 'update_subscription_expiry': {
+      const { user_id, expires_at } = body;
+      if (!user_id) return errorJson('user_id em falta.');
+      const { error } = await supabase
+        .from('subscriptions')
+        .upsert(
+          {
+            user_id,
+            expires_at,
+            status: expires_at && new Date(expires_at) > new Date() ? 'active' : 'expired',
+          },
+          { onConflict: 'user_id' },
+        );
+      if (error) return errorJson(error.message, 500);
+      return json({ updated: true });
+    }
+    case 'expiring_count': {
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+      const { count, error } = await supabase
+        .from('subscriptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active')
+        .lte('expires_at', sevenDaysFromNow.toISOString())
+        .gte('expires_at', new Date().toISOString());
+      if (error) return errorJson(error.message, 500);
+      return json({ count: count ?? 0 });
+    }
+    case 'bulk_delete_signals': {
+      const { ids } = body;
+      if (!Array.isArray(ids) || ids.length === 0) return errorJson('ids em falta.');
+      const { error } = await supabase.from('signals').delete().in('id', ids);
+      if (error) return errorJson(error.message, 500);
+      return json({ deleted: ids.length });
+    }
+    case 'bulk_delete_boom_hours': {
+      const { ids } = body;
+      if (!Array.isArray(ids) || ids.length === 0) return errorJson('ids em falta.');
+      const { error } = await supabase.from('boom_hours').delete().in('id', ids);
+      if (error) return errorJson(error.message, 500);
+      return json({ deleted: ids.length });
+    }
+    case 'bulk_delete_boom_times': {
+      const { ids } = body;
+      if (!Array.isArray(ids) || ids.length === 0) return errorJson('ids em falta.');
+      const { error } = await supabase.from('boom_times').delete().in('id', ids);
+      if (error) return errorJson(error.message, 500);
+      return json({ deleted: ids.length });
+    }
+    case 'bulk_delete_posts': {
+      const { ids } = body;
+      if (!Array.isArray(ids) || ids.length === 0) return errorJson('ids em falta.');
+      const { error } = await supabase.from('posts').delete().in('id', ids);
+      if (error) return errorJson(error.message, 500);
+      return json({ deleted: ids.length });
+    }
     default:
       return errorJson(`Ação desconhecida: ${action}`, 400);
   }

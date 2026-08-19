@@ -37,14 +37,20 @@ CREATE INDEX IF NOT EXISTS idx_admin_push_tokens_user ON admin_push_tokens(user_
 ALTER TABLE admin_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_push_tokens ENABLE ROW LEVEL SECURITY;
 
--- Only service role can insert notifications
-CREATE POLICY "Service role can insert notifications" ON admin_notifications
-  FOR INSERT WITH CHECK (true);
+DO $$ begin
+  CREATE POLICY "Service role can insert notifications" ON admin_notifications
+    FOR INSERT WITH CHECK (true);
+exception when duplicate_object then null;
+end $$;
 
--- Only service role can delete notifications
-CREATE POLICY "Service role can delete notifications" ON admin_notifications
-  FOR DELETE USING (true);
+DO $$ begin
+  CREATE POLICY "Service role can delete notifications" ON admin_notifications
+    FOR DELETE USING (true);
+exception when duplicate_object then null;
+end $$;
 
--- Users can manage their own push tokens
-CREATE POLICY "Users can manage own push tokens" ON admin_push_tokens
-  FOR ALL USING (auth.uid() = user_id);
+DO $$ begin
+  CREATE POLICY "Users can manage own push tokens" ON admin_push_tokens
+    FOR ALL USING (auth.uid() = user_id);
+exception when duplicate_object then null;
+end $$;

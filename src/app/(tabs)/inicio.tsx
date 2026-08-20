@@ -13,7 +13,9 @@ import { useSignals } from '@/hooks/useSignals';
 import { useSubscription } from '@/hooks/useSubscription';
 import { boomEpochMs, getNextBoomHour } from '@/core/booms';
 import { Colors, Spacing } from '@/core/theme';
+import { useTourTarget } from '@/components/tour/registry';
 import { useTranslation } from 'react-i18next';
+import { Animated, FadeInUp } from '@/lib/animations';
 
 const TICKER_PAIRS = ['XAU/USD', 'EUR/USD', 'GBP/USD', 'USD/JPY'];
 const PREVIEW_COUNT = 3;
@@ -26,6 +28,7 @@ export default function InicioScreen() {
   const { stats, loading: historyLoading } = useHistory();
   const { signals } = useSignals();
   const { hours, loading: hoursLoading } = useBoomHours();
+  const performanceRef = useTourTarget('tour:inicio-performance');
 
   const now = new Date();
   const nextHour = getNextBoomHour(hours, now);
@@ -52,12 +55,14 @@ export default function InicioScreen() {
           <PriceTicker pairs={TICKER_PAIRS} prices={prices} loading={pricesLoading} />
         </View>
 
-        <PerformanceCard
-          stats={stats}
-          activeCount={activeCount}
-          loading={historyLoading}
-          onPress={() => router.push('/(tabs)/historico')}
-        />
+        <View ref={performanceRef} collapsable={false}>
+          <PerformanceCard
+            stats={stats}
+            activeCount={activeCount}
+            loading={historyLoading}
+            onPress={() => router.push('/(tabs)/historico')}
+          />
+        </View>
 
         <NextBoomCard nextEpochMs={nextEpochMs} />
 
@@ -72,26 +77,27 @@ export default function InicioScreen() {
         ) : upcoming.length === 0 ? (
           <EmptyState title={t('inicio.emptyTitle')} subtitle={t('inicio.emptyBody')} />
         ) : (
-          upcoming.map(({ hour }) => (
-            <Pressable
-              key={hour.id}
-              onPress={() => router.push('/(tabs)/horarios')}
-              style={styles.boomRow}>
-              <View style={styles.boomTimeCol}>
-                <AppText style={styles.boomTime}>{hour.time_wat}</AppText>
-                <AppText variant="small" style={{ color: Colors.textMuted }}>{t('inicio.wat')}</AppText>
-              </View>
-              <View style={styles.boomBody}>
-                <AppText variant="h2" numberOfLines={1}>{hour.title}</AppText>
-                <View style={styles.pairs}>
-                  {(hour.pairs || []).slice(0, 3).map((p) => (
-                    <View key={p} style={styles.pairChip}>
-                      <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>{p}</AppText>
-                    </View>
-                  ))}
+          upcoming.map(({ hour }, index) => (
+            <Animated.View key={hour.id} entering={FadeInUp.delay(index * 80 + 200).springify()}>
+              <Pressable
+                onPress={() => router.push('/(tabs)/horarios')}
+                style={styles.boomRow}>
+                <View style={styles.boomTimeCol}>
+                  <AppText style={styles.boomTime}>{hour.time_wat}</AppText>
+                  <AppText variant="small" style={{ color: Colors.textMuted }}>{t('inicio.wat')}</AppText>
                 </View>
-              </View>
-            </Pressable>
+                <View style={styles.boomBody}>
+                  <AppText variant="h2" numberOfLines={1}>{hour.title}</AppText>
+                  <View style={styles.pairs}>
+                    {(hour.pairs || []).slice(0, 3).map((p) => (
+                      <View key={p} style={styles.pairChip}>
+                        <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>{p}</AppText>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </Pressable>
+            </Animated.View>
           ))
         )}
       </ScrollView>

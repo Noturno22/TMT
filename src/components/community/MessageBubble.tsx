@@ -1,33 +1,73 @@
-import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Alert, Image, Pressable, StyleSheet, TextInput, View, type AlertButton } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { AppText, Badge } from '@/components/ui';
-import { REACTION_EMOJIS } from '@/core/community';
+import { AppButton, AppText, Badge } from '@/components/ui';
+import { UserAvatar } from '@/components/community/UserAvatar';
+import { isUserOnline, REACTION_EMOJIS } from '@/core/community';
 import { timeAgo } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import type { Message, MessageReaction, UserProfile } from '@/core/types';
 
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderMentionedText(text: string, mentionNames: string[]): ReactNode {
+  if (mentionNames.length === 0) return <AppText>{text}</AppText>;
+  const names = [...mentionNames].sort((a, b) => b.length - a.length);
+  const pattern = new RegExp(`(${names.map((n) => `@${escapeRegex(n)}`).join('|')})`, 'g');
+  const parts = text.split(pattern);
+  const isMention = (part: string) => names.some((n) => part === `@${n}`);
+  return (
+    <AppText>
+      {parts.map((part, i) =>
+        isMention(part) ? (
+          <AppText key={i} style={styles.mention}>
+            {part}
+          </AppText>
+        ) : (
+          <AppText key={i}>{part}</AppText>
+        ),
+      )}
+    </AppText>
+  );
+}
+
 export function MessageBubble({
   message,
   reactions,
+  mentionNames = [],
   profile,
   currentUserId,
   onToggleReaction,
   onRetry,
   onDelete,
+  onEdit,
+  onOpenProfile,
 }: {
   message: Message;
   reactions: MessageReaction[];
+  mentionNames?: string[];
   profile?: UserProfile;
   currentUserId: string | null;
   onToggleReaction: (messageId: string, emoji: string) => void;
   onRetry: (message: Message) => void;
   onDelete: (message: Message) => void;
+  onEdit: (message: Message, text: string) => void;
+  onOpenProfile?: (userId: string) => void;
 }) {
   const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
   const isOwn = message.user_id === currentUserId;
   const name = profile?.display_name || t('common.trader');
-  const avatarColor = profile?.role === 'admin' ? Colors.accent : Colors.primary;
+  const editable =
+    isOwn && !message.boom_id && !message.pending && !message.failed;
+
+  const openProfile = () => {
+    if (onOpenProfile && profile) onOpenProfile(profile.user_id);
+  };
 
   const grouped = new Map<string, { count: number; mine: boolean }>();
   for (const r of reactions) {
@@ -39,14 +79,25 @@ export function MessageBubble({
 
   const onLongPress = () => {
     if (!isOwn) return;
-    Alert.alert(
-      t('workspace.deleteTitle'),
-      t('workspace.deleteBody'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('workspace.deleteMessage'), style: 'destructive', onPress: () => onDelete(message) },
-      ],
-    );
+    const actions: AlertButton[] = [];
+    if (editable) {
+      actions.push({
+        text: t('workspace.edit'),
+        onPress: () => {
+          setDraft(message.text);
+          setEditing(true);
+        },
+      });
+    }
+    actions.push({
+      text: t('workspace.deleteMessage'),
+      style: 'destructive',
+      onPress: () => onDelete(message),
+    });
+    Alert.alert(t('workspace.messageActions'), undefined, [
+      ...actions,
+      { text: t('common.cancel'), style: 'cancel' },
+    ]);
   };
 
   const onAddReaction = () => {
@@ -63,31 +114,85 @@ export function MessageBubble({
     );
   };
 
+  const cancelEdit = () => {
+    setEditing(false);
+    setDraft('');
+  };
+
+  const saveEdit = () => {
+    if (!draft.trim()) return;
+    onEdit(message, draft);
+    setEditing(false);
+    setDraft('');
+  };
+
   return (
     <View style={[styles.row, isOwn && styles.rowOwn]}>
       {!isOwn ? (
-        <View style={[styles.avatar, { backgroundColor: `${avatarColor}2E` }]}>
-          <AppText variant="small" style={{ color: avatarColor, fontWeight: '800' }}>
-            {(name || 'T')[0].toUpperCase()}
-          </AppText>
-        </View>
+        <UserAvatar
+          name={name}
+          avatarUrl={profile?.avatar_url}
+          role={profile?.role}
+          size={28}
+          online={isUserOnline(profile)}
+          onPress={onOpenProfile ? openProfile : undefined}
+          style={styles.avatar}
+        />
       ) : null}
 
-      <Pressable onLongPress={onLongPress} style={[styles.bubble, isOwn && styles.bubbleOwn]}>
+      <Pressable
+        onLongPress={onLongPress}
+        style={[styles.bubble, isOwn && styles.bubbleOwn]}
+      >
         <View style={styles.meta}>
           {!isOwn ? (
-            <AppText variant="small" style={styles.name}>{name}</AppText>
+            <Pressable onPress={openProfile} disabled={!onOpenProfile} style={styles.name}>
+              <AppText variant="small" style={styles.nameText}>{name}</AppText>
+            </Pressable>
           ) : null}
           {profile?.role === 'admin' ? (
             <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>{t('workspace.bot')}</Badge>
           ) : null}
           <AppText variant="small" style={styles.time}>{timeAgo(message.created_at)}</AppText>
+          {message.edited_at ? (
+            <AppText variant="small" style={styles.edited}>{t('workspace.edited')}</AppText>
+          ) : null}
         </View>
 
         {message.image_url ? (
           <Image source={{ uri: message.image_url }} style={styles.image} resizeMode="cover" />
         ) : null}
-        {message.text ? <AppText>{message.text}</AppText> : null}
+
+        {editing ? (
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            placeholder={t('workspace.editPlaceholder')}
+            placeholderTextColor={Colors.textMuted}
+            autoFocus
+            multiline
+            style={styles.editInput}
+          />
+        ) : message.text ? (
+          renderMentionedText(message.text, mentionNames)
+        ) : null}
+
+        {editing ? (
+          <View style={styles.editActions}>
+            <AppButton
+              title={t('workspace.save')}
+              onPress={saveEdit}
+              disabled={!draft.trim()}
+              style={styles.editSave}
+            />
+            <AppButton
+              title={t('common.cancel')}
+              variant="ghost"
+              onPress={cancelEdit}
+              style={styles.editCancel}
+            />
+          </View>
+        ) : null}
 
         {message.failed ? (
           <Pressable onPress={() => onRetry(message)} style={styles.failedRow}>
@@ -140,9 +245,23 @@ const styles = StyleSheet.create({
   },
   bubbleOwn: { backgroundColor: Colors.surface },
   meta: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
-  name: { fontWeight: '700', flex: 1 },
+  name: { flex: 1 },
+  nameText: { fontWeight: '700' },
+  mention: { color: Colors.primary, fontWeight: '700' },
   time: { color: Colors.textMuted },
+  edited: { color: Colors.textFaint, fontStyle: 'italic' },
   image: { width: 200, height: 140, borderRadius: Radius.sm },
+  editInput: {
+    backgroundColor: Colors.bg,
+    borderRadius: Radius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    color: Colors.text,
+    maxHeight: 120,
+  },
+  editActions: { flexDirection: 'row', gap: Spacing.sm },
+  editSave: { paddingVertical: 6, paddingHorizontal: 16 },
+  editCancel: { paddingVertical: 6, paddingHorizontal: 16 },
   failedRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   reactions: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, alignItems: 'center' },
   reactionChip: {

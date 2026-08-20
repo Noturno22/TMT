@@ -5,6 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { AppText, EmptyState, Spinner } from '@/components/ui';
 import { TradingViewChart } from '@/components/TradingViewChart';
+import { PremiumLock } from '@/components/PremiumLock';
+import { useSubscription } from '@/hooks/useSubscription';
+import { PLAN_LIMITS } from '@/core/gating';
 import { useTranslation } from 'react-i18next';
 import { formatSymbol, formatTimeframe, formatType } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
@@ -14,6 +17,8 @@ export default function ChartFullScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
+  const { planTier } = useSubscription();
+  const limits = PLAN_LIMITS[planTier] ?? PLAN_LIMITS.free;
 
   const { data: signal, isLoading, error } = useQuery<Signal | null, Error>({
     queryKey: ['signal', id],
@@ -54,6 +59,26 @@ export default function ChartFullScreen() {
     );
   }
 
+  const pairNorm = signal.pair.replace(/[^A-Za-z]/g, '');
+  const pairAllowed = limits.pairs.some((p) => p.replace(/[^A-Za-z]/g, '') === pairNorm);
+  const tfAllowed = signal.timeframe === 'Todos' || limits.timeframes.includes(signal.timeframe as any);
+  if (!pairAllowed || !tfAllowed) {
+    return (
+      <View style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
+        <View style={styles.lockWrap}>
+          <PremiumLock
+            label={`${signal.pair} ${signal.timeframe}`}
+            description={t('analises.premiumDesc')}
+          />
+          <Pressable style={styles.closeBtnAbsolute} hitSlop={8} onPress={() => router.back()}>
+            <Ionicons name="close" size={24} color={Colors.text} />
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -79,6 +104,23 @@ export default function ChartFullScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000000' },
+  lockWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: '#000000',
+  },
+  closeBtnAbsolute: {
+    position: 'absolute',
+    top: Spacing.lg,
+    right: Spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   header: {
     position: 'absolute',
     top: Spacing.lg,

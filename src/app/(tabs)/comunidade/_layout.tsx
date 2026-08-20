@@ -18,6 +18,22 @@ export default function ComunidadeLayout() {
         name="novo-dm"
         options={{ title: t('workspace.selectUser'), presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="novo-canal"
+        options={{ title: t('workspace.newChannel'), presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="user/[userId]"
+        options={{ title: t('userProfile.title'), headerBackTitle: t('tabs.comunidade') }}
+      />
+      <Stack.Screen
+        name="pesquisa"
+        options={{ title: t('workspace.search'), presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="loja"
+        options={{ title: t('store.title'), headerBackTitle: t('tabs.comunidade') }}
+      />
     </Stack>
   );
 }

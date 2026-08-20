@@ -17,6 +17,7 @@ export function useMessages(target: MessagesTarget) {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [reactions, setReactions] = useState<MessageReaction[]>([]);
+  const [mentionsByMessage, setMentionsByMessage] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasOlder, setHasOlder] = useState(false);
@@ -29,6 +30,7 @@ export function useMessages(target: MessagesTarget) {
     setPrevTargetKey(targetKey);
     setMessages([]);
     setReactions([]);
+    setMentionsByMessage({});
     setHasOlder(false);
     setLoading(true);
     setError(null);
@@ -53,6 +55,23 @@ export function useMessages(target: MessagesTarget) {
     setReactions((data || []) as MessageReaction[]);
   }, []);
 
+  const loadMentions = useCallback(async (ids: string[]) => {
+    if (ids.length === 0) {
+      setMentionsByMessage({});
+      return;
+    }
+    const { data } = await supabase
+      .from('message_mentions')
+      .select('message_id, user_id')
+      .in('message_id', ids);
+    const map: Record<string, string[]> = {};
+    for (const row of (data || []) as { message_id: string; user_id: string }[]) {
+      if (!map[row.message_id]) map[row.message_id] = [];
+      map[row.message_id].push(row.user_id);
+    }
+    setMentionsByMessage(map);
+  }, []);
+
   const refresh = useCallback(async () => {
     try {
       const { data, error: err } = await query()
@@ -62,6 +81,7 @@ export function useMessages(target: MessagesTarget) {
       const rows = ((data as Message[] | null) || []).reverse();
       setMessages((prev) => mergeMessages(prev, rows));
       await loadReactions(rows.map((m) => m.id));
+      await loadMentions(rows.map((m) => m.id));
       setHasOlder((data || []).length === PAGE_SIZE);
       setError(null);
     } catch (e: any) {
@@ -69,7 +89,7 @@ export function useMessages(target: MessagesTarget) {
     } finally {
       setLoading(false);
     }
-  }, [query, loadReactions]);
+  }, [query, loadReactions, loadMentions]);
 
   const loadOlder = useCallback(async () => {
     if (loadingOlder) return;
@@ -84,14 +104,15 @@ export function useMessages(target: MessagesTarget) {
       const rows = ((data as Message[] | null) || []).reverse();
       setMessages((prev) => [...rows, ...prev]);
       await loadReactions(rows.map((m) => m.id));
+      await loadMentions(rows.map((m) => m.id));
       setHasOlder((data || []).length === PAGE_SIZE);
     } finally {
       setLoadingOlder(false);
     }
-  }, [query, loadReactions, loadingOlder, messages]);
+  }, [query, loadReactions, loadMentions, loadingOlder, messages]);
 
   const send = useCallback(
-    async (text: string, imageUrl?: string | null) => {
+    async (text: string, imageUrl?: string | null, mentionIds: string[] = []) => {
       if (!user) return;
       const clientId = Crypto.randomUUID();
       const optimistic: Message = {
@@ -111,14 +132,18 @@ export function useMessages(target: MessagesTarget) {
       };
       setMessages((prev) => [...prev, optimistic]);
 
-      const { error } = await supabase.from('messages').insert({
-        channel_id: channelId ?? null,
-        conversation_id: conversationId ?? null,
-        user_id: user.id,
-        text,
-        image_url: imageUrl ?? null,
-        client_msg_id: clientId,
-      });
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          channel_id: channelId ?? null,
+          conversation_id: conversationId ?? null,
+          user_id: user.id,
+          text,
+          image_url: imageUrl ?? null,
+          client_msg_id: clientId,
+        })
+        .select('id')
+        .single();
 
       if (error && error.code !== '23505') {
         setMessages((prev) =>
@@ -126,6 +151,24 @@ export function useMessages(target: MessagesTarget) {
             m.id === clientId ? { ...m, pending: false, failed: true } : m,
           ),
         );
+        return;
+      }
+
+      const serverId = data?.id;
+      if (serverId && mentionIds.length > 0) {
+        try {
+          await supabase.from('message_mentions').insert(
+            mentionIds.map((uid) => ({ message_id: serverId, user_id: uid })),
+          );
+        } catch {
+          // menções são best-effort; a mensagem já foi enviada
+        }
+      }
+
+      if (serverId && text.trim()) {
+        supabase.functions
+          .invoke('send-notification', { body: { messageId: serverId } })
+          .catch(() => {});
       }
     },
     [channelId, conversationId, user],
@@ -180,6 +223,23 @@ export function useMessages(target: MessagesTarget) {
     setMessages((prev) => prev.filter((m) => m.id !== messageId));
   }, []);
 
+  const edit = useCallback(
+    async (message: Message, text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || trimmed === message.text) return;
+      const now = new Date().toISOString();
+      setMessages((prev) =>
+        prev.map((m) => (m.id === message.id ? { ...m, text: trimmed, edited_at: now } : m)),
+      );
+      const { error } = await supabase
+        .from('messages')
+        .update({ text: trimmed, edited_at: now })
+        .eq('id', message.id);
+      if (error) await refresh();
+    },
+    [refresh],
+  );
+
   useEffect(() => {
     const timer = setTimeout(refresh, 0);
     const listeners: { table: string; filter?: string; onEvent: () => void }[] = [];
@@ -214,6 +274,7 @@ export function useMessages(target: MessagesTarget) {
   return {
     messages,
     reactions,
+    mentionsByMessage,
     loading,
     error,
     hasOlder,
@@ -224,5 +285,6 @@ export function useMessages(target: MessagesTarget) {
     retry,
     toggleReaction,
     softDelete,
+    edit,
   };
 }

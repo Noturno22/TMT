@@ -1,182 +1,207 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AppButton, AppInput, AppText, Badge, Card, Divider, Screen, SectionTitle } from '@/components/ui';
-import { GrowthPlanSection } from '@/components/GrowthPlanSection';
+import { useTranslation } from 'react-i18next';
+import { AppButton, AppText, Badge, Card, Divider, EmptyState, Screen, SectionTitle } from '@/components/ui';
+import { GradientCard } from '@/components/GradientCard';
 import { PremiumLock } from '@/components/PremiumLock';
-import { formatMoney } from '@/core/format';
-import { Colors, Spacing } from '@/core/theme';
+import { GrowthPlanSection } from '@/components/GrowthPlanSection';
+import { formatMoney, formatShortDate } from '@/core/format';
+import { Colors, Radius, Spacing } from '@/core/theme';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useTranslation } from 'react-i18next';
+
+function StatusPill({ label, color }: { label: string; color: string }) {
+  return (
+    <View style={[styles.pill, { backgroundColor: `${color}18`, borderColor: `${color}40` }]}>
+      <View style={[styles.pillDot, { backgroundColor: color }]} />
+      <AppText variant="small" style={{ color, fontWeight: '600' }}>{label}</AppText>
+    </View>
+  );
+}
 
 export default function BancaScreen() {
   const { t } = useTranslation();
   const { canAccessBanca } = useSubscription();
   const { config, loading, save } = useBanca();
-  const [editing, setEditing] = useState(false);
-  const [capitalInput, setCapitalInput] = useState('');
-  const [achievedInput, setAchievedInput] = useState('');
-  const [metaInput, setMetaInput] = useState('');
-  const [riskInput, setRiskInput] = useState('');
 
   if (!canAccessBanca) {
     return (
       <Screen>
         <PremiumLock
-          label={t('banca.lockTitle')}
-          description={t('banca.lockDesc')}
+          label={t('capital.lockTitle')}
+          description={t('capital.lockDesc')}
         />
       </Screen>
     );
   }
 
-  const beginEdit = () => {
-    setCapitalInput(String(config.capital));
-    setAchievedInput(String(config.achieved));
-    setMetaInput(String(config.metaPercent));
-    setRiskInput(String(config.riskPercent));
-    setEditing(true);
-  };
+  if (loading) return <Screen><AppText variant="muted">{t('capital.loading')}</AppText></Screen>;
 
-  const commitEdit = () => {
-    const capital = Number(capitalInput);
-    const achieved = Number(achievedInput);
-    const metaPercent = Number(metaInput);
-    const riskPercent = Number(riskInput);
-    if (!isFinite(capital) || capital <= 0) {
-      Alert.alert(t('banca.invalidValue'), t('banca.positiveCapital'));
-      return;
-    }
-    if (!isFinite(achieved) || achieved < 0) {
-      Alert.alert(t('banca.invalidValue'), t('banca.invalidAchieved'));
-      return;
-    }
-    if (!isFinite(metaPercent) || metaPercent <= 0) {
-      Alert.alert(t('banca.invalidValue'), t('banca.invalidMeta'));
-      return;
-    }
-    if (!isFinite(riskPercent) || riskPercent <= 0 || riskPercent > 100) {
-      Alert.alert(t('banca.invalidValue'), t('banca.invalidRisk'));
-      return;
-    }
-    save({ capital, achieved, metaPercent, riskPercent, metaMonths: config.metaMonths });
-    setEditing(false);
-  };
-
-  const metaValue = config.capital * (config.metaPercent / 100);
-  const progress = config.capital > 0 ? config.achieved - config.capital : 0;
-  const progressPct = metaValue > 0 ? Math.min(100, Math.max(0, (progress / metaValue) * 100)) : 0;
-  const riskValue = config.capital * (config.riskPercent / 100);
-
-  if (loading) return <Screen><AppText variant="muted">{t('banca.loading')}</AppText></Screen>;
+  const capital = config.capital;
+  const current = config.achieved;
+  const profit = current - capital;
+  const profitPct = capital > 0 ? (profit / capital) * 100 : 0;
+  const isProfit = profit >= 0;
+  const targetPct = config.metaPercent;
+  const targetValue = capital * (targetPct / 100);
+  const progressPct = targetValue > 0 ? Math.min(100, Math.max(0, (profit / targetValue) * 100)) : 0;
 
   return (
     <Screen>
-      <SectionTitle>{t('banca.title')}</SectionTitle>
+      <SectionTitle>{t('capital.title')}</SectionTitle>
       <AppText variant="muted" style={{ marginBottom: Spacing.md }}>
-        {t('banca.subtitle')}
+        {t('capital.subtitle')}
       </AppText>
 
-      <Card style={styles.card}>
-        <View style={styles.cardHeader}>
-          <AppText variant="muted">{t('banca.totalCapital')}</AppText>
-          <Ionicons name="wallet" size={20} color={Colors.success} />
+      <GradientCard
+        colors={[Colors.primaryDim, 'rgba(22,164,58,0.15)']}
+        style={styles.hero}>
+        <View style={styles.heroTop}>
+          <View style={{ flex: 1 }}>
+            <AppText variant="small" style={styles.heroEyebrow}>{t('capital.currentBalance')}</AppText>
+          </View>
+          <StatusPill label={t('capital.active')} color={Colors.success} />
         </View>
-        <AppText variant="title" style={styles.capitalValue}>
-          {formatMoney(config.capital)} USD
+        <AppText variant="mono" style={[styles.heroValue, { color: isProfit ? Colors.text : Colors.destructive }]}>
+          ${formatMoney(current)}
         </AppText>
-      </Card>
+        <View style={styles.heroFooter}>
+          <AppText variant="small" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {t('capital.deposited')}${formatMoney(capital)}
+          </AppText>
+          <AppText variant="small" style={{ color: isProfit ? '#34C759' : '#FF453A' }}>
+            {isProfit ? '+' : ''}{formatMoney(profit)} USD ({profitPct > 0 ? '+' : ''}{profitPct.toFixed(1)}%)
+          </AppText>
+        </View>
+      </GradientCard>
+
+      <View style={styles.statsRow}>
+        <Card style={styles.statCard}>
+          <Ionicons name="trending-up" size={18} color={Colors.success} />
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.profit')}</AppText>
+          <AppText variant="label" style={{ color: Colors.success }}>+{formatMoney(profit)} USD</AppText>
+        </Card>
+        <Card style={styles.statCard}>
+          <Ionicons name="flag" size={18} color={Colors.accent} />
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.target')}</AppText>
+          <AppText variant="label" style={{ color: Colors.accent }}>+{targetPct}%</AppText>
+        </Card>
+        <Card style={styles.statCard}>
+          <Ionicons name="cash" size={18} color={Colors.warning} />
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.withdrawn')}</AppText>
+          <AppText variant="label" style={{ color: Colors.warning }}>${formatMoney(config.totalWithdrawn)}</AppText>
+        </Card>
+      </View>
 
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <AppText variant="label">{t('banca.targetReturn')}</AppText>
-          <Ionicons name="flag" size={18} color={Colors.accent} />
-        </View>
-        <View style={styles.metaRow}>
-          <AppText style={styles.metaBig}>{config.metaPercent}%</AppText>
-          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('banca.inMonths', { count: config.metaMonths })}</AppText>
+          <AppText variant="label">{t('capital.progressTitle')}</AppText>
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{Math.round(progressPct)}%</AppText>
         </View>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${progressPct}%` }]} />
         </View>
-        <View style={styles.progressRow}>
-          <AppText variant="small" style={{ color: Colors.accent }}>
-            +{formatMoney(progress)} / {formatMoney(metaValue)} USD
-          </AppText>
+        <View style={styles.progressLabels}>
           <AppText variant="small" style={{ color: Colors.textMuted }}>
-            {Math.round(progressPct)}%
+            +{formatMoney(profit)} USD
+          </AppText>
+          <AppText variant="small" style={{ color: Colors.accent }}>
+            Meta: +{formatMoney(targetValue)} USD
           </AppText>
         </View>
       </Card>
 
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
-          <AppText variant="label">{t('banca.riskPerOp')}</AppText>
-          <Badge color={Colors.success} bg={`${Colors.success}20`}>{t('banca.recommended')}</Badge>
+          <AppText variant="label">{t('capital.planTitle')}</AppText>
+          <Badge color={Colors.accent} bg={`${Colors.accent}20`}>{config.metaMonths}</Badge>
         </View>
-        <View style={styles.metaRow}>
-          <AppText style={styles.metaBig}>{config.riskPercent}%</AppText>
-          <AppText variant="small" style={{ color: Colors.success }}>= {formatMoney(riskValue)} USD</AppText>
+        <View style={styles.planInfo}>
+          <View style={styles.planRow}>
+            <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.returnTarget')}</AppText>
+            <AppText variant="label" style={{ color: Colors.accent }}>+{targetPct}%</AppText>
+          </View>
+          <View style={styles.planRow}>
+            <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.period')}</AppText>
+            <AppText variant="label">{config.metaMonths}</AppText>
+          </View>
+          <View style={styles.planRow}>
+            <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.minDeposit')}</AppText>
+            <AppText variant="label">$50 USD</AppText>
+          </View>
         </View>
       </Card>
 
-      <View style={styles.sectionRow}>
-        <AppText variant="label">{t('banca.performance')}</AppText>
-        {editing ? (
-          <AppButton title={t('banca.save')} onPress={commitEdit} style={{ paddingVertical: 8, minHeight: 36 }} />
-        ) : (
-          <AppButton title={t('banca.edit')} variant="outline" onPress={beginEdit} style={{ paddingVertical: 8, minHeight: 36 }} />
-        )}
-      </View>
+      <Card style={styles.card}>
+        <View style={styles.cardHeader}>
+          <AppText variant="label">{t('capital.withdrawalTitle')}</AppText>
+          <Badge color={Colors.success} bg={`${Colors.success}20`}>{t('capital.weekly')}</Badge>
+        </View>
+        <AppText variant="muted" style={{ marginBottom: Spacing.sm }}>
+          {t('capital.withdrawalDesc')}
+        </AppText>
+        <AppButton
+          title={t('capital.requestWithdrawal')}
+          variant="secondary"
+          icon={<Ionicons name="cash-outline" size={18} color={Colors.accent} />}
+          onPress={() => Alert.alert(t('capital.withdrawalRequest'), t('capital.withdrawalMsg'))}
+        />
+      </Card>
 
-      {editing ? (
-        <Card style={styles.card}>
-          <AppInput label={t('banca.inputCapital')} value={capitalInput} onChangeText={setCapitalInput} keyboardType="numeric" />
-          <AppInput label={t('banca.inputCurrent')} value={achievedInput} onChangeText={setAchievedInput} keyboardType="numeric" />
-          <AppInput label={t('banca.inputTarget')} value={metaInput} onChangeText={setMetaInput} keyboardType="numeric" />
-          <AppInput label={t('banca.inputRisk')} value={riskInput} onChangeText={setRiskInput} keyboardType="numeric" />
-        </Card>
-      ) : (
-        <Card style={styles.card}>
-          {[
-            { label: t('banca.weekly'), value: '+220.50 USD' },
-            { label: t('banca.monthly'), value: '+1,150.75 USD' },
-            { label: t('banca.total'), value: `+${formatMoney(progress)} USD` },
-          ].map((item, i) => (
-            <View key={item.label}>
-              {i > 0 ? <Divider /> : null}
-              <View style={styles.perfRow}>
-                <AppText style={{ color: Colors.textBody }}>{item.label}</AppText>
-                <AppText variant="label" style={{ color: Colors.success }}>{item.value}</AppText>
+      <Card style={styles.card}>
+        <View style={styles.cardHeader}>
+          <AppText variant="label">{t('capital.howItWorks')}</AppText>
+        </View>
+        {[
+          { icon: 'wallet', color: Colors.success, title: t('capital.step1Title'), desc: t('capital.step1Desc') },
+          { icon: 'trending-up', color: Colors.accent, title: t('capital.step2Title'), desc: t('capital.step2Desc') },
+          { icon: 'cash', color: Colors.warning, title: t('capital.step3Title'), desc: t('capital.step3Desc') },
+        ].map((step, i) => (
+          <View key={i}>
+            {i > 0 ? <Divider style={{ marginVertical: Spacing.sm }} /> : null}
+            <View style={styles.stepRow}>
+              <View style={[styles.stepIcon, { backgroundColor: `${step.color}18` }]}>
+                <Ionicons name={step.icon as any} size={18} color={step.color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppText variant="label">{step.title}</AppText>
+                <AppText variant="small" style={{ color: Colors.textMuted }}>{step.desc}</AppText>
               </View>
             </View>
-          ))}
-        </Card>
-      )}
+          </View>
+        ))}
+      </Card>
 
-      <Divider style={styles.growthDivider} />
       <GrowthPlanSection capital={config.capital} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  hero: { gap: Spacing.sm, marginBottom: Spacing.md },
+  heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  heroEyebrow: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', letterSpacing: 1 },
+  heroValue: { fontSize: 36, color: Colors.text, letterSpacing: 0.5 },
+  heroFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  pill: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.xs,
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1,
+  },
+  pillDot: { width: 6, height: 6, borderRadius: 3 },
+  statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
+  statCard: { flex: 1, alignItems: 'center', gap: Spacing.xs, paddingVertical: Spacing.md },
   card: { marginBottom: Spacing.md, gap: Spacing.sm },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  capitalValue: { color: Colors.text, marginTop: Spacing.xs },
-  metaRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.sm },
-  metaBig: { fontSize: 28, fontWeight: '800', color: Colors.accent },
   track: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.surfaceElevated,
-    overflow: 'hidden',
-    marginTop: Spacing.sm,
+    height: 8, borderRadius: 4, backgroundColor: Colors.surfaceElevated,
+    overflow: 'hidden', marginTop: Spacing.xs,
   },
   fill: { height: '100%', borderRadius: 4, backgroundColor: Colors.accent },
-  progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
-  perfRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm },
-  growthDivider: { marginTop: Spacing.sm, marginBottom: Spacing.lg },
+  progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
+  planInfo: { gap: Spacing.sm },
+  planRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  stepRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  stepIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  divider: { marginTop: Spacing.sm, marginBottom: Spacing.lg },
 });

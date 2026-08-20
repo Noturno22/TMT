@@ -1,7 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AppText } from '@/components/ui';
-import { Colors, Spacing } from '@/core/theme';
+import { UserAvatar } from '@/components/community/UserAvatar';
+import { isUserOnline } from '@/core/community';
+import { Spacing } from '@/core/theme';
 import type { UserProfile } from '@/core/types';
 import type { DmSummary } from '@/hooks/useConversations';
 
@@ -9,21 +12,33 @@ export function DmRow({
   dm,
   profiles,
   onPress,
+  onOpenProfile,
 }: {
   dm: DmSummary;
   profiles: Record<string, UserProfile>;
   onPress: () => void;
+  onOpenProfile?: (userId: string) => void;
 }) {
   const { t } = useTranslation();
-  const name = profiles[dm.memberId]?.display_name || t('common.trader');
-  const letter = (name || 'T')[0].toUpperCase();
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((x) => x + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const profile = profiles[dm.memberId];
+  const name = profile?.display_name || t('common.trader');
+
   return (
     <Pressable onPress={onPress} style={styles.row}>
-      <View style={[styles.avatar, { backgroundColor: `${Colors.primary}2E` }]}>
-        <AppText variant="small" style={{ color: Colors.primary, fontWeight: '800' }}>
-          {letter}
-        </AppText>
-      </View>
+      <UserAvatar
+        name={name}
+        avatarUrl={profile?.avatar_url}
+        role={profile?.role}
+        online={isUserOnline(profile)}
+        onPress={onOpenProfile ? () => onOpenProfile(dm.memberId) : undefined}
+      />
       <AppText style={{ fontWeight: '600' }}>{name}</AppText>
     </Pressable>
   );
@@ -31,11 +46,4 @@ export function DmRow({
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 8 },
-  avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });

@@ -24,6 +24,7 @@ type ListItem =
 export function MessageList({
   messages,
   reactions,
+  mentionsByMessage,
   profiles,
   currentUserId,
   hasOlder,
@@ -33,10 +34,13 @@ export function MessageList({
   onToggleReaction,
   onRetry,
   onDelete,
+  onEdit,
   onReload,
+  onOpenProfile,
 }: {
   messages: Message[];
   reactions: MessageReaction[];
+  mentionsByMessage: Record<string, string[]>;
   profiles: Record<string, UserProfile>;
   currentUserId: string | null;
   hasOlder: boolean;
@@ -46,7 +50,9 @@ export function MessageList({
   onToggleReaction: (messageId: string, emoji: string) => void;
   onRetry: (message: Message) => void;
   onDelete: (message: Message) => void;
+  onEdit: (message: Message, text: string) => void;
   onReload?: () => void;
+  onOpenProfile?: (userId: string) => void;
 }) {
   const { t } = useTranslation();
   const listRef = useRef<FlatList<ListItem>>(null);
@@ -83,15 +89,21 @@ export function MessageList({
     }
     const m = item.message;
     if (m.boom_id) return <BoomMessage message={m} />;
+    const mentionNames = (mentionsByMessage[m.id] || [])
+      .map((uid) => profiles[uid]?.display_name)
+      .filter((n): n is string => !!n);
     return (
       <MessageBubble
         message={m}
         reactions={reactions.filter((r) => r.message_id === m.id)}
+        mentionNames={mentionNames}
         profile={profiles[m.user_id]}
         currentUserId={currentUserId}
         onToggleReaction={onToggleReaction}
         onRetry={onRetry}
         onDelete={onDelete}
+        onEdit={onEdit}
+        onOpenProfile={onOpenProfile}
       />
     );
   };

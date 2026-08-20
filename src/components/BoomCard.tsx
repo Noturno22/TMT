@@ -25,6 +25,7 @@ import { AudioPlayer } from '@/components/AudioPlayer';
 import { AudioRecorderButton, type RecordedAudio } from '@/components/AudioRecorder';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { castVote } from '@/hooks/useBooms';
 
 function StatusBadge({ boom }: { boom: BoomTime }) {
@@ -79,6 +80,7 @@ export function BoomCard({
 }) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { isPremium } = useSubscription();
   const [expanded, setExpanded] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [pendingAudio, setPendingAudio] = useState<RecordedAudio | null>(null);
@@ -141,7 +143,7 @@ export function BoomCard({
         user_avatar: avatarLetter(user),
         text: commentText.trim(),
         audio_url: audioUrl,
-        is_premium: false,
+        is_premium: isPremium,
       });
       if (!error) {
         setCommentText('');

@@ -19,6 +19,8 @@
     "expo-env.d.ts"
   ],
   "exclude": [
-    "supabase"
+    "supabase",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

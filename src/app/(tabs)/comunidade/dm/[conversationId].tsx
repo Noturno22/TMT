@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppText, Screen } from '@/components/ui';
 import { Composer } from '@/components/community/Composer';
@@ -22,6 +22,10 @@ export default function DmScreen() {
 
   const otherName = dm ? profiles.profiles[dm.memberId]?.display_name : undefined;
 
+  const openProfile = (userId: string) => {
+    router.push({ pathname: '/comunidade/user/[userId]', params: { userId } });
+  };
+
   return (
     <Screen scroll={false}>
       <Stack.Screen options={{ title: otherName || '…' }} />
@@ -29,6 +33,7 @@ export default function DmScreen() {
         <MessageList
           messages={messages.messages}
           reactions={messages.reactions}
+          mentionsByMessage={messages.mentionsByMessage}
           profiles={profiles.profiles}
           currentUserId={user?.id ?? null}
           hasOlder={messages.hasOlder}
@@ -38,9 +43,15 @@ export default function DmScreen() {
           onToggleReaction={messages.toggleReaction}
           onRetry={messages.retry}
           onDelete={(message) => messages.softDelete(message.id)}
+          onEdit={(message, text) => messages.edit(message, text)}
           onReload={messages.refresh}
+          onOpenProfile={openProfile}
         />
-        <Composer onSend={(text, imageUrl) => messages.send(text, imageUrl)} />
+        <Composer
+          onSend={(text, imageUrl, mentionIds) => messages.send(text, imageUrl, mentionIds)}
+          profiles={profiles.profiles}
+          currentUserId={user?.id ?? null}
+        />
       </View>
       {!dm && !conversations.loading ? (
         <AppText style={styles.missing}>{t('workspace.emptyDms')}</AppText>

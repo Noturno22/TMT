@@ -9,6 +9,8 @@ import { AlarmToggle } from '@/components/AlarmToggle';
 import { BoomHourCard, boomHourStatus } from '@/components/BoomHourCard';
 import { useBoomHours } from '@/hooks/useBoomHours';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useEconomicCalendar } from '@/hooks/useEconomicCalendar';
 import {
   DEFAULT_BOOM_PREFS,
   applyBoomPrefs,
@@ -19,6 +21,7 @@ import {
 import { boomCountdown, boomEpochMs, getNextBoomHour } from '@/core/booms';
 import { formatLongDate, pad2 } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
+import { useTourTarget } from '@/components/tour/registry';
 import type { BoomHour } from '@/core/types';
 import { useTranslation } from 'react-i18next';
 
@@ -50,8 +53,9 @@ function Clock({ now }: { now: Date }) {
   );
 }
 
-function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
+function NextBoomHero({ hours, now, planTier }: { hours: BoomHour[]; now: Date; planTier: string }) {
   const { t } = useTranslation();
+  const heroRouter = useRouter();
   const next = getNextBoomHour(hours, now);
   if (!next) return null;
   const epoch = boomEpochMs(now, next.time_wat);
@@ -89,7 +93,16 @@ function NextBoomHero({ hours, now }: { hours: BoomHour[]; now: Date }) {
         ))}
       </View>
 
-      <AlarmToggle boomId={next.id} boomTime={new Date(epoch).toISOString()} title={next.title} />
+      {planTier !== 'free' ? (
+        <AlarmToggle boomId={next.id} boomTime={new Date(epoch).toISOString()} title={next.title} />
+      ) : (
+        <Pressable onPress={() => heroRouter.push('/planos')} style={styles.upgradeAlarmBtn}>
+          <Ionicons name="lock-closed" size={14} color={Colors.accent} />
+          <AppText variant="small" style={{ color: Colors.accent, fontWeight: '700' }}>
+            {t('components.alarmToggle.activate')}
+          </AppText>
+        </Pressable>
+      )}
     </GradientCard>
   );
 }
@@ -98,9 +111,12 @@ export default function HorariosScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { planTier } = useSubscription();
   const { hours, loading, error } = useBoomHours();
+  const { newsForBoom } = useEconomicCalendar();
   const [now, setNow] = useState(new Date());
   const [prefs, setPrefs] = useState<BoomPrefs>(DEFAULT_BOOM_PREFS);
+  const titleRef = useTourTarget('tour:horarios-title');
 
   useFocusEffect(
     useCallback(() => {
@@ -129,21 +145,23 @@ export default function HorariosScreen() {
 
   return (
     <Screen>
-      <SectionTitle
-        right={
-          <Pressable onPress={() => router.push('/definicoes-booms')} hitSlop={8}>
-            <Ionicons name="settings" size={20} color={Colors.textFaint} />
-          </Pressable>
-        }>
-        {t('horarios.title')}
-      </SectionTitle>
+      <View ref={titleRef} collapsable={false}>
+        <SectionTitle
+          right={
+            <Pressable onPress={() => router.push('/definicoes-booms')} hitSlop={8}>
+              <Ionicons name="settings" size={20} color={Colors.textFaint} />
+            </Pressable>
+          }>
+          {t('horarios.title')}
+        </SectionTitle>
+      </View>
 
       <View style={styles.dateRow}>
         <AppText variant="label">{formatLongDate(now.toISOString())}</AppText>
         <AppText variant="small" style={{ color: Colors.textMuted }}>{t('horarios.watUtc')}</AppText>
       </View>
 
-      <NextBoomHero hours={filteredHours} now={now} />
+      <NextBoomHero hours={filteredHours} now={now} planTier={planTier} />
 
       <Clock now={now} />
 
@@ -185,19 +203,19 @@ export default function HorariosScreen() {
           {live.length > 0 ? (
             <View style={styles.group}>
               <SectionHeader title={t('horarios.live')} subtitle={`${live.length} janela${live.length > 1 ? 's' : ''} em curso`} />
-              {live.map((h) => <BoomHourCard key={h.id} hour={h} now={now} />)}
+              {live.map((h) => <BoomHourCard key={h.id} hour={h} now={now} news={newsForBoom(h.time_wat, h.pairs)} />)}
             </View>
           ) : null}
           {upcoming.length > 0 ? (
             <View style={styles.group}>
               <SectionHeader title={t('horarios.upcoming')} subtitle="Hoje" />
-              {upcoming.map((h) => <BoomHourCard key={h.id} hour={h} now={now} />)}
+              {upcoming.map((h) => <BoomHourCard key={h.id} hour={h} now={now} news={newsForBoom(h.time_wat, h.pairs)} />)}
             </View>
           ) : null}
           {expired.length > 0 ? (
             <View style={styles.group}>
               <SectionHeader title={t('horarios.closed')} subtitle="Hoje" />
-              {expired.map((h) => <BoomHourCard key={h.id} hour={h} now={now} />)}
+              {expired.map((h) => <BoomHourCard key={h.id} hour={h} now={now} news={newsForBoom(h.time_wat, h.pairs)} />)}
             </View>
           ) : null}
         </View>
@@ -277,4 +295,17 @@ const styles = StyleSheet.create({
   clockValueMuted: { fontSize: 22, fontWeight: '800', color: Colors.textMuted },
   divider: { width: 1, height: 40, backgroundColor: Colors.border, marginHorizontal: Spacing.md },
   group: { marginBottom: Spacing.lg },
+  upgradeAlarmBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    backgroundColor: `${Colors.accent}1A`,
+    borderColor: `${Colors.accent}55`,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginTop: Spacing.xs,
+  },
 });

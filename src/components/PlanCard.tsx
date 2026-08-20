@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,7 +53,7 @@ export function PlanCard({
     <View
       style={[
         styles.card,
-        gold && styles.goldCard,
+        gold && (Platform.OS === 'web' ? styles.goldCard : styles.goldCardNative),
         active && styles.activeCard,
         dashed && styles.dashedCard,
       ]}>
@@ -124,7 +124,7 @@ export function PlanCard({
     </View>
   );
 
-  return highlight ? (
+  return highlight && Platform.OS === 'web' ? (
     <LinearGradient
       colors={[`${Colors.accent}14`, `${Colors.accent}03`, Colors.surface]}
       start={{ x: 0.1, y: 0 }}
@@ -164,6 +164,11 @@ const styles = StyleSheet.create({
   goldCard: {
     borderColor: 'transparent',
     backgroundColor: 'transparent',
+  },
+  goldCardNative: {
+    borderColor: `${Colors.accent}66`,
+    borderWidth: 1.5,
+    backgroundColor: `${Colors.accent}0F`,
   },
   activeCard: {
     borderColor: `${Colors.success}AA`,
@@ -228,8 +233,8 @@ const styles = StyleSheet.create({
     borderColor: `${Colors.success}66`,
     backgroundColor: `${Colors.success}12`,
   },
-  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.xs },
-  price: { fontSize: 34, fontWeight: '800', color: Colors.text, letterSpacing: -0.5 },
+  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.xs, flexWrap: 'wrap' },
+  price: { fontSize: 34, fontWeight: '800', color: Colors.text, letterSpacing: -0.5, lineHeight: 42 },
   priceGold: { color: Colors.accent },
   divider: { height: 1, backgroundColor: Colors.border, opacity: 0.6 },
   features: { gap: Spacing.sm },

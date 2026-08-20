@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Badge } from '@/components/ui';
 import { AlarmToggle } from '@/components/AlarmToggle';
+import { EconomicEventsRow } from '@/components/EconomicEventBadge';
 import { boomCountdown, boomEpochMs } from '@/core/booms';
 import { Colors, Spacing } from '@/core/theme';
 import type { BoomHour } from '@/core/types';
+import type { EconomicEvent } from '../services/economicCalendar';
 
 export type BoomHourStatus = 'live' | 'upcoming' | 'expired';
 
@@ -16,7 +18,7 @@ export function boomHourStatus(hour: BoomHour, now: Date): BoomHourStatus {
   return 'upcoming';
 }
 
-export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
+export function BoomHourCard({ hour, now, news = [] }: { hour: BoomHour; now: Date; news?: EconomicEvent[] }) {
   const { t } = useTranslation();
   const status = boomHourStatus(hour, now);
   const epoch = boomEpochMs(now, hour.time_wat);
@@ -99,6 +101,8 @@ export function BoomHourCard({ hour, now }: { hour: BoomHour; now: Date }) {
       {hour.description ? (
         <AppText variant="muted" numberOfLines={2}>{hour.description}</AppText>
       ) : null}
+
+      <EconomicEventsRow events={news} />
 
       {status === 'expired' ? (
         <AppText variant="small" style={{ color: Colors.textFaint }}>{t('components.boomHourCard.closedHint')}</AppText>

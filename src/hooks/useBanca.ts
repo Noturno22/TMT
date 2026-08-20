@@ -5,11 +5,16 @@ import type { BancaConfig } from '@/core/types';
 export const BANCA_STORAGE_KEY = 'banca_config';
 
 export const BANCA_DEFAULTS: BancaConfig = {
-  capital: 10000,
-  achieved: 12300,
-  metaPercent: 50,
+  capital: 0,
+  achieved: 0,
+  metaPercent: 25,
   riskPercent: 1,
   metaMonths: '1-3 meses',
+  planId: 'conservador',
+  startDate: new Date().toISOString(),
+  nextWithdrawal: '',
+  totalWithdrawn: 0,
+  profitEarned: 0,
 };
 
 export function useBanca() {

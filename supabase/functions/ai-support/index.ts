@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const geminiApiKey = Deno.env.get('GEMINI_API_KEY') ?? '';
-const model = Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.6-flash';
+const model = Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-flash';
 const apiBase = 'https://generativelanguage.googleapis.com/v1beta';
 const maxTurns = 20;
 const maxTextLength = 2000;
@@ -14,6 +14,24 @@ O que sabes sobre o TMT:
 - Alertas: notificações push, WhatsApp e Telegram (planos pagos); os horários dos alertas gerem-se na secção "Alertas".
 - Gestão de banca: controlo de capital, metas e risco por operação (disponível no plano Premium).
 - A app tem "Análises" (análises diárias), "Histórico" (sinais fechados), "Horários"/BOOM (janelas de alta volatilidade) e "Comunidade" (votar BUY/SELL e comentar).
+
+Quando o utilizador enviar uma imagem de um setup de trading (MetaTrader 5, gráfico, etc.), analisa:
+1. Tendência predominante (alta/baixa/lateral)
+2. Níveis de suporte e resistência visíveis
+3. Padrões de candlestick identificados
+4. Indicadores visíveis no gráfico (RSI, MACD, Médias, Bollinger, etc.)
+5. Zonas de entrada potenciais (BUY/SELL) com preço alvo e stop loss sugerido
+6. Rácio risco/recompensa estimado
+7. Nível de confiança na análise (baixo/médio/alto)
+
+Formato da resposta:
+- 📊 **Análise do Setup**
+- Tendência: [descrição]
+- Padrões: [lista]
+- Indicadores: [lista]
+- 🎯 **Sugestão**: [BUY/SELL] @ [preço] | TP: [preço] | SL: [preço]
+- ⚡ RR: [rácio] | Confiança: [baixo/médio/alto]
+- ⚠️ Nota: Esta é uma análise técnica automática. Trading envolve risco.
 
 Regras:
 - Se não souberes algo específico da app, diz honestamente e sugere contactar o suporte do TMT.
@@ -56,7 +74,10 @@ serve(async (req) => {
   }
 
   const rawMessages = Array.isArray(body.messages) ? body.messages : [];
-  const contents = rawMessages
+  const imageData = body.image as { data: string; mimeType: string } | undefined;
+
+  // Build contents from messages
+  let contents = rawMessages
     .filter(
       (m): m is { role: unknown; text: string } =>
         !!m && typeof m === 'object' && typeof m.text === 'string' && m.text.trim().length > 0,
@@ -67,7 +88,31 @@ serve(async (req) => {
       parts: [{ text: m.text.slice(0, maxTextLength) }],
     }));
 
-  if (contents.length === 0) return errorJson('Envia uma mensagem para começares.');
+  // If an image is provided, add it to the last user message or create a new one
+  if (imageData && imageData.data) {
+    const imagePart = {
+      inline_data: {
+        mime_type: imageData.mimeType || 'image/jpeg',
+        data: imageData.data,
+      },
+    };
+
+    const analysisPrompt = body.prompt as string || 'Analisa esta imagem de um setup de trading. Identifica tendência, padrões, indicadores e sugere entrada com TP/SL.';
+
+    if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+      // Append image to last user message
+      contents[contents.length - 1].parts.push({ text: analysisPrompt } as any);
+      contents[contents.length - 1].parts.push(imagePart as any);
+    } else {
+      // Create a new user message with the image
+      contents.push({
+        role: 'user',
+        parts: [{ text: analysisPrompt } as any, imagePart as any],
+      });
+    }
+  }
+
+  if (contents.length === 0) return errorJson('Envia uma mensagem ou imagem para começares.');
 
   try {
     const res = await fetch(`${apiBase}/models/${model}:generateContent`, {

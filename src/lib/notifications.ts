@@ -1,5 +1,7 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BOOM_LIVE_WINDOW_MINUTES } from '@/core/booms';
 import { i18n } from '@/lib/i18n';
@@ -18,6 +20,7 @@ const CHANNEL_ID = 'booms';
 const CHANNEL_ID_ALARM = 'booms_alarm';
 const UPGRADE_KEY_PREFIX = 'plan_upgrade_prompt';
 const UPGRADE_CHANNEL_ID = 'planos';
+export const COMMUNITY_CHANNEL_ID = 'comunidade';
 
 export async function ensureChannel(): Promise<void> {
   if (Platform.OS === 'android') {
@@ -36,6 +39,33 @@ export async function ensureChannel(): Promise<void> {
       bypassDnd: true,
       lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
     });
+
+    await Notifications.setNotificationChannelAsync(COMMUNITY_CHANNEL_ID, {
+      name: i18n.t('workspace.notificationChannel'),
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#7C3AED',
+    });
+  }
+}
+
+/**
+ * Obtém o token de push do Expo para este dispositivo (ou null se não for
+ * possível: web, emulador, permissão negada ou erro). Não pede permissão se
+ * já tiver sido negada — requestNotificationPermission devolve o estado.
+ */
+export async function getExpoPushToken(): Promise<string | null> {
+  if (Platform.OS === 'web') return null;
+  if (!Device.isDevice) return null;
+  const granted = await requestNotificationPermission();
+  if (!granted) return null;
+  try {
+    const { data } = await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig?.extra?.eas?.projectId,
+    });
+    return data ?? null;
+  } catch {
+    return null;
   }
 }
 
@@ -240,6 +270,60 @@ async function ensureUpgradeChannel(): Promise<void> {
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#FF9F0A',
     });
+  }
+}
+
+// ---------- Notificação de boas-vindas (primeiro login) ----------
+
+const WELCOME_CHANNEL_ID = 'boas-vindas';
+const WELCOME_KEY_PREFIX = 'welcome_sent';
+
+async function ensureWelcomeChannel(): Promise<void> {
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync(WELCOME_CHANNEL_ID, {
+      name: i18n.t('notifications.welcomeChannelName'),
+      importance: Notifications.AndroidImportance.HIGH,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#16A43A',
+    });
+  }
+}
+
+export async function hasWelcomeSent(userId: string): Promise<boolean> {
+  const raw = await AsyncStorage.getItem(`${WELCOME_KEY_PREFIX}:${userId}`);
+  return raw === '1';
+}
+
+/**
+ * Envia (uma única vez por utilizador) a notificação de boas-vindas
+ * no primeiro login após o cadastro. Ao tocar, leva o utilizador para o início.
+ */
+export async function scheduleWelcomeNotification(userId: string): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
+  if (await hasWelcomeSent(userId)) return false;
+
+  await ensureWelcomeChannel();
+  const granted = await requestNotificationPermission();
+  if (!granted) return false;
+
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: i18n.t('notifications.welcomeTitle'),
+        body: i18n.t('notifications.welcomeBody'),
+        data: { url: '/(tabs)/inicio' },
+        sound: Platform.OS === 'ios' ? 'default' : undefined,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 2,
+        channelId: Platform.OS === 'android' ? WELCOME_CHANNEL_ID : undefined,
+      },
+    });
+    await AsyncStorage.setItem(`${WELCOME_KEY_PREFIX}:${userId}`, '1');
+    return true;
+  } catch {
+    return false;
   }
 }
 

@@ -15,16 +15,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { requestWhatsAppCode, verifyWhatsAppCode } from '@/lib/whatsappAuth';
 import { Trans, useTranslation } from 'react-i18next';
 
 const WA_GREEN = '#25D366';
 
+type Step = 'phone' | 'code';
+
 export default function WhatsappScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, signInTest } = useAuth();
+  const { user } = useAuth();
 
+  const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [sentPhone, setSentPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +53,7 @@ export default function WhatsappScreen() {
 
   const normalizedPhone = () => phone.replace(/\D/g, '');
 
-  const enterTest = async () => {
+  const sendCode = async () => {
     const digits = normalizedPhone();
     if (digits.length < 8 || digits.length > 15) {
       setError(t('auth.invalidPhone'));
@@ -55,7 +61,26 @@ export default function WhatsappScreen() {
     }
     setLoading(true);
     setError(null);
-    await signInTest(`+${digits}`);
+    const { error: err } = await requestWhatsAppCode(`+${digits}`);
+    setLoading(false);
+    if (err) {
+      setError(err);
+      return;
+    }
+    setSentPhone(`+${digits}`);
+    setStep('code');
+  };
+
+  const verify = async () => {
+    if (code.trim().length !== 6) {
+      setError(t('auth.codeInvalid'));
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const { error: err } = await verifyWhatsAppCode(sentPhone, code.trim());
+    setLoading(false);
+    if (err) setError(err);
   };
 
   const fadeSlide = {
@@ -88,30 +113,43 @@ export default function WhatsappScreen() {
             </View>
             <AppText variant="title" style={styles.logo}>{t('auth.enterWhatsapp')}</AppText>
             <AppText variant="muted" style={styles.tagline}>
-              {t('auth.whatsappTestMode')}
+              {step === 'phone' ? t('auth.whatsappPrompt') : t('auth.codeSent', { phone: sentPhone })}
             </AppText>
           </Animated.View>
 
           <Animated.View style={[styles.formCard, fadeSlide]}>
-            <View style={styles.testBadge}>
-              <Ionicons name="flask" size={14} color={WA_GREEN} />
-              <AppText variant="small" style={styles.testBadgeText}>
-                {t('auth.testBadge')}
-              </AppText>
-            </View>
-
-            <AppInput
-              label={t('auth.phoneLabel')}
-              value={phone}
-              onChangeText={setPhone}
-              placeholder={t('auth.phonePlaceholder')}
-              keyboardType="phone-pad"
-              autoComplete="tel"
-              textContentType="telephoneNumber"
-              returnKeyType="done"
-              onSubmitEditing={enterTest}
-              icon={<Ionicons name="call-outline" size={18} color={Colors.textMuted} />}
-            />
+            {step === 'phone' ? (
+              <AppInput
+                label={t('auth.phoneLabel')}
+                value={phone}
+                onChangeText={setPhone}
+                placeholder={t('auth.phonePlaceholder')}
+                keyboardType="phone-pad"
+                autoComplete="tel"
+                textContentType="telephoneNumber"
+                returnKeyType="done"
+                onSubmitEditing={sendCode}
+                icon={<Ionicons name="call-outline" size={18} color={Colors.textMuted} />}
+              />
+            ) : (
+              <>
+                <AppInput
+                  label={t('auth.codeLabel')}
+                  value={code}
+                  onChangeText={setCode}
+                  placeholder={t('auth.codePlaceholder')}
+                  keyboardType="number-pad"
+                  maxLength={6}
+                  autoFocus
+                  returnKeyType="done"
+                  onSubmitEditing={verify}
+                  icon={<Ionicons name="keypad-outline" size={18} color={Colors.textMuted} />}
+                />
+                <Pressable onPress={sendCode} disabled={loading} hitSlop={8}>
+                  <AppText variant="small" style={styles.resend}>{t('auth.resendCode')}</AppText>
+                </Pressable>
+              </>
+            )}
 
             {error ? (
               <View style={styles.errorBox}>
@@ -121,8 +159,8 @@ export default function WhatsappScreen() {
             ) : null}
 
             <AppButton
-              title={t('auth.enterApp')}
-              onPress={enterTest}
+              title={step === 'phone' ? t('auth.sendCode') : t('auth.verifyCode')}
+              onPress={step === 'phone' ? sendCode : verify}
               loading={loading}
               icon={<Ionicons name="log-in-outline" size={18} color="#FFFFFF" />}
             />
@@ -187,18 +225,12 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     gap: Spacing.md,
   },
-  testBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    backgroundColor: 'rgba(37,211,102,0.08)',
-    borderColor: 'rgba(37,211,102,0.25)',
-    borderWidth: 1,
-    borderRadius: Radius.md,
-    paddingVertical: Spacing.sm,
+  resend: {
+    color: Colors.primary,
+    textAlign: 'center',
+    fontWeight: '700',
+    paddingVertical: Spacing.xs,
   },
-  testBadgeText: { color: WA_GREEN, fontWeight: '700', letterSpacing: 0.3 },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',

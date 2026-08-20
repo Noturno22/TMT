@@ -11,6 +11,17 @@ const FOREX_SYMBOLS = new Set([
   'USDCHF', 'NZDUSD', 'USDCAD', 'XAUUSD',
 ]);
 
+export const PRESENCE_ONLINE_WINDOW_MS = 2 * 60 * 1000;
+
+export function isUserOnline(
+  profile: { status: string; last_seen_at: string | null } | null | undefined,
+  now: number = Date.now(),
+): boolean {
+  if (!profile || profile.status !== 'online') return false;
+  if (!profile.last_seen_at) return true;
+  return now - new Date(profile.last_seen_at).getTime() < PRESENCE_ONLINE_WINDOW_MS;
+}
+
 export function isWeekendUtc(now: Date = new Date()): boolean {
   const day = now.getUTCDay();
   return day === 0 || day === 6;

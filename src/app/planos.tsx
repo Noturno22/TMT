@@ -1,17 +1,14 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, AppButton, Badge, Screen } from '@/components/ui';
+import { AppText, Badge, Screen } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { PlanCard } from '@/components/PlanCard';
 import { Colors, Spacing } from '@/core/theme';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
-
-type Currency = 'usd' | 'aoa';
-type PlanId = 'free' | 'basic' | 'pro' | 'premium';
+import { PLANS, PRICES, planLabel, type Currency, type PlanId } from '@/lib/plans';
 
 type PlanKey =
   | 'planos.featureFree.0'
@@ -57,71 +54,6 @@ interface PlanFeature {
   text: PlanKey;
   included: boolean;
 }
-
-const planLabel = (plan: Exclude<PlanId, 'free'>): string =>
-  plan === 'basic' ? 'Basic' : plan === 'pro' ? 'Pro' : 'Premium';
-
-const WA_GREEN = '#25D366';
-
-const BINANCE_ID = '547723572';
-const RODOTPAY_UID = '1927969477';
-const EXPRESS_PHONE = '+244926717730';
-
-type PaymentMethod = 'binance' | 'rodotpay' | 'express';
-
-const PAYMENT_METHODS: {
-  id: PaymentMethod;
-  label: string;
-  icon: string; // Ionicons name
-  color: string;
-  usd: boolean;
-  aoa: boolean;
-  getDetails: (t: TFunction) => string;
-}[] = [
-  {
-    id: 'binance',
-    label: 'Binance Pay',
-    icon: 'logo-bitcoin',
-    color: '#F0B90B',
-    usd: true,
-    aoa: false,
-    getDetails: (t) => t('planos.uid', { value: BINANCE_ID }),
-  },
-  {
-    id: 'rodotpay',
-    label: 'Rodotpay',
-    icon: 'card',
-    color: '#6366F1',
-    usd: true,
-    aoa: true,
-    getDetails: (t) => t('planos.uid', { value: RODOTPAY_UID }),
-  },
-  {
-    id: 'express',
-    label: 'Express',
-    icon: 'cash',
-    color: '#00C853',
-    usd: false,
-    aoa: true,
-    getDetails: (t) => t('planos.phone', { value: EXPRESS_PHONE }),
-  },
-];
-
-const PLANS: {
-  id: Exclude<PlanId, 'free'>;
-  icon: 'flash' | 'rocket' | 'trophy';
-  highlight?: boolean;
-  featured?: boolean;
-}[] = [
-  { id: 'basic', icon: 'flash' },
-  { id: 'pro', icon: 'rocket', highlight: true },
-  { id: 'premium', icon: 'trophy', featured: true },
-];
-
-const PRICES: Record<Currency, Record<PlanId, string>> = {
-  usd: { free: '$0', basic: '$14.99', pro: '$29.99', premium: '$49.99' },
-  aoa: { free: '0 Kz', basic: '10.000 Kz', pro: '20.000 Kz', premium: '35.000 Kz' },
-};
 
 const FREE_FEATURES: PlanFeature[] = [
   { text: 'planos.featureFree.0', included: true },
@@ -171,7 +103,7 @@ const TRUST: { icon: keyof typeof Ionicons.glyphMap; label: PlanKey }[] = [
 ];
 
 const ALERTS: { icon: keyof typeof Ionicons.glyphMap; color: string; title: PlanKey; desc: PlanKey }[] = [
-  { icon: 'logo-whatsapp', color: WA_GREEN, title: 'planos.alertsWhatsapp', desc: 'planos.alertsWhatsappDesc' },
+  { icon: 'logo-whatsapp', color: Colors.success, title: 'planos.alertsWhatsapp', desc: 'planos.alertsWhatsappDesc' },
   { icon: 'paper-plane', color: Colors.secondary, title: 'planos.alertsTelegram', desc: 'planos.alertsTelegramDesc' },
   { icon: 'mail', color: Colors.accent, title: 'planos.alertsEmail', desc: 'planos.alertsEmailDesc' },
 ];
@@ -182,8 +114,6 @@ export default function PlanosScreen() {
   const router = useRouter();
   const { user, isPremium, subscription, loading } = useSubscription();
   const [currency, setCurrency] = useState<Currency>('usd');
-  const [checkingOut, setCheckingOut] = useState<PlanId | null>(null);
-  const [paymentModal, setPaymentModal] = useState<{ plan: Exclude<PlanId, 'free'>; currency: Currency; method?: PaymentMethod } | null>(null);
 
   const planName = subscription?.plan?.toLowerCase() ?? '';
   const activePlan: PlanId = isPremium
@@ -202,22 +132,7 @@ export default function PlanosScreen() {
       return;
     }
     if (isPremium && activePlan === plan) return;
-    setCheckingOut(plan);
-    setPaymentModal({ plan, currency });
-  };
-
-  const handleMethodSelect = (method: PaymentMethod) => {
-    setPaymentModal((prev) => (prev ? { ...prev, method } : null));
-  };
-
-  const getAvailableMethods = (curr: Currency): typeof PAYMENT_METHODS => {
-    return PAYMENT_METHODS.filter((m) => (curr === 'usd' ? m.usd : m.aoa));
-  };
-
-  const handlePaymentConfirmed = () => {
-    setPaymentModal(null);
-    setCheckingOut(null);
-    Alert.alert(t('planos.receiptOk'), t('planos.receiptMsg'), [{ text: 'OK' }]);
+    router.push({ pathname: '/depositos', params: { plan, currency } });
   };
 
   const planButton = (plan: Exclude<PlanId, 'free'>) => {
@@ -293,7 +208,7 @@ export default function PlanosScreen() {
           }))}
           buttonTitle={planButton(id).title}
           buttonVariant={planButton(id).variant}
-          loading={checkingOut === id || loading}
+          loading={loading}
           onPress={() => handlePlanPress(id)}
         />
       ))}
@@ -337,127 +252,9 @@ export default function PlanosScreen() {
         </View>
       </View>
 
-      {paymentModal && (
-        <PaymentModal
-          plan={paymentModal.plan}
-          currency={paymentModal.currency}
-          price={PRICES[paymentModal.currency][paymentModal.plan]}
-          onClose={() => setPaymentModal(null)}
-          onConfirm={handlePaymentConfirmed}
-          method={paymentModal.method}
-          onMethodSelect={(m) => setPaymentModal((p) => (p ? { ...p, method: m || undefined } : null))}
-          availableMethods={getAvailableMethods(paymentModal.currency)}
-        />
-      )}
     </Screen>
   );
 }
-function PaymentModal({
-  plan,
-  currency,
-  price,
-  onClose,
-  onConfirm,
-  method,
-  onMethodSelect,
-  availableMethods,
-}: {
-  plan: Exclude<PlanId, 'free'>;
-  currency: Currency;
-  price: string;
-  onClose: () => void;
-  onConfirm: () => void;
-  method?: PaymentMethod;
-  onMethodSelect: (method: PaymentMethod) => void;
-  availableMethods: typeof PAYMENT_METHODS;
-}) {
-  const { t } = useTranslation();
-  const selectedMethod = method ? availableMethods.find((m) => m.id === method) : null;
-
-  return (
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContent}>
-        <View style={styles.modalHeader}>
-          <AppText variant="h2">{t('planos.paymentTitle', { plan: planLabel(plan) })}</AppText>
-          <Pressable onPress={onClose} style={styles.closeBtn}>
-            <Ionicons name="close" size={24} color={Colors.textMuted} />
-          </Pressable>
-        </View>
-
-        <View style={styles.modalBody}>
-          <AppText variant="label" style={styles.modalLabel}>{t('planos.paymentAmount', { amount: price })}</AppText>
-
-          {!method ? (
-            <>
-              <AppText variant="label" style={styles.modalLabel}>{t('planos.chooseMethod')}</AppText>
-              <View style={styles.methodGrid}>
-                {availableMethods.map((m) => (
-                  <Pressable
-                    key={m.id}
-                    onPress={() => onMethodSelect(m.id)}
-                    style={[
-                      styles.methodCard,
-                      {
-                        borderColor: m.color,
-                        borderWidth: 2,
-                      },
-                    ]}>
-                    <View style={[styles.methodIcon, { backgroundColor: `${m.color}1A` }]}>
-                      <Ionicons name={m.icon as keyof typeof Ionicons.glyphMap} size={28} color={m.color} />
-                    </View>
-                    <AppText variant="label" style={{ color: m.color, fontWeight: '800' }}>
-                      {m.label}
-                    </AppText>
-                  </Pressable>
-                ))}
-              </View>
-            </>
-          ) : (
-            <>
-              <View style={styles.selectedMethod}>
-                <View style={[styles.selectedMethodIcon, { backgroundColor: `${selectedMethod?.color}1A` }]}>
-                  <Ionicons
-                    name={selectedMethod?.icon as keyof typeof Ionicons.glyphMap}
-                    size={24}
-                    color={selectedMethod?.color}
-                  />
-                </View>
-                <View style={styles.selectedMethodInfo}>
-                  <AppText variant="label" style={{ color: selectedMethod?.color, fontWeight: '800' }}>
-                    {selectedMethod?.label}
-                  </AppText>
-                  <AppText variant="small" style={{ color: Colors.textMuted }}>
-                    {selectedMethod?.getDetails(t)}
-                  </AppText>
-                </View>
-                <Pressable onPress={() => onMethodSelect(undefined as any)} style={styles.changeMethodBtn}>
-                  <AppText variant="small" style={{ color: Colors.primary }}>{t('planos.change')}</AppText>
-                </Pressable>
-              </View>
-
-              <View style={styles.detailsBox}>
-                <AppText style={styles.detailsText}>
-                  {t('planos.payInstructions')}
-                </AppText>
-              </View>
-              <AppText variant="small" style={styles.instructions}>
-                {t('planos.afterPayment')}
-              </AppText>
-            </>
-          )}
-        </View>
-
-        <View style={styles.modalActions}>
-          <AppButton title={t('planos.cancel')} variant="ghost" onPress={onClose} />
-          {method ? (
-            <AppButton title={t('planos.receiptSent')} variant="primary" onPress={onConfirm} />
-          ) : null}
-        </View>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   hero: {
     padding: Spacing.lg,
@@ -571,102 +368,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    padding: Spacing.md,
-  },
-  modalContent: {
-    backgroundColor: Colors.surface,
-    borderRadius: 20,
-    padding: Spacing.lg,
-    gap: Spacing.md,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.border,
-    paddingBottom: Spacing.md,
-  },
-  closeBtn: {
-    padding: Spacing.xs,
-  },
-  modalBody: {
-    gap: Spacing.sm,
-  },
-  modalLabel: {
-    color: Colors.textMuted,
-  },
-  detailsBox: {
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: 12,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  detailsText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.accent,
-    textAlign: 'center',
-  },
-  instructions: {
-    color: Colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing.md,
-  },
-  methodGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-    marginTop: Spacing.xs,
-  },
-  methodCard: {
-    flex: 1,
-    minWidth: 100,
-    maxWidth: 120,
-    aspectRatio: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    borderRadius: 16,
-    backgroundColor: Colors.surface,
-    borderWidth: 2,
-    padding: Spacing.md,
-  },
-  methodIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectedMethod: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.md,
-    backgroundColor: Colors.surfaceElevated,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  selectedMethodIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectedMethodInfo: { flex: 1, gap: 2 },
-  changeMethodBtn: { padding: Spacing.xs },
 });

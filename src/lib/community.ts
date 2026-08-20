@@ -38,6 +38,27 @@ export async function findOrCreateConversation(
   return conv.id;
 }
 
+export async function shareSignalToFeed(
+  userId: string,
+  signalId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase.rpc('share_signal', {
+    p_signal_id: signalId,
+    p_user_id: userId,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: !!data };
+}
+
+export async function findSinaisChannelId(): Promise<string | null> {
+  const { data } = await supabase
+    .from('channels')
+    .select('id')
+    .eq('name', 'sinais')
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
 export async function uploadCommunityImage(
   userId: string,
   uri: string,

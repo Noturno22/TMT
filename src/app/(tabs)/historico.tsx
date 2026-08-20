@@ -6,6 +6,7 @@ import { useHistory } from '@/hooks/useHistory';
 import { formatShortDate, formatDateTimeWAT } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import { useTranslation } from 'react-i18next';
+import { Animated, FadeInDown, FadeInUp, FadeOutUp, Layout } from '@/lib/animations';
 
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
@@ -128,38 +129,44 @@ export default function HistoricoScreen() {
       ) : filtered.length === 0 ? (
         <EmptyState title={t('historico.emptyTitle')} subtitle={t('historico.emptyBody')} />
       ) : (
-        filtered.map((s) => {
+        filtered.map((s, index) => {
           const isTp = s.result === 'tp';
           const accent = isTp ? Colors.success : Colors.destructive;
           const expanded = isExpanded(s.id);
           return (
-            <Pressable key={s.id} onPress={() => toggleExpand(s.id)} style={[styles.row, { borderLeftColor: accent, borderLeftWidth: 3 }]}>
-              <View style={styles.rowTop}>
-                <View style={styles.rowLeft}>
-                  <AppText variant="label" style={{ fontWeight: '700' }}>{s.pair}</AppText>
-                  <Badge
-                    color={s.type === 'BUY' ? Colors.success : s.type === 'SELL' ? Colors.destructive : Colors.warning}
-                    bg={`${s.type === 'BUY' ? Colors.success : s.type === 'SELL' ? Colors.destructive : Colors.warning}1F`}>
-                    {s.type}
-                  </Badge>
-                  <AppText variant="small" style={{ color: Colors.textMuted }}>{s.timeframe}</AppText>
+            <Animated.View key={s.id} entering={FadeInUp.delay(index * 60 + 100).springify()}>
+              <Pressable onPress={() => toggleExpand(s.id)} style={[styles.row, { borderLeftColor: accent, borderLeftWidth: 3 }]}>
+                <View style={styles.rowTop}>
+                  <View style={styles.rowLeft}>
+                    <AppText variant="label" style={{ fontWeight: '700' }}>{s.pair}</AppText>
+                    <Badge
+                      color={s.type === 'BUY' ? Colors.success : s.type === 'SELL' ? Colors.destructive : Colors.warning}
+                      bg={`${s.type === 'BUY' ? Colors.success : s.type === 'SELL' ? Colors.destructive : Colors.warning}1F`}>
+                      {s.type}
+                    </Badge>
+                    <AppText variant="small" style={{ color: Colors.textMuted }}>{s.timeframe}</AppText>
+                  </View>
+                  <Badge color={accent} bg={`${accent}1F`}>{isTp ? 'TP' : 'SL'}</Badge>
                 </View>
-                <Badge color={accent} bg={`${accent}1F`}>{isTp ? 'TP' : 'SL'}</Badge>
-              </View>
-              <View style={styles.rowBottom}>
-                <AppText variant="small" style={{ color: Colors.textMuted }}>
-                  {s.entry.toFixed(5)} → {s.takeProfit.toFixed(5)}
-                </AppText>
-                <AppText variant="small" style={{ color: Colors.textFaint }}>{formatShortDate(s.date)}</AppText>
-              </View>
-              <Ionicons
-                name={expanded ? 'chevron-up' : 'chevron-down'}
-                size={18}
-                color={Colors.textFaint}
-                style={styles.chevron}
-              />
-              {expanded && renderSignalDetails(s)}
-            </Pressable>
+                <View style={styles.rowBottom}>
+                  <AppText variant="small" style={{ color: Colors.textMuted }}>
+                    {s.entry.toFixed(5)} → {s.takeProfit.toFixed(5)}
+                  </AppText>
+                  <AppText variant="small" style={{ color: Colors.textFaint }}>{formatShortDate(s.date)}</AppText>
+                </View>
+                <Ionicons
+                  name={expanded ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={Colors.textFaint}
+                  style={styles.chevron}
+                />
+                {expanded && (
+                  <Animated.View entering={FadeInDown.duration(250)} exiting={FadeOutUp.duration(200)}>
+                    {renderSignalDetails(s)}
+                  </Animated.View>
+                )}
+              </Pressable>
+            </Animated.View>
           );
         })
       )}

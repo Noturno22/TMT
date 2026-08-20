@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
+import { Pulse, Animated, FadeInDown } from '@/lib/animations';
 
 export function PremiumLock({
   label,
@@ -17,21 +18,25 @@ export function PremiumLock({
   const router = useRouter();
   const { t } = useTranslation();
   return (
-    <View style={styles.card}>
-      <View style={styles.iconWrap}>
-        <Ionicons name="lock-closed" size={compact ? 18 : 22} color={Colors.accent} />
+    <Animated.View entering={FadeInDown.delay(60).springify()}>
+      <View style={styles.card}>
+        <Pulse>
+          <View style={styles.iconWrap}>
+            <Ionicons name="lock-closed" size={compact ? 18 : 22} color={Colors.accent} />
+          </View>
+        </Pulse>
+        <View style={styles.textWrap}>
+          <AppText style={styles.title}>{label}</AppText>
+          {description ? <AppText variant="muted">{description}</AppText> : null}
+        </View>
+        <AppButton
+          title={t('components.premiumLock.viewPlans')}
+          variant="gold"
+          onPress={() => router.push('/planos')}
+          style={styles.button}
+        />
       </View>
-      <View style={styles.textWrap}>
-        <AppText style={styles.title}>{label}</AppText>
-        {description ? <AppText variant="muted">{description}</AppText> : null}
-      </View>
-      <AppButton
-        title={t('components.premiumLock.viewPlans')}
-        variant="gold"
-        onPress={() => router.push('/planos')}
-        style={styles.button}
-      />
-    </View>
+    </Animated.View>
   );
 }
 

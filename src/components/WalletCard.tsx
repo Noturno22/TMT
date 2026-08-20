@@ -4,46 +4,44 @@ import { useTranslation } from 'react-i18next';
 import { AppText, Divider } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { MetricGrid } from '@/components/MetricGrid';
-import { formatMoney } from '@/core/format';
+import { formatMoney, formatShortDate } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import type { BancaConfig } from '@/core/types';
+import { useMovements, type WalletMovement } from '@/hooks/useMovements';
+import { planLabel, type PlanId } from '@/lib/plans';
 
-function MovementRow({
-  icon,
-  label,
-  date,
-  value,
-  positive,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  date: string;
-  value: string;
-  positive: boolean;
-}) {
-  const color = positive ? Colors.success : Colors.destructive;
+function MovementRow({ m, index }: { m: WalletMovement; index: number }) {
+  const { t } = useTranslation();
+  const isDeposit = m.type === 'deposit';
+  const color = isDeposit ? Colors.success : Colors.accent;
+  const amount = m.currency === 'usd' ? `$${formatMoney(m.amount)}` : `${formatMoney(m.amount)} Kz`;
+  const label = isDeposit
+    ? t('depositos.movementDeposit', { plan: m.plan ? planLabel(m.plan as Exclude<PlanId, 'free'>) : t('depositos.depositSection') })
+    : t('depositos.movementWithdraw');
   return (
-    <View style={styles.movementRow}>
-      <View style={[styles.movementIcon, { backgroundColor: positive ? Colors.liveDim : `${Colors.destructive}18` }]}>
-        <Ionicons name={icon} size={16} color={color} />
+    <View key={m.id} style={styles.movementRow}>
+      <View style={[styles.movementIcon, { backgroundColor: `${color}18` }]}>
+        <Ionicons name={isDeposit ? 'arrow-down-circle' : 'arrow-up-circle'} size={16} color={color} />
       </View>
       <View style={styles.movementText}>
         <AppText style={{ color: Colors.textBody }}>{label}</AppText>
-        <AppText variant="small" style={{ color: Colors.textFaint }}>{date}</AppText>
+        <AppText variant="small" style={{ color: Colors.textFaint }}>
+          {formatShortDate(m.createdAt)} · {m.status === 'concluido' ? t('depositos.statusConcluido') : t('depositos.statusPendente')}
+        </AppText>
       </View>
-      <AppText variant="label" style={{ color }}>{value}</AppText>
+      <AppText variant="label" style={{ color }}>{`${isDeposit ? '+' : '-'}${amount}`}</AppText>
+      {index > 0 ? <Divider style={styles.movementDivider} /> : null}
     </View>
   );
 }
 
 export function WalletCard({ config }: { config: BancaConfig }) {
   const { t } = useTranslation();
+  const { movements, loading } = useMovements();
   const metaValue = config.capital * (config.metaPercent / 100);
   const progress = config.achieved - config.capital;
   const progressPct = metaValue > 0 ? Math.min(100, Math.max(0, (progress / metaValue) * 100)) : 0;
   const aboveCapital = progress >= 0;
-  const tpValue = Math.max(0, progress) * 0.6;
-  const slValue = progress < 0 ? -progress * 0.4 : 45;
 
   return (
     <View style={styles.wrap}>
@@ -85,13 +83,13 @@ export function WalletCard({ config }: { config: BancaConfig }) {
 
       <View style={styles.movements}>
         <AppText variant="label" style={styles.sectionLabel}>{t('components.walletCard.movements')}</AppText>
-        <MovementRow icon="arrow-down-circle" label={t('components.walletCard.initialDeposit')} date={t('components.walletCard.today')} value={`+$${formatMoney(config.capital)}`} positive />
-        <Divider style={styles.movementDivider} />
-        <MovementRow icon="trending-up" label={t('components.walletCard.signalTp', { par: 'XAU/USD' })} date={t('components.walletCard.yesterday')} value={`+$${formatMoney(tpValue)}`} positive />
-        <Divider style={styles.movementDivider} />
-        <MovementRow icon="trending-down" label={t('components.walletCard.signalSl', { par: 'EUR/USD' })} date={t('components.walletCard.daysAgo', { count: 2 })} value={`-$${formatMoney(slValue)}`} positive={false} />
-        <Divider style={styles.movementDivider} />
-        <MovementRow icon="wallet" label={t('components.walletCard.totalBalance')} date={t('components.walletCard.wallet')} value={`$${formatMoney(config.achieved)}`} positive={aboveCapital} />
+        {loading ? (
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('common.loading')}</AppText>
+        ) : movements.length === 0 ? (
+          <AppText variant="small" style={{ color: Colors.textMuted }}>{t('depositos.empty')}</AppText>
+        ) : (
+          movements.map((m, i) => <MovementRow key={m.id} m={m} index={i} />)
+        )}
       </View>
     </View>
   );

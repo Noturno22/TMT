@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { subscribeToChanges } from '@/lib/realtime';
@@ -7,22 +7,12 @@ import { formatSymbol, formatTimeframe, formatType } from '@/core/format';
 import { isForexSymbol, isWeekendUtc } from '@/core/community';
 import { notifyNewSignal } from '@/lib/signalNotifications';
 import { useSubscription } from '@/hooks/useSubscription';
+import { ensureWeekendCryptoSignals, generateSignalsNow } from '@/lib/cryptoSignals';
 
-// Pares crypto - apenas Pro/Premium
-const PRO_ONLY_PAIRS = new Set([
-  'BTC/USD', 'ETH/USD', 'BTCUSDT', 'ETHUSDT',
-]);
-
-function isPairProOnly(pair: string): boolean {
-  return PRO_ONLY_PAIRS.has(pair);
-}
-
-// Configuração de qualidade - Sinais sérios para traders sérios
 const SIGNAL_QUALITY = {
-  MIN_CONFIDENCE: 75,        // Mínimo 75% confiança
-  MIN_RISK_REWARD: 1.5,      // Mínimo 1:1.5 R:R
-  MAX_PER_DAY: 12,           // Máximo 12 sinais/dia (qualidade > quantidade)
-  MAX_ACTIVE: 20,            // Máximo 20 sinais ativos simultâneos
+  MIN_CONFIDENCE: 55,
+  MIN_RISK_REWARD: 1.5,
+  MAX_ACTIVE: 20,
 } as const;
 
 function determineStatus(status: string | null, confidence: number): SignalStatus {
@@ -30,12 +20,13 @@ function determineStatus(status: string | null, confidence: number): SignalStatu
   if (status === 'sl') return 'sl';
   if (status === 'active') return 'active';
   if (status === 'pending') return 'pending';
-  return Number(confidence) >= 70 ? 'active' : 'pending';
+  // Sinais da IA já vêm com status 'active' — manter
+  return 'active';
 }
 
 function determineTier(status: string | null, confidence: number, isPremium: boolean): SignalTier {
   if (isPremium) return 'premium';
-  if (Number(confidence) >= 80) return 'pro';
+  // Todos os sinais da IA são free — não esconder por confiança
   return 'free';
 }
 
@@ -54,18 +45,13 @@ function passesQualityFilter(confidence: number, rr: number | undefined): boolea
 }
 
 async function fetchSignals(userTier: SignalTier = 'free'): Promise<Signal[]> {
-  const { data, error } = await supabase
-    .from('signals')
-    .select('*')
-    .in('status', ['active', 'pending']) // Só sinais abertos
-    .order('created_at', { ascending: false })
-    .limit(SIGNAL_QUALITY.MAX_ACTIVE);
+  const isPremium = userTier === 'premium' || userTier === 'pro';
+
+  const { data, error } = await supabase.rpc('get_user_signals');
 
   if (error) throw error;
 
-  const isPremium = userTier === 'premium' || userTier === 'pro';
-
-  const mapped = (data || []).map((row: any) => {
+  const mapped: Signal[] = (data || []).map((row: any) => {
     const entry = Number(row.entry_price) || 0;
     const sl = Number(row.stop_loss) || 0;
     const tp = Number(row.target_price) || 0;
@@ -90,41 +76,29 @@ async function fetchSignals(userTier: SignalTier = 'free'): Promise<Signal[]> {
       expiresAt: row.expires_at ?? undefined,
       analysis: row.analysis ?? undefined,
       probabilityScore: row.probability_score ?? undefined,
+      smcSetup: row.smc_setup ?? undefined,
     };
   });
 
-  // Filtrar por qualidade
   let qualityFiltered = mapped.filter((s) => passesQualityFilter(s.confidence, s.riskReward));
 
-  // Filtrar pares Pro-only para usuários Free
-  if (userTier === 'free') {
-    qualityFiltered = qualityFiltered.filter((s) => !isPairProOnly(s.pair));
-  }
-
-  // Fim de semana: apenas crypto (forex/ouro com mercado fechado)
-  if (isWeekendUtc()) {
+  // Weekend: only crypto
+  const weekend = isWeekendUtc();
+  if (weekend) {
     qualityFiltered = qualityFiltered.filter((s) => !isForexSymbol(s.pair));
-    console.log('[Signals] Fim de semana - apenas crypto, restam:', qualityFiltered.length);
   }
 
-  // Priorizar sinais de hoje com qualidade, completar com anteriores se necessário
-  const today = new Date().toISOString().split('T')[0];
-  const todaysSignals = qualityFiltered.filter((s) => s.createdAt.startsWith(today));
-  const result = [
-    ...todaysSignals.slice(0, SIGNAL_QUALITY.MAX_PER_DAY),
-    ...qualityFiltered.filter((s) => !todaysSignals.includes(s)).slice(0, SIGNAL_QUALITY.MAX_ACTIVE - SIGNAL_QUALITY.MAX_PER_DAY),
-  ];
-
-  return result.slice(0, SIGNAL_QUALITY.MAX_ACTIVE);
+  return qualityFiltered.slice(0, SIGNAL_QUALITY.MAX_ACTIVE);
 }
 
 export function useSignals() {
   const queryClient = useQueryClient();
   const notifiedRef = useRef<Set<string>>(new Set());
   const { planTier } = useSubscription();
+  const [generating, setGenerating] = useState(false);
+  const [genResult, setGenResult] = useState<{ count: number; error?: string } | null>(null);
 
-  // Mapear PlanTier → SignalTier (basic = free para fins de sinais)
-  const signalTier: SignalTier = planTier === 'pro' || planTier === 'premium' ? planTier : 'free';
+  const signalTier: SignalTier = planTier === 'pro' || planTier === 'premium' || planTier === 'basic' ? planTier : 'free';
 
   const { data: signals = [], isLoading: loading, error: queryError, refetch } = useQuery<Signal[], Error>({
     queryKey: ['signals', signalTier],
@@ -132,21 +106,19 @@ export function useSignals() {
     staleTime: 30_000,
   });
 
-  // Notificar novos sinais
   useEffect(() => {
     if (loading || !signals.length) return;
     for (const signal of signals) {
       if (!notifiedRef.current.has(signal.id)) {
         notifiedRef.current.add(signal.id);
-        notifyNewSignal(signal).catch(() => {});
+        notifyNewSignal(signal, planTier).catch(() => {});
       }
     }
-    // Limpar IDs antigos se muitos
     if (notifiedRef.current.size > 500) {
       const arr = Array.from(notifiedRef.current);
       notifiedRef.current = new Set(arr.slice(-250));
     }
-  }, [signals, loading]);
+  }, [signals, loading, planTier]);
 
   useEffect(() => {
     return subscribeToChanges('signals', [
@@ -154,7 +126,27 @@ export function useSignals() {
     ]);
   }, [queryClient]);
 
-  return { signals, loading, error: queryError?.message || null, refetch };
+  useEffect(() => {
+    ensureWeekendCryptoSignals().then(() => {
+      queryClient.invalidateQueries({ queryKey: ['signals'] });
+    });
+  }, [queryClient]);
+
+  const doGenerate = useCallback(async () => {
+    setGenerating(true);
+    setGenResult(null);
+    try {
+      const result = await generateSignalsNow();
+      setGenResult({ count: result.count, error: result.error });
+      await queryClient.invalidateQueries({ queryKey: ['signals'] });
+    } catch (e: unknown) {
+      setGenResult({ count: 0, error: e instanceof Error ? e.message : 'Erro' });
+    } finally {
+      setGenerating(false);
+    }
+  }, [queryClient]);
+
+  return { signals, loading, error: queryError?.message || null, refetch, generating, genResult, generateNow: doGenerate };
 }
 
 export type { SignalType };

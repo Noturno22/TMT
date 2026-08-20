@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -7,6 +7,7 @@ import { formatNumber, timeAgo } from '@/core/format';
 import { calcOpenPips, getPipMultiplier, pipsBetween } from '@/core/pips';
 import { Colors, Spacing } from '@/core/theme';
 import { AppText, Badge, Card, ConfidenceBar } from '@/components/ui';
+import { Animated, AnimatedPressable, FadeInUp } from '@/lib/animations';
 
 function typeBadge(type: Signal['type'], t: TFunction) {
   switch (type) {
@@ -57,64 +58,39 @@ function LevelLadder({
   pair: string;
 }) {
   const { t } = useTranslation();
+  const dec = decimalsFor(pair);
   const tpPips = pipsBetween(entry, takeProfit, pair);
   const slPips = pipsBetween(entry, stopLoss, pair);
 
-  const min = Math.min(entry, stopLoss, takeProfit, live ?? entry);
-  const max = Math.max(entry, stopLoss, takeProfit, live ?? entry);
-  const span = max - min || 1;
-  const pos = (p: number) => `${((max - p) / span) * 100}%` as `${number}%`;
-
-  const line = (p: number, color: string, width = 2) => ({
-    top: pos(p),
-    backgroundColor: color,
-    height: width,
-    borderRadius: width / 2,
-  });
-
-  // Ordenar níveis para empilhar labels sem overlap
   const levels = [
     { key: 'tp', price: takeProfit, color: Colors.success, label: 'TP', pips: tpPips },
-    ...(live !== null ? [{ key: 'live', price: live, color: Colors.text, label: '●', pips: null, isLive: true }] : []),
-    { key: 'entry', price: entry, color: Colors.accent, label: t('components.signalCard.entry'), pips: 0 },
+    ...(live !== null ? [{ key: 'live', price: live, color: Colors.text, label: '●', pips: null as number | null, isLive: true }] : []),
+    { key: 'entry', price: entry, color: Colors.accent, label: t('components.signalCard.entry'), pips: null as number | null },
     { key: 'sl', price: stopLoss, color: Colors.destructive, label: 'SL', pips: slPips },
   ];
 
   return (
-    <View style={styles.ladder}>
-      <View style={styles.ladderTrack}>
-        <View style={[styles.ladderLine, line(takeProfit, Colors.success)]} />
-        <View style={[styles.ladderLine, line(entry, Colors.accent)]} />
-        <View style={[styles.ladderLine, line(stopLoss, Colors.destructive)]} />
-        {live !== null ? (
-          <View style={[styles.liveDot, { top: pos(live) }]}>
-            <Ionicons name="locate" size={11} color={Colors.text} />
+    <View style={styles.levelsContainer}>
+      {levels.map((lvl) => (
+        <View key={lvl.key} style={styles.levelRow}>
+          <View style={[styles.levelDot, { backgroundColor: lvl.color }]} />
+          <View style={styles.levelInfo}>
+            <AppText variant="small" style={{ color: lvl.color, fontWeight: '700' }}>
+              {lvl.label}
+            </AppText>
           </View>
-        ) : null}
-      </View>
-
-      <View style={styles.ladderLabels}>
-        {levels.map((lvl, idx) => (
-          <View key={lvl.key} style={styles.ladderRow}>
-            <View style={styles.ladderLabelBox}>
-              <AppText variant="small" style={{ color: lvl.color, fontWeight: '700' }}>
-                {lvl.label}
-              </AppText>
-              <AppText variant="mono" style={{ color: lvl.color, fontWeight: '700' }}>
-                {formatNumber(lvl.price, decimalsFor(pair))}
-              </AppText>
-              {lvl.pips !== null && lvl.pips !== undefined && (
-                <AppText variant="small" style={{ color: lvl.color }}>
-                  {t('components.signalCard.pips', { count: Math.round(lvl.pips) })}
-                </AppText>
-              )}
-              {lvl.isLive && (
-                <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.signalCard.now')}</AppText>
-              )}
-            </View>
-          </View>
-        ))}
-      </View>
+          <AppText variant="mono" style={{ color: lvl.color, fontWeight: '600' }}>
+            {formatNumber(lvl.price, dec)}
+          </AppText>
+          {lvl.pips !== null ? (
+            <AppText variant="small" style={{ color: lvl.color }}>
+              {t('components.signalCard.pips', { count: Math.round(lvl.pips) })}
+            </AppText>
+          ) : lvl.isLive ? (
+            <AppText variant="small" style={{ color: Colors.textMuted }}>{t('components.signalCard.now')}</AppText>
+          ) : null}
+        </View>
+      ))}
     </View>
   );
 }
@@ -142,83 +118,70 @@ export function SignalCard({
   const isProfitable = openPips !== null && openPips > 0;
 
   return (
-    <Pressable onPress={onPress}>
-      <Card style={styles.card}>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <AppText variant="h2">{signal.pair}</AppText>
-            <View style={[styles.typePill, { backgroundColor: `${type.color}1F` }]}>
-              <Ionicons name={type.icon} size={12} color={type.color} />
-              <AppText variant="small" style={{ color: type.color, fontWeight: '800' }}>{type.label}</AppText>
-            </View>
-          </View>
-          <Badge bg={`${status.color}1F`} color={status.color}>{status.label}</Badge>
-        </View>
-
-        <View style={styles.meta}>
-          <AppText variant="muted">{signal.timeframe}</AppText>
-          <AppText variant="muted">•</AppText>
-          <AppText variant="muted">{t('components.signalCard.rr', { value: 1 })}{rr}</AppText>
-          <View style={styles.spacer} />
-          <AppText variant="small" style={{ color: Colors.textFaint }}>{timeAgo(signal.createdAt)}</AppText>
-        </View>
-
-        <ConfidenceBar value={signal.confidence} />
-
-        <LevelLadder
-          entry={signal.entry}
-          stopLoss={signal.stopLoss}
-          takeProfit={signal.takeProfit}
-          live={live}
-          pair={signal.pair}
-        />
-
-        {live !== null && openPips !== null ? (
-          <View style={styles.liveRow}>
-            <AppText variant="small" style={{ color: Colors.textMuted }}>
-              {isProfitable ? t('components.signalCard.inProfit') : openPips < 0 ? t('components.signalCard.inLoss') : t('components.signalCard.atPoint')} ·
-            </AppText>
-            <AppText variant="small" style={{ color: isProfitable ? Colors.success : openPips < 0 ? Colors.destructive : Colors.textMuted, fontWeight: '800' }}>
-              {openPips > 0 ? '+' : ''}{t('components.signalCard.pips', { count: openPips.toFixed(1) })}
-            </AppText>
-          </View>
-        ) : null}
-
-        <View style={styles.levels}>
-          <View style={styles.level}>
-            <AppText variant="small" style={{ color: Colors.accent }}>{t('components.signalCard.entry')}</AppText>
-            <AppText variant="mono">{formatNumber(signal.entry, decimalsFor(signal.pair))}</AppText>
-          </View>
-          <View style={styles.level}>
-            <AppText variant="small" style={{ color: Colors.destructive }}>SL</AppText>
-            <AppText variant="mono">{formatNumber(signal.stopLoss, decimalsFor(signal.pair))}</AppText>
-          </View>
-          <View style={styles.level}>
-            <AppText variant="small" style={{ color: Colors.success }}>TP</AppText>
-            <AppText variant="mono">{formatNumber(signal.takeProfit, decimalsFor(signal.pair))}</AppText>
-          </View>
-        </View>
-
-        {showReasons && signal.reasons.length > 0 ? (
-          <View style={styles.reasons}>
-            <AppText variant="small" style={{ color: Colors.textMuted, fontWeight: '600' }}>
-              {t('components.signalCard.analysis')}
-            </AppText>
-            {signal.reasons.slice(0, 2).map((r, i) => (
-              <View key={i} style={styles.reasonRow}>
-                <Ionicons name="checkmark-circle" size={13} color={type.color} />
-                <AppText variant="small" style={{ flex: 1 }}>{r}</AppText>
+    <Animated.View entering={FadeInUp.delay(50).springify()}>
+      <AnimatedPressable onPress={onPress}>
+        <Card style={styles.card}>
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <AppText variant="h2">{signal.pair}</AppText>
+              <View style={[styles.typePill, { backgroundColor: `${type.color}1F` }]}>
+                <Ionicons name={type.icon} size={12} color={type.color} />
+                <AppText variant="small" style={{ color: type.color, fontWeight: '800' }}>{type.label}</AppText>
               </View>
-            ))}
-            {signal.reasons.length > 2 ? (
-              <AppText variant="small" style={{ color: Colors.textMuted }}>
-                {t('components.signalCard.moreReasons', { count: signal.reasons.length - 2 })}
-              </AppText>
-            ) : null}
+            </View>
+            <Badge bg={`${status.color}1F`} color={status.color}>{status.label}</Badge>
           </View>
-        ) : null}
-      </Card>
-    </Pressable>
+
+          <View style={styles.meta}>
+            <AppText variant="muted">{signal.timeframe}</AppText>
+            <AppText variant="muted">•</AppText>
+            <AppText variant="muted">{t('components.signalCard.rr', { value: 1 })}{rr}</AppText>
+            <View style={styles.spacer} />
+            <AppText variant="small" style={{ color: Colors.textFaint }}>{timeAgo(signal.createdAt)}</AppText>
+          </View>
+
+          <ConfidenceBar value={signal.confidence} />
+
+          <LevelLadder
+            entry={signal.entry}
+            stopLoss={signal.stopLoss}
+            takeProfit={signal.takeProfit}
+            live={live}
+            pair={signal.pair}
+          />
+
+          {live !== null && openPips !== null ? (
+            <View style={styles.liveRow}>
+              <AppText variant="small" style={{ color: Colors.textMuted }}>
+                {isProfitable ? t('components.signalCard.inProfit') : openPips < 0 ? t('components.signalCard.inLoss') : t('components.signalCard.atPoint')} ·
+              </AppText>
+              <AppText variant="small" style={{ color: isProfitable ? Colors.success : openPips < 0 ? Colors.destructive : Colors.textMuted, fontWeight: '800' }}>
+                {openPips > 0 ? '+' : ''}{t('components.signalCard.pips', { count: openPips.toFixed(1) })}
+              </AppText>
+            </View>
+          ) : null}
+
+          {showReasons && signal.reasons.length > 0 ? (
+            <View style={styles.reasons}>
+              <AppText variant="small" style={{ color: Colors.textMuted, fontWeight: '600' }}>
+                {t('components.signalCard.analysis')}
+              </AppText>
+              {signal.reasons.slice(0, 2).map((r, i) => (
+                <View key={i} style={styles.reasonRow}>
+                  <Ionicons name="checkmark-circle" size={13} color={type.color} />
+                  <AppText variant="small" style={{ flex: 1 }}>{r}</AppText>
+                </View>
+              ))}
+              {signal.reasons.length > 2 ? (
+                <AppText variant="small" style={{ color: Colors.textMuted }}>
+                  {t('components.signalCard.moreReasons', { count: signal.reasons.length - 2 })}
+                </AppText>
+              ) : null}
+            </View>
+          ) : null}
+        </Card>
+      </AnimatedPressable>
+    </Animated.View>
   );
 }
 
@@ -236,41 +199,19 @@ const styles = StyleSheet.create({
   },
   meta: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   spacer: { flex: 1 },
-  ladder: { flexDirection: 'row', marginTop: Spacing.xs },
-  ladderTrack: { width: 24, alignItems: 'center', justifyContent: 'center' },
-  ladderLine: { position: 'absolute', left: 0, right: 0 },
-  liveDot: {
-    position: 'absolute',
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surfaceElevated,
-    borderColor: Colors.text,
-    borderWidth: 1,
-    transform: [{ translateY: -9 }],
-  },
-  ladderLabels: { flex: 1, position: 'relative', gap: 4 },
-  ladderRow: {
-    left: 0,
-    right: 0,
+  levelsContainer: { gap: 6, marginTop: Spacing.xs },
+  levelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.15)',
   },
-  ladderLabelBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-  },
+  levelDot: { width: 6, height: 6, borderRadius: 3 },
+  levelInfo: { flex: 1 },
   liveRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  levels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.xs },
-  level: { gap: 2, flex: 1 },
   reasons: { gap: Spacing.xs, marginTop: Spacing.xs },
   reasonRow: { flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start' },
 });

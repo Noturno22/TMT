@@ -244,12 +244,29 @@ async function handleListUsers() {
   const { data, error } = await supabase.auth.admin.listUsers();
   if (error) return errorJson(error.message, 500);
 
-  const users = (data.users ?? []).map((u) => ({
-    id: u.id,
-    email: u.email ?? '',
-    created_at: u.created_at,
-    last_sign_in_at: u.last_sign_in_at ?? null,
-  }));
+  const userIds = (data.users ?? []).map((u) => u.id);
+
+  const { data: subs } = await supabase
+    .from('subscriptions')
+    .select('user_id, plan, status, current_period_end')
+    .in('user_id', userIds);
+
+  const subMap = new Map<string, { plan: string; status: string; current_period_end: string }>();
+  (subs ?? []).forEach((s) => subMap.set(s.user_id, s));
+
+  const users = (data.users ?? []).map((u) => {
+    const sub = subMap.get(u.id);
+    const role = sub?.status === 'active' ? (sub.plan || 'free') : 'free';
+    return {
+      id: u.id,
+      email: u.email ?? '',
+      created_at: u.created_at,
+      last_sign_in_at: u.last_sign_in_at ?? null,
+      role,
+      subscription_status: sub?.status ?? null,
+      subscription_expires: sub?.current_period_end ?? null,
+    };
+  });
 
   return json({ users });
 }

@@ -7,36 +7,32 @@ import { formatSymbol, formatType } from '@/core/format';
 import { calcPips, round1 } from '@/core/pips';
 
 async function fetchHistory(): Promise<{ signals: HistorySignal[]; stats: HistoryStats }> {
-  const { data, error } = await supabase
-    .from('signals')
-    .select('*')
-    .in('status', ['tp', 'sl'])
-    .order('created_at', { ascending: false })
-    .limit(200);
+  const { data, error } = await supabase.rpc('get_user_history');
 
   if (error) throw error;
 
-  const mapped: HistorySignal[] = (data || []).map((row: any) => {
-    const entry = Number(row.entry_price) || 0;
-    const tp = Number(row.target_price) || 0;
-    const sl = Number(row.stop_loss) || 0;
-    const symbol = row.symbol || '';
-    const profitPips = round1(calcPips(entry, tp, sl, row.status, symbol));
+  const mapped: HistorySignal[] = (data || [])
+    .map((row: any) => {
+      const entry = Number(row.entry_price) || 0;
+      const tp = Number(row.target_price) || 0;
+      const sl = Number(row.stop_loss) || 0;
+      const symbol = row.symbol || '';
+      const profitPips = round1(calcPips(entry, tp, sl, row.status, symbol));
 
-    return {
-      id: String(row.id),
-      pair: formatSymbol(symbol),
-      timeframe: row.timeframe ?? 'H1',
-      type: formatType(row.signal_type),
-      confidence: Number(row.confidence) || 50,
-      entry,
-      stopLoss: sl,
-      takeProfit: tp,
-      result: row.status as 'tp' | 'sl',
-      date: row.created_at ?? new Date().toISOString(),
-      profitPips,
-    };
-  });
+      return {
+        id: String(row.id),
+        pair: formatSymbol(symbol),
+        timeframe: row.timeframe ?? 'H1',
+        type: formatType(row.signal_type),
+        confidence: Number(row.confidence) || 50,
+        entry,
+        stopLoss: sl,
+        takeProfit: tp,
+        result: row.status as 'tp' | 'sl',
+        date: row.created_at ?? new Date().toISOString(),
+        profitPips,
+      };
+    });
 
   const tpCount = mapped.filter((s) => s.result === 'tp').length;
   const slCount = mapped.filter((s) => s.result === 'sl').length;
@@ -59,7 +55,7 @@ export function useHistory() {
 
   const { data, isLoading: loading } = useQuery({
     queryKey: ['history'],
-    queryFn: fetchHistory,
+    queryFn: () => fetchHistory(),
     staleTime: 10_000,
     refetchInterval: 30_000,
   });

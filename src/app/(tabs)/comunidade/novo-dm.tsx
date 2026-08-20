@@ -45,6 +45,9 @@ export default function NewDmScreen() {
               dm={{ conversationId: p.user_id, memberId: p.user_id, createdAt: '' }}
               profiles={profiles}
               onPress={() => startDm(p.user_id)}
+              onOpenProfile={(id) =>
+                router.push({ pathname: '/comunidade/user/[userId]', params: { userId: id } })
+              }
             />
           ))}
         </View>

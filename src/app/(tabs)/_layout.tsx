@@ -1,8 +1,8 @@
-import { router, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/core/theme';
-import { Pressable, StyleSheet } from 'react-native';
-import { AppText } from '@/components/ui';
+import { StyleSheet } from 'react-native';
+import { AppHeader } from '@/components/AppHeader';
 import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
@@ -18,6 +18,20 @@ export default function TabsLayout() {
         headerStyle: styles.header,
         headerTintColor: Colors.text,
         headerShadowVisible: false,
+        header: (props) => (
+          <AppHeader
+            title={
+              typeof props.options.headerTitle === 'string'
+                ? props.options.headerTitle
+                : props.options.title
+            }
+            headerRight={
+              props.options.headerRight
+                ? props.options.headerRight({ tintColor: Colors.text, canGoBack: false })
+                : undefined
+            }
+          />
+        ),
       }}>
       <Tabs.Screen
         name="inicio"
@@ -32,11 +46,6 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.analises'),
           tabBarIcon: ({ color, size }) => <Ionicons name="pulse" size={size} color={color} />,
-          headerRight: () => (
-            <Pressable onPress={() => router.push('/planos')} style={styles.headerRight}>
-              <AppText variant="label" style={{ color: Colors.accent }}>{t('tabs.planos')}</AppText>
-            </Pressable>
-          ),
         }}
       />
       <Tabs.Screen
@@ -71,7 +80,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="admin"
-        options={{ href: null }}
+        options={{ href: null, headerShown: false }}
       />
     </Tabs>
   );
@@ -84,5 +93,4 @@ const styles = StyleSheet.create({
   },
   tabLabel: { fontSize: 11, fontWeight: '600' },
   header: { backgroundColor: Colors.bg },
-  headerRight: { marginRight: 16 },
 });

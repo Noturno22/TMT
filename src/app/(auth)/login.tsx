@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Animated, Easing, ImageBackground, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { AppButton, AppText } from '@/components/ui';
+import { AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { signInWithGoogle } from '@/lib/googleAuth';
 import { useAuth } from '@/hooks/useAuth';
 import { Trans, useTranslation } from 'react-i18next';
 
 const WA_GREEN = '#25D366';
+const GOOGLE_BLUE = '#4285F4';
+const GOOGLE_RED = '#EA4335';
+const GOOGLE_YELLOW = '#FBBC05';
+const GOOGLE_GREEN = '#34A853';
 
 const fadeSlide = (value: Animated.Value, fromY = 24) => ({
   opacity: value,
@@ -21,6 +25,18 @@ const fadeSlide = (value: Animated.Value, fromY = 24) => ({
   ],
 });
 
+function GoogleG() {
+  return (
+    <View style={styles.gLogo} pointerEvents="none">
+      <View style={[styles.gBar, { top: 0, right: 0, width: 22, height: 7, backgroundColor: GOOGLE_RED, borderTopRightRadius: 5 }]} />
+      <View style={[styles.gBar, { bottom: 0, left: 0, width: 22, height: 7, backgroundColor: GOOGLE_YELLOW, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }]} />
+      <View style={[styles.gBar, { right: 0, top: 7, width: 7, height: 7, backgroundColor: GOOGLE_GREEN, borderTopRightRadius: 5 }]} />
+      <View style={[styles.gBar, { right: 0, top: 14, width: 13, height: 7, backgroundColor: GOOGLE_GREEN, borderTopLeftRadius: 4 }]} />
+      <View style={[styles.gBar, { left: 0, top: 0, width: 7, height: 22, backgroundColor: GOOGLE_BLUE, borderTopLeftRadius: 5, borderBottomLeftRadius: 5 }]} />
+    </View>
+  );
+}
+
 export default function LoginScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -29,19 +45,19 @@ export default function LoginScreen() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(oauthError ?? null);
 
-  const [brandAnim] = useState(() => new Animated.Value(0));
   const [formAnim] = useState(() => new Animated.Value(0));
+  const [propsAnim] = useState(() => new Animated.Value(0));
   const [footerAnim] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    Animated.stagger(120, [
-      Animated.timing(brandAnim, {
+    Animated.stagger(110, [
+      Animated.timing(formAnim, {
         toValue: 1,
         duration: 500,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.timing(formAnim, {
+      Animated.timing(propsAnim, {
         toValue: 1,
         duration: 500,
         easing: Easing.out(Easing.cubic),
@@ -54,7 +70,7 @@ export default function LoginScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [brandAnim, formAnim, footerAnim]);
+  }, [formAnim, propsAnim, footerAnim]);
 
   useEffect(() => {
     if (user) router.replace('/(tabs)/inicio');
@@ -70,28 +86,26 @@ export default function LoginScreen() {
     if (error) setError(error);
   };
 
+  const points = [
+    { icon: 'flash-outline', label: t('auth.value1') },
+    { icon: 'notifications-outline', label: t('auth.value2') },
+    { icon: 'pie-chart-outline', label: t('auth.value3') },
+  ] as const;
+
   return (
-    <ImageBackground
-      source={require('@/assets/images/bg-login.png')}
-      style={styles.bg}
-      resizeMode="cover">
+    <View style={styles.bg}>
       <LinearGradient
-        colors={['rgba(7,7,15,0.55)', 'rgba(5,5,13,0.78)', 'rgba(5,5,13,0.92)']}
-        style={styles.bg}>
+        colors={['rgba(7,7,15,0.50)', 'rgba(6,6,14,0.72)', 'rgba(4,4,10,0.94)']}
+        style={StyleSheet.absoluteFill}>
+        <Image
+          source={require('@/assets/images/bg-login.png')}
+          style={styles.bgLogo}
+          resizeMode="contain"
+        />
         <View pointerEvents="none" style={styles.aura} />
         <View pointerEvents="none" style={styles.auraBottom} />
         <SafeAreaView style={styles.safe}>
           <View style={styles.container}>
-            <Animated.View style={[styles.brand, fadeSlide(brandAnim, 30)]}>
-              <View style={styles.logoGlow}>
-                <Ionicons name="sparkles" size={52} color={Colors.primary} />
-              </View>
-              <AppText variant="title" style={styles.logo}>The Magic Trader</AppText>
-              <AppText variant="muted" style={styles.tagline}>
-                {t('auth.tagline')}
-              </AppText>
-            </Animated.View>
-
             <Animated.View style={[styles.formCard, fadeSlide(formAnim)]}>
               {error ? (
                 <View style={styles.errorBox}>
@@ -100,27 +114,50 @@ export default function LoginScreen() {
                 </View>
               ) : null}
 
-              <AppButton
-                title={t('auth.continueGoogle')}
-                variant="outline"
-                loading={googleLoading}
+              <Pressable
                 onPress={loginGoogle}
-                icon={
-                  <View style={styles.googleBadge}>
-                    <AppText style={styles.googleG}>G</AppText>
-                  </View>
-                }
-              />
-              <AppButton
-                title={t('auth.enterWhatsapp')}
-                variant="outline"
+                disabled={googleLoading}
+                accessibilityRole="button"
+                accessibilityLabel={t('auth.continueGoogle')}
+                style={({ pressed }) => [
+                  styles.googleBtn,
+                  (pressed || googleLoading) && { opacity: googleLoading ? 0.7 : 0.88 },
+                ]}>
+                {googleLoading ? (
+                  <ActivityIndicator color="#1A1A1E" />
+                ) : (
+                  <>
+                    <GoogleG />
+                    <AppText style={styles.googleBtnText}>{t('auth.continueGoogle')}</AppText>
+                  </>
+                )}
+              </Pressable>
+
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <AppText variant="small" style={styles.dividerText}>{t('auth.or')}</AppText>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <Pressable
                 onPress={() => router.push('/(auth)/whatsapp')}
-                icon={
-                  <View style={styles.waBadge}>
-                    <Ionicons name="logo-whatsapp" size={18} color={WA_GREEN} />
+                accessibilityRole="button"
+                accessibilityLabel={t('auth.enterWhatsapp')}
+                style={({ pressed }) => [styles.waBtn, pressed && { opacity: 0.85 }]}>
+                <Ionicons name="logo-whatsapp" size={20} color={WA_GREEN} />
+                <AppText style={styles.waBtnText}>{t('auth.enterWhatsapp')}</AppText>
+              </Pressable>
+            </Animated.View>
+
+            <Animated.View style={[styles.pointsRow, fadeSlide(propsAnim)]}>
+              {points.map((p) => (
+                <View key={p.label} style={styles.point}>
+                  <View style={styles.pointIcon}>
+                    <Ionicons name={p.icon} size={16} color={Colors.primary} />
                   </View>
-                }
-              />
+                  <AppText variant="small" style={styles.pointText}>{p.label}</AppText>
+                </View>
+              ))}
             </Animated.View>
 
             <Animated.View style={[styles.footer, fadeSlide(footerAnim, 24)]}>
@@ -138,14 +175,19 @@ export default function LoginScreen() {
           </View>
         </SafeAreaView>
       </LinearGradient>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   bg: { flex: 1 },
+  bgLogo: {
+    ...StyleSheet.absoluteFill,
+    width: undefined,
+    height: undefined,
+  },
   safe: { flex: 1 },
-  container: { flex: 1, justifyContent: 'center', paddingHorizontal: 24, gap: Spacing.lg },
+  container: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: 24, paddingBottom: 150, gap: Spacing.lg },
   aura: {
     position: 'absolute',
     top: -160,
@@ -153,7 +195,7 @@ const styles = StyleSheet.create({
     width: 420,
     height: 420,
     borderRadius: 210,
-    backgroundColor: 'rgba(22,164,58,0.08)',
+    backgroundColor: 'rgba(22,164,58,0.09)',
   },
   auraBottom: {
     position: 'absolute',
@@ -162,29 +204,20 @@ const styles = StyleSheet.create({
     width: 420,
     height: 420,
     borderRadius: 210,
-    backgroundColor: 'rgba(255,159,10,0.04)',
+    backgroundColor: 'rgba(255,159,10,0.05)',
   },
-  brand: { gap: Spacing.sm, alignItems: 'center' },
-  logoGlow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 108,
-    height: 108,
-    borderRadius: 54,
-    backgroundColor: 'rgba(22,164,58,0.10)',
-    borderWidth: 1,
-    borderColor: 'rgba(22,164,58,0.25)',
-    marginBottom: Spacing.sm,
-  },
-  logo: { color: Colors.text, letterSpacing: 0.5 },
-  tagline: { textAlign: 'center' },
   formCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: 'rgba(28,28,30,0.92)',
     borderColor: Colors.border,
     borderWidth: 1,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     gap: Spacing.md,
+    shadowColor: '#000000',
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
   },
   errorBox: {
     flexDirection: 'row',
@@ -197,22 +230,87 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
   },
   errorText: { color: Colors.destructive, flex: 1, fontSize: 13 },
-  googleBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 5,
+  googleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    minHeight: 54,
+    borderRadius: Radius.lg,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.6)',
+    shadowColor: '#000000',
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  googleBtnText: {
+    color: '#1A1A1E',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  gLogo: { width: 22, height: 22 },
+  gBar: { position: 'absolute' },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.border,
+  },
+  dividerText: {
+    color: Colors.textMuted,
+    letterSpacing: 1,
+  },
+  waBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    minHeight: 54,
+    borderRadius: Radius.lg,
+    backgroundColor: 'rgba(37,211,102,0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(37,211,102,0.40)',
+  },
+  waBtnText: {
+    color: WA_GREEN,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  pointsRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  point: {
+    flex: 1,
+    alignItems: 'center',
+    gap: Spacing.xs + 2,
+    backgroundColor: 'rgba(28,28,30,0.55)',
+    borderColor: Colors.border,
+    borderWidth: 1,
+    borderRadius: Radius.lg,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
+  },
+  pointIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: 'rgba(22,164,58,0.14)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  googleG: { color: Colors.destructive, fontSize: 14, fontWeight: '800' },
-  waBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 5,
-    backgroundColor: '#0B141A',
-    alignItems: 'center',
-    justifyContent: 'center',
+  pointText: {
+    color: Colors.textMuted,
+    textAlign: 'center',
+    fontSize: 11,
+    lineHeight: 14,
   },
   footer: { alignItems: 'center' },
   legal: { color: Colors.textMuted, textAlign: 'center', paddingHorizontal: Spacing.md },

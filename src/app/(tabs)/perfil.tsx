@@ -12,8 +12,10 @@ import { Colors, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTourTarget } from '@/components/tour/registry';
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/lib/i18n';
+import { isAdminEmail } from '@/lib/supabase';
 
 function MenuRow({
   icon,
@@ -22,6 +24,7 @@ function MenuRow({
   onPress,
   danger,
   right,
+  disabled,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
@@ -29,15 +32,22 @@ function MenuRow({
   onPress?: () => void;
   danger?: boolean;
   right?: React.ReactNode;
+  disabled?: boolean;
 }) {
   const tint = danger ? Colors.destructive : color;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.menuRow, pressed && { backgroundColor: Colors.surfaceElevated }]}>
+    <Pressable
+      onPress={disabled ? undefined : onPress}
+      style={({ pressed }) => [
+        styles.menuRow,
+        disabled && styles.menuRowDisabled,
+        pressed && !disabled && { backgroundColor: Colors.surfaceElevated },
+      ]}>
       <View style={[styles.menuIcon, { backgroundColor: `${tint}1A` }]}>
         <Ionicons name={icon} size={18} color={tint} />
       </View>
-      <AppText style={{ flex: 1, color: danger ? Colors.destructive : Colors.textBody }}>{label}</AppText>
-      {right}
+      <AppText style={{ flex: 1, color: disabled ? Colors.textFaint : danger ? Colors.destructive : Colors.textBody }}>{label}</AppText>
+      {right ?? (disabled ? <Ionicons name="lock-closed" size={14} color={Colors.textFaint} /> : null)}
       <Ionicons name="chevron-forward" size={16} color={Colors.textFaint} />
     </Pressable>
   );
@@ -49,6 +59,7 @@ export default function PerfilScreen() {
   const { user, signOut, updateProfile } = useAuth();
   const { isPremium, canAccessBanca, subscription } = useSubscription();
   const { config: banca } = useBanca();
+  const walletRef = useTourTarget('tour:perfil-wallet');
 
   const [editing, setEditing] = useState(false);
   const [nameInput, setNameInput] = useState('');
@@ -163,7 +174,7 @@ export default function PerfilScreen() {
           )}
         </GradientCard>
 
-        <View style={styles.section}>
+        <View ref={walletRef} collapsable={false} style={styles.section}>
           <SectionHeader
             title={t('perfil.walletSection')}
             subtitle={canAccessBanca ? t('perfil.bancaManagement') : t('perfil.availablePremium')}
@@ -188,7 +199,8 @@ export default function PerfilScreen() {
             <MenuRow icon="trophy" label={t('perfil.mySubscription')} onPress={() => router.push('/planos')} right={
               isPremium ? <Badge color={Colors.accent} bg={`${Colors.accent}20`}>{t('components.dashboardHeader.pro')}</Badge> : null
             } />
-            <MenuRow icon="wallet" label={t('perfil.banca')} color={Colors.success} onPress={() => router.push('/banca')} />
+            <MenuRow icon="wallet" label={t('perfil.banca')} color={Colors.success} onPress={() => router.push('/banca')} disabled={!canAccessBanca} />
+            <MenuRow icon="book" label={t('perfil.diario')} color={Colors.accent} onPress={() => router.push('/diario-trader')} />
           </View>
         </View>
 
@@ -196,14 +208,29 @@ export default function PerfilScreen() {
           <AppText variant="label" style={styles.sectionLabel}>{t('perfil.sectionPreferences')}</AppText>
           <View style={styles.menu}>
             <MenuRow icon="notifications" label={t('perfil.notifications')} onPress={() => router.push('/notificacoes')} />
-            <MenuRow icon="alarm" label={t('perfil.manageAlerts')} onPress={() => router.push('/horarios')} />
-            <MenuRow icon="shield-checkmark" label={t('perfil.security')} onPress={() => Alert.alert(t('perfil.security'), t('common.comingSoon'))} />
+            <MenuRow icon="alarm" label={t('perfil.manageAlerts')} onPress={() => router.push('/horarios')} disabled={!isPremium} />
             <MenuRow icon="globe" label={t('language.title')} onPress={() => router.push('/idioma')} />
           </View>
         </View>
 
         {user ? (
-          <MenuRow icon="log-out" label={t('perfil.signOut')} danger onPress={confirmSignOut} />
+          <>
+            {isAdminEmail(user.email) ? (
+              <View style={styles.section}>
+                <AppText variant="label" style={styles.sectionLabel}>{t('perfil.sectionAdmin')}</AppText>
+                <View style={styles.menu}>
+                  <MenuRow
+                    icon="shield"
+                    label={t('perfil.adminArea')}
+                    color={Colors.accent}
+                    onPress={() => router.push('/admin-gate')}
+                    right={<Badge color={Colors.accent} bg={`${Colors.accent}20`}>{t('perfil.adminBadge')}</Badge>}
+                  />
+                </View>
+              </View>
+            ) : null}
+            <MenuRow icon="log-out" label={t('perfil.signOut')} danger onPress={confirmSignOut} />
+          </>
         ) : (
           <MenuRow icon="log-in" label={t('perfil.signIn')} color={Colors.primary} onPress={() => router.push('/login')} />
         )}
@@ -215,11 +242,13 @@ export default function PerfilScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingBottom: Spacing.xl },
+  content: { paddingTop: Spacing.xl, paddingBottom: Spacing.xl },
   identity: {
     alignItems: 'center',
     gap: Spacing.xs,
-    padding: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
     marginBottom: Spacing.lg,
     overflow: 'hidden',
   },
@@ -313,6 +342,9 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderBottomColor: Colors.border,
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  menuRowDisabled: {
+    opacity: 0.45,
   },
   menuIcon: {
     width: 36,

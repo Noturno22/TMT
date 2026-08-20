@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Signal, SignalTier } from '@/core/types';
 import { i18n } from '@/lib/i18n';
+import { PLAN_LIMITS, type PlanTier } from '@/core/gating';
 
 const SIGNAL_CHANNEL_ID = 'signals';
 const SIGNAL_KEY_PREFIX = 'signal_notified';
@@ -56,9 +57,40 @@ function getTierLabel(tier: SignalTier): string {
       : i18n.t('notifications.signalTierFree');
 }
 
-export async function notifyNewSignal(signal: Signal): Promise<boolean> {
+const SIGNAL_PUSH_COUNT_KEY = 'signal_push_count';
+
+interface PushCountEntry {
+  date: string;
+  count: number;
+}
+
+async function getSignalPushCountToday(): Promise<number> {
+  const raw = await AsyncStorage.getItem(SIGNAL_PUSH_COUNT_KEY);
+  try {
+    const entry: PushCountEntry = raw ? JSON.parse(raw) : { date: '', count: 0 };
+    const today = new Date().toISOString().split('T')[0];
+    if (entry.date === today) return entry.count;
+  } catch { /* ignore */ }
+  return 0;
+}
+
+async function incrementSignalPushCount(): Promise<void> {
+  const today = new Date().toISOString().split('T')[0];
+  const count = await getSignalPushCountToday();
+  await AsyncStorage.setItem(SIGNAL_PUSH_COUNT_KEY, JSON.stringify({ date: today, count: count + 1 }));
+}
+
+export async function notifyNewSignal(signal: Signal, planTier: PlanTier = 'free'): Promise<boolean> {
+  const limits = PLAN_LIMITS[planTier];
+  if (limits.pushAlertsPerDay === 0) return false;
+
   const granted = await requestSignalPermission();
   if (!granted) return false;
+
+  if (limits.pushAlertsPerDay > 0) {
+    const todayCount = await getSignalPushCountToday();
+    if (todayCount >= limits.pushAlertsPerDay) return false;
+  }
 
   const notified = await loadNotifiedSignals();
   const alreadyNotified = notified.some((n) => n.id === signal.id);
@@ -109,16 +141,17 @@ export async function notifyNewSignal(signal: Signal): Promise<boolean> {
     notified.push({ id: signal.id, timestamp: Date.now() });
     if (notified.length > 500) notified.splice(0, notified.length - 500);
     await saveNotifiedSignals(notified);
+    await incrementSignalPushCount();
     return true;
   } catch {
     return false;
   }
 }
 
-export async function notifyMultipleSignals(signals: Signal[]): Promise<number> {
+export async function notifyMultipleSignals(signals: Signal[], planTier: PlanTier = 'free'): Promise<number> {
   let count = 0;
   for (const signal of signals) {
-    const ok = await notifyNewSignal(signal);
+    const ok = await notifyNewSignal(signal, planTier);
     if (ok) count++;
   }
   return count;

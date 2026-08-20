@@ -95,7 +95,7 @@ export async function deletePost(id: string) {
   return callAdminFn('delete_post', { id });
 }
 
-export async function listUsers(): Promise<{ id: string; email: string; created_at: string; last_sign_in_at: string | null }[]> {
+export async function listUsers(): Promise<{ id: string; email: string; created_at: string; last_sign_in_at: string | null; role?: string; subscription_status?: string; subscription_expires?: string }[]> {
   const data = await callAdminFn('list_users');
   return data.users ?? [];
 }

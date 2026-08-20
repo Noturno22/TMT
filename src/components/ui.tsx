@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,6 +11,7 @@ import {
   type TextProps,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
 import { Colors, Fonts, Radius, Spacing } from '@/core/theme';
 
@@ -32,13 +32,13 @@ export function Screen({
   if (!scroll) return <SafeAreaView style={styles.safe}>{bg}</SafeAreaView>;
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView
+      <KeyboardAwareScrollView
         refreshControl={refreshControl}
         contentContainerStyle={{ paddingBottom: Spacing.xl * 2 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
         {bg}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

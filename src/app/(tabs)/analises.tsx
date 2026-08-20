@@ -12,10 +12,12 @@ import { MetricGrid } from '@/components/MetricGrid';
 import { useSignals } from '@/hooks/useSignals';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useLivePrices } from '@/hooks/useLivePrices';
-import { ALL_PAIRS, FREE_PAIRS, TIMEFRAMES, SIGNAL_TYPES } from '@/core/gating';
+import { ALL_PAIRS, TIMEFRAMES, SIGNAL_TYPES, canAccessPair, canAccessTimeframe, PLAN_LIMITS, type PlanTier } from '@/core/gating';
 import { calcOpenPips, pipsBetween } from '@/core/pips';
 import { formatNumber } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
+import { isWeekendUtc } from '@/core/community';
+import { useTourTarget } from '@/components/tour/registry';
 import { useTranslation } from 'react-i18next';
 
 function decimalsFor(pair: string): number {
@@ -28,18 +30,21 @@ export default function AnalisesScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const scrollRef = useRef<ScrollView>(null);
-  const { signals, loading, error, refetch } = useSignals();
-  const { isPremium } = useSubscription();
+  const { signals, loading, error, refetch, generating, genResult, generateNow } = useSignals();
+  const { planTier } = useSubscription();
 
-  const [pair, setPair] = useState('EUR/USD');
+  const [pair, setPair] = useState('Todos');
   const [timeframe, setTimeframe] = useState('Todos');
   const [type, setType] = useState('Todos');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const titleRef = useTourTarget('tour:analises-title');
+  const weekend = isWeekendUtc();
 
-  const visiblePairs = isPremium ? ALL_PAIRS : FREE_PAIRS;
-  const pairLocked = !isPremium && !FREE_PAIRS.includes(pair);
-  const tfLocked = !isPremium && timeframe !== 'Todos' && timeframe !== 'M15';
+  const limits = PLAN_LIMITS[planTier as PlanTier] ?? PLAN_LIMITS.free;
+  const visiblePairs = limits.pairs;
+  const pairLocked = !canAccessPair(pair, planTier as PlanTier);
+  const tfLocked = timeframe !== 'Todos' && !canAccessTimeframe(timeframe, planTier as PlanTier);
   const locked = pairLocked || tfLocked;
 
   const { prices, loading: pricesLoading } = useLivePrices(visiblePairs);
@@ -85,19 +90,32 @@ export default function AnalisesScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}>
-        <SectionTitle
-          right={
-            <View style={styles.headerActions}>
-              <Pressable onPress={() => refetch()} hitSlop={8}>
-                <Ionicons name="refresh" size={18} color={Colors.primary} />
-              </Pressable>
-              <Pressable onPress={() => router.push('/planos')} hitSlop={8}>
-                <Ionicons name="star" size={20} color={Colors.accent} />
-              </Pressable>
+        <View ref={titleRef} collapsable={false}>
+          <SectionTitle
+            right={
+              <View style={styles.headerActions}>
+                <Pressable onPress={() => refetch()} hitSlop={8}>
+                  <Ionicons name="refresh" size={18} color={Colors.primary} />
+                </Pressable>
+                <Pressable onPress={() => router.push('/planos')} hitSlop={8}>
+                  <Ionicons name="star" size={20} color={Colors.accent} />
+                </Pressable>
+              </View>
+            }>
+            {t('analises.title')}
+          </SectionTitle>
+        </View>
+
+        {weekend ? (
+          <View style={styles.weekendCard}>
+            <Ionicons name="time-outline" size={20} color={Colors.primary} />
+            <View style={styles.weekendText}>
+              <AppText variant="label" style={{ color: Colors.primary }}>{t('analises.weekendMarketClosed')}</AppText>
+              <AppText variant="small" style={{ color: Colors.textMuted }}>{t('analises.weekendMarketClosedBody')}</AppText>
+              <AppText variant="small" style={{ color: Colors.textMuted }}>{t('analises.weekendCryptoAiBody')}</AppText>
             </View>
-          }>
-          {t('analises.title')}
-        </SectionTitle>
+          </View>
+        ) : null}
 
         <View style={styles.tickerWrap}>
           <PriceTicker
@@ -116,7 +134,7 @@ export default function AnalisesScreen() {
             options={TIMEFRAMES.map((tf) => ({
               label: tf === 'Todos' ? t('analises.filterAll') : tf,
               value: tf,
-              locked: !isPremium && tf !== 'Todos' && tf !== 'M15',
+              locked: tf !== 'Todos' && !canAccessTimeframe(tf, planTier as PlanTier),
             }))}
             onChange={setTimeframe}
           />
@@ -210,7 +228,38 @@ export default function AnalisesScreen() {
         ) : error ? (
           <EmptyState title={t('analises.errorTitle')} subtitle={error} />
         ) : filtered.length === 0 ? (
-          <EmptyState title={t('analises.emptyTitle')} subtitle={t('analises.emptyBody')} />
+          <View style={styles.emptyWrap}>
+            <EmptyState title={t('analises.emptyTitle')} subtitle={t('analises.emptyBody')} />
+            {genResult && !generating ? (
+              <View style={[styles.genStatus, genResult.error ? styles.genError : genResult.count > 0 ? styles.genSuccess : styles.genWarn]}>
+                <Ionicons
+                  name={genResult.error ? 'alert-circle' : genResult.count > 0 ? 'checkmark-circle' : 'information-circle'}
+                  size={16}
+                  color={genResult.error ? Colors.destructive : genResult.count > 0 ? Colors.success : Colors.accent}
+                />
+                <AppText variant="small" style={{ color: genResult.error ? Colors.destructive : genResult.count > 0 ? Colors.success : Colors.accent }}>
+                  {genResult.error
+                    ? t('analises.generateError')
+                    : genResult.count > 0
+                      ? t('analises.generateSuccess', { count: genResult.count })
+                      : t('analises.generateNoSignals')}
+                </AppText>
+              </View>
+            ) : null}
+            <Pressable
+              onPress={generateNow}
+              disabled={generating}
+              style={[styles.generateBtn, generating && styles.generateBtnDisabled]}>
+              {generating ? (
+                <Ionicons name="hourglass" size={16} color={Colors.textMuted} />
+              ) : (
+                <Ionicons name="sparkles" size={16} color={Colors.primary} />
+              )}
+              <AppText variant="label" style={{ color: generating ? Colors.textMuted : Colors.primary }}>
+                {generating ? t('analises.generating') : t('analises.generateBtn')}
+              </AppText>
+            </Pressable>
+          </View>
         ) : (
           filtered.map((s) => (
             <SignalCard
@@ -230,6 +279,18 @@ const styles = StyleSheet.create({
   screen: { padding: 0 },
   content: { padding: Spacing.md, paddingBottom: Spacing.xl },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  weekendCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    backgroundColor: Colors.primaryDim,
+    borderColor: Colors.primary,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  weekendText: { flex: 1, gap: 2 },
   tickerWrap: { marginBottom: Spacing.md },
   filterPanel: {
     flexDirection: 'row',
@@ -254,4 +315,30 @@ const styles = StyleSheet.create({
   heroCtaRow: { alignItems: 'center', marginTop: Spacing.xs },
   heroCta: { color: Colors.accent, fontWeight: '700', textAlign: 'center' },
   listHeader: { marginVertical: Spacing.sm },
+  emptyWrap: { alignItems: 'center', gap: Spacing.md },
+  generateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.primaryDim,
+    borderColor: Colors.primary,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  generateBtnDisabled: { opacity: 0.5 },
+  genStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    borderRadius: 8,
+    padding: Spacing.sm,
+    width: '100%',
+  },
+  genSuccess: { backgroundColor: '#16a34a1F' },
+  genError: { backgroundColor: '#dc26261F' },
+  genWarn: { backgroundColor: '#f59e0b1F' },
 });

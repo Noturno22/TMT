@@ -1,7 +1,65 @@
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import type { PriceData } from '@/core/types';
+
+function PriceChip({
+  pair,
+  data,
+  loading,
+  selected,
+  onPressPair,
+}: {
+  pair: string;
+  data: PriceData;
+  loading?: boolean;
+  selected?: string;
+  onPressPair?: (pair: string) => void;
+}) {
+  const flashAnim = useRef(new Animated.Value(0)).current;
+  const prevPrice = useRef(data.price);
+
+  useEffect(() => {
+    if (prevPrice.current !== data.price && data.price !== '—') {
+      flashAnim.setValue(1);
+      Animated.timing(flashAnim, { toValue: 0, duration: 800, useNativeDriver: false }).start();
+      prevPrice.current = data.price;
+    }
+  }, [data.price, flashAnim]);
+
+  const up = data.change > 0;
+  const down = data.change < 0;
+  const changeColor = data.change === 0 ? Colors.textMuted : up ? Colors.success : Colors.destructive;
+  const changeText = data.change === 0 ? '0.00%' : `${up ? '+' : ''}${data.change.toFixed(2)}%`;
+
+  const bgColor = flashAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [Colors.surface, down ? 'rgba(255,69,58,0.15)' : 'rgba(52,199,89,0.15)'],
+  });
+
+  const borderColor = flashAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [Colors.border, changeColor],
+  });
+
+  return (
+    <Animated.View style={[{ backgroundColor: bgColor, borderColor, borderWidth: 1, borderRadius: Radius.md }, selected === pair && styles.chipSelected]}>
+      <Pressable
+        disabled={!onPressPair}
+        onPress={onPressPair ? () => onPressPair(pair) : undefined}
+        style={styles.chipInner}>
+        <AppText variant="small" style={styles.pair}>{pair}</AppText>
+        <AppText variant="mono" style={[styles.price, { color: changeColor }]} numberOfLines={1}>
+          {loading ? '—' : data.price}
+        </AppText>
+        <AppText variant="small" style={[styles.change, { color: changeColor }]}>
+          {loading ? '—' : changeText}
+        </AppText>
+      </Pressable>
+    </Animated.View>
+  );
+}
 
 export function PriceTicker({
   pairs,
@@ -18,38 +76,25 @@ export function PriceTicker({
 }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
-      {pairs.map((pair) => {
-        const data = prices[pair] ?? { price: '—', change: 0 };
-        const up = data.change > 0;
-        const changeColor = data.change === 0 ? Colors.textMuted : up ? Colors.success : Colors.destructive;
-        const changeText = data.change === 0 ? '0.00%' : `${up ? '+' : ''}${data.change.toFixed(2)}%`;
-        return (
-          <Pressable
-            key={pair}
-            disabled={!onPressPair}
-            onPress={onPressPair ? () => onPressPair(pair) : undefined}
-            style={[styles.chip, selected === pair && styles.chipSelected]}>
-            <AppText variant="small" style={styles.pair}>{pair}</AppText>
-            <AppText variant="mono" style={styles.price} numberOfLines={1}>{loading ? '—' : data.price}</AppText>
-            <AppText variant="small" style={[styles.change, { color: changeColor }]}>
-              {loading ? '—' : changeText}
-            </AppText>
-          </Pressable>
-        );
-      })}
+      {pairs.map((pair) => (
+        <PriceChip
+          key={pair}
+          pair={pair}
+          data={prices[pair] ?? { price: '—', change: 0 }}
+          loading={loading}
+          selected={selected}
+          onPressPair={onPressPair}
+        />
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   row: { gap: Spacing.sm },
-  chip: {
+  chipInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderColor: Colors.border,
-    borderWidth: 1,
-    borderRadius: Radius.md,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
@@ -59,6 +104,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.accent,
   },
   pair: { color: Colors.textMuted, fontWeight: '600' },
-  price: { color: Colors.text, fontSize: 14, fontWeight: '700' },
+  price: { fontSize: 14, fontWeight: '700' },
   change: { fontWeight: '700', minWidth: 48, textAlign: 'right' },
 });

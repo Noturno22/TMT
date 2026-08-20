@@ -14,5 +14,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY || 'placeho
 });
 
 export function isAdminEmail(email: string | undefined): boolean {
-  return !!email && ADMIN_EMAILS.includes(email);
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  return ADMIN_EMAILS.some((admin) => admin.trim().toLowerCase() === normalized);
 }

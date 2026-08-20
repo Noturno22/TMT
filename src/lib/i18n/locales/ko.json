@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "시장 마감",
                      "weekendMarketClosedBody":  "외환 신호는 월요일에 재개됩니다.",
                      "weekendCryptoAiBody":  "주말에는 TMT AI가 모든 요금제에 BTC 및 ETH 신호를 생성합니다.",
-                     "errorTitle":  "신호를 불러오는 중 오류 발생"
+                     "errorTitle":  "신호를 불러오는 중 오류 발생",
+                     "analytics":  "분석",
+                     "filterSmc":  "SMC 설정"
                  },
     "historico":  {
                       "allPairs":  "전체 페어",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "거래 수익/손실을 입력하세요.",
                    "deleteTrade":  "거래 삭제",
                    "deleteTradeConfirm":  "이 거래를 삭제하시겠습니까?",
-                   "delete":  "삭제"
+                   "delete":  "삭제",
+                   "tradeEntry":  "진입 가격",
+                   "tradeExit":  "청산 가격"
                },
     "capital":  {
                     "title":  "자본금 관리",

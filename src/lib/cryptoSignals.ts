@@ -57,6 +57,9 @@ export async function generateSignalsNow(): Promise<GenerateSignalsResult> {
 
     const data = await res.json().catch(() => ({}));
     const count = Array.isArray(data?.signals) ? data.signals.length : 0;
+    if (!res.ok || count === 0) {
+      console.warn('[generateSignalsNow]', { status: res.status, data });
+    }
     const serverError = !res.ok
       ? (data?.error || data?.message || `HTTP ${res.status}`)
       : count === 0 && res.ok
@@ -72,6 +75,7 @@ export async function generateSignalsNow(): Promise<GenerateSignalsResult> {
     return r;
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Erro desconhecido';
+    console.error('[generateSignalsNow]', msg);
     const r = { ok: false, count: 0, error: msg };
     lastResult = r;
     notify();

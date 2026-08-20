@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "Mazando makolami",
                      "weekendMarketClosedBody":  "Signal forex ezongaka na mokolo ya lundi.",
                      "weekendCryptoAiBody":  "Na mpokwa, IA ya TMT epreparaka signal BTC na ETH mpo na ba plan nionso.",
-                     "errorTitle":  "Libunga ya kotia ba signaux"
+                     "errorTitle":  "Libunga ya kotia ba signaux",
+                     "analytics":  "Analyse",
+                     "filterSmc":  "Setup SMC"
                  },
     "historico":  {
                       "allPairs":  "Bapaires nyonso",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "Koya profit/perte ya transaction.",
                    "deleteTrade":  "Kobimisa transaction",
                    "deleteTradeConfirm":  "Oyo ekoki te oyo ekoki kosala ba transaction oyo?",
-                   "delete":  "Kobimisa"
+                   "delete":  "Kobimisa",
+                   "tradeEntry":  "Prix entrée",
+                   "tradeExit":  "Prix sortie"
                },
     "capital":  {
                     "title":  "Gestion ya Capital",

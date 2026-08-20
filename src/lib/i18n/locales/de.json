@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "Markt geschlossen",
                      "weekendMarketClosedBody":  "Forex-Signale kommen am Montag zurück.",
                      "weekendCryptoAiBody":  "Am Wochenende erzeugt die TMT-KI BTC- und ETH-Signale für alle Pläne.",
-                     "errorTitle":  "Fehler beim Laden der Signale"
+                     "errorTitle":  "Fehler beim Laden der Signale",
+                     "analytics":  "Analyse",
+                     "filterSmc":  "SMC Setup"
                  },
     "historico":  {
                       "allPairs":  "Alle Paare",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "Gib den Gewinn/Verlust des Trades ein.",
                    "deleteTrade":  "Trade loschen",
                    "deleteTradeConfirm":  "Mochtest du diesen Trade wirklich loschen?",
-                   "delete":  "Loschen"
+                   "delete":  "Loschen",
+                   "tradeEntry":  "Einstiegspreis",
+                   "tradeExit":  "Ausstiegspreis"
                },
     "language":  {
                      "title":  "Sprache"

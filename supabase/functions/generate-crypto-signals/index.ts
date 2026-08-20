@@ -10,7 +10,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 const geminiApiKey = Deno.env.get('GEMINI_API_KEY') ?? '';
-const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+const MODEL_FALLBACKS = ['gemini-2.5-flash', 'gemini-3.6-flash'];
 const apiBase = 'https://generativelanguage.googleapis.com/v1beta';
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
@@ -669,14 +669,16 @@ serve(async (req) => {
     console.error('erro ao buscar sinais existentes', e);
   }
 
-  // 2. Fetch market data
+  // 2. Fetch market data (com delay entre pedidos Twelve Data para evitar 429)
   const candlesBySymbol: Record<string, Candle[]> = {};
-  for (const symbol of pairs) {
+  for (let i = 0; i < pairs.length; i++) {
+    const symbol = pairs[i];
     try {
       candlesBySymbol[symbol] = await fetchCandles(symbol);
     } catch (e) {
       console.error(`falha ao buscar ${symbol}`, e);
     }
+    if (i < pairs.length - 1) await new Promise((r) => setTimeout(r, 7000));
   }
 
   const fetchedSymbols = Object.keys(candlesBySymbol);
@@ -703,7 +705,7 @@ serve(async (req) => {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
+          generationConfig: { temperature: 0.4, maxOutputTokens: 8192 },
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -715,7 +717,7 @@ serve(async (req) => {
       reply = parts.filter((p) => typeof p?.text === 'string').map((p) => (p.text as string).trim()).filter(Boolean).join('\n');
       const finishReason = data?.candidates?.[0]?.finishReason;
       console.log(`Gemini ${modelName}: ${reply.length} chars, finish=${finishReason}, session=${session.name}`);
-      if (reply.length > 50) break;
+      if (reply.length > 100 && (reply.startsWith('[') || reply.startsWith('{'))) break;
     } catch (err: unknown) {
       console.error(`Gemini ${modelName} exception`, err);
       continue;

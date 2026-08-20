@@ -58,7 +58,9 @@
                      "weekendMarketClosed":  "Market closed",
                      "weekendMarketClosedBody":  "Forex signals return on Monday.",
                      "weekendCryptoAiBody":  "On weekends, TMT AI generates BTC and ETH signals for all plans.",
-                     "errorTitle":  "Error loading signals"
+                     "errorTitle":  "Error loading signals",
+                     "analytics":  "Analytics",
+                     "filterSmc":  "SMC Setup"
                  },
     "historico":  {
                       "allPairs":  "All pairs",
@@ -629,7 +631,9 @@
                    "invalidProfit":  "Enter the trade profit/loss.",
                    "deleteTrade":  "Delete trade",
                    "deleteTradeConfirm":  "Are you sure you want to delete this trade?",
-                   "delete":  "Delete"
+                   "delete":  "Delete",
+                   "tradeEntry":  "Entry Price",
+                   "tradeExit":  "Exit Price"
                },
     "depositos":  {
                       "title":  "Deposits \u0026 Withdrawals",

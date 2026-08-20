@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "السوق مغلق",
                      "weekendMarketClosedBody":  "ستعود إشارات الفوركس يوم الاثنين.",
                      "weekendCryptoAiBody":  "في عطلة نهاية الأسبوع، يولد ذكاء TMT الاصطناعي إشارات BTC وETH لجميع الخطط.",
-                     "errorTitle":  "خطأ في تحميل الإشارات"
+                     "errorTitle":  "خطأ في تحميل الإشارات",
+                     "analytics":  "تحليلات",
+                     "filterSmc":  "إعداد SMC"
                  },
     "historico":  {
                       "allPairs":  "جميع الأزواج",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "أدخل ربح/خسارة الصفقة.",
                    "deleteTrade":  "حذف الصفقة",
                    "deleteTradeConfirm":  "هل أنت متأكد من حذف هذه الصفقة؟",
-                   "delete":  "حذف"
+                   "delete":  "حذف",
+                   "tradeEntry":  "سعر الدخول",
+                   "tradeExit":  "سعر الخروج"
                },
     "language":  {
                      "title":  "اللغة"

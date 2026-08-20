@@ -11,7 +11,7 @@ import { useBanca } from '@/hooks/useBanca';
 import { useAuth } from '@/hooks/useAuth';
 import { uploadReceipt, type ReceiptFile } from '@/lib/payments';
 import { clearReceiptInbox, getReceiptInbox } from '@/lib/receiptInbox';
-import { saveReceipt } from '@/lib/adminApi';
+import { saveReceipt, submitWithdrawalRequest } from '@/lib/adminApi';
 import { ReceiptSuccessModal } from '@/components/ReceiptSuccessModal';
 import {
   PAYMENT_METHODS,
@@ -33,7 +33,7 @@ export default function DepositosScreen() {
   const params = useLocalSearchParams<{ plan?: string; currency?: string }>();
   const { config: banca } = useBanca();
   const { user } = useAuth();
-  const { movements, loading, addMovement } = useMovements();
+  const { movements, loading, addMovement, refresh } = useMovements();
 
   const [activeTab, setActiveTab] = useState<TabId>('deposit');
   const [tabAnim] = useState(() => new Animated.Value(0));
@@ -152,18 +152,31 @@ export default function DepositosScreen() {
     setShowReceiptSuccess(true);
   };
 
-  const submitWithdrawal = () => {
+  const submitWithdrawal = async () => {
     const amount = parseFloat(withdrawAmount.replace(',', '.'));
     if (!withdrawMethod || !isFinite(amount) || amount <= 0 || !withdrawDetails.trim()) {
       Alert.alert(t('depositos.invalidWithdraw'));
       return;
     }
+    // Save server-side
+    try {
+      await submitWithdrawalRequest({
+        method: withdrawMethod,
+        amount,
+        currency,
+        details: withdrawDetails.trim(),
+      });
+    } catch (err: any) {
+      console.warn('[submitWithdrawal] server save failed:', err?.message);
+    }
+    // Also save locally for instant UI
     void addMovement({
       type: 'withdrawal',
       method: withdrawMethod,
       amount,
       currency,
       status: 'pendente',
+      notes: withdrawDetails.trim(),
     });
     setWithdrawAmount('');
     setWithdrawDetails('');
@@ -197,7 +210,7 @@ export default function DepositosScreen() {
   const renderMovement = (m: WalletMovement, index: number) => {
     const isDeposit = m.type === 'deposit';
     const method = PAYMENT_METHODS.find((pm) => pm.id === m.method);
-    const statusColor = m.status === 'concluido' ? Colors.success : Colors.warning;
+    const statusColor = m.status === 'concluido' ? Colors.success : m.status === 'recusado' ? Colors.destructive : Colors.warning;
     return (
       <View key={m.id} style={[styles.movementRow, index > 0 && styles.movementDivider]}>
         <View style={[styles.movementIcon, { backgroundColor: `${isDeposit ? Colors.success : Colors.accent}14` }]}>

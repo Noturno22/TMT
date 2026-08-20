@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "市場終了",
                      "weekendMarketClosedBody":  "外国為替シグナルは月曜日に再開します。",
                      "weekendCryptoAiBody":  "週末はTMTのAIが全プラン向けにBTCとETHのシグナルを生成します。",
-                     "errorTitle":  "シグナルの読み込みエラー"
+                     "errorTitle":  "シグナルの読み込みエラー",
+                     "analytics":  "分析",
+                     "filterSmc":  "SMC セットアップ"
                  },
     "historico":  {
                       "allPairs":  "全ペア",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "取引の利益/損失を入力してください。",
                    "deleteTrade":  "取引を削除",
                    "deleteTradeConfirm":  "この取引を削除してもよろしいですか？",
-                   "delete":  "削除"
+                   "delete":  "削除",
+                   "tradeEntry":  "エントリー価格",
+                   "tradeExit":  "エグジット価格"
                },
     "language":  {
                      "title":  "言語"

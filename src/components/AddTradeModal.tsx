@@ -32,6 +32,8 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
   const [pair, setPair] = useState(PAIRS[0]);
   const [direction, setDirection] = useState<TradeDirection>('BUY');
   const [result, setResult] = useState<TradeResult>('WIN');
+  const [entryPrice, setEntryPrice] = useState('');
+  const [exitPrice, setExitPrice] = useState('');
   const [profitUsd, setProfitUsd] = useState('');
   const [pips, setPips] = useState('');
   const [lotSize, setLotSize] = useState('');
@@ -41,6 +43,8 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
     setPair(PAIRS[0]);
     setDirection('BUY');
     setResult('WIN');
+    setEntryPrice('');
+    setExitPrice('');
     setProfitUsd('');
     setPips('');
     setLotSize('');
@@ -56,8 +60,8 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
     onSave({
       pair,
       direction,
-      entryPrice: 0,
-      exitPrice: null,
+      entryPrice: entryPrice ? Number(entryPrice) : 0,
+      exitPrice: exitPrice ? Number(exitPrice) : null,
       lotSize: lotSize ? Number(lotSize) : 0.01,
       result,
       profitUsd: pnl,
@@ -134,6 +138,27 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
                   <AppText variant="small" style={{ color: result === r ? '#FFF' : Colors.textMuted, fontWeight: '700' }}>{r}</AppText>
                 </Pressable>
               ))}
+            </View>
+
+            <View style={styles.row}>
+              <View style={{ flex: 1 }}>
+                <AppInput
+                  label={t('diario.tradeEntry')}
+                  value={entryPrice}
+                  onChangeText={setEntryPrice}
+                  keyboardType="decimal-pad"
+                  placeholder="0.00000"
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppInput
+                  label={t('diario.tradeExit')}
+                  value={exitPrice}
+                  onChangeText={setExitPrice}
+                  keyboardType="decimal-pad"
+                  placeholder="0.00000"
+                />
+              </View>
             </View>
 
             <View style={styles.row}>

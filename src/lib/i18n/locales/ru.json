@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "Рынок закрыт",
                      "weekendMarketClosedBody":  "Форекс-сигналы вернутся в понедельник.",
                      "weekendCryptoAiBody":  "В выходные ИИ TMT генерирует сигналы BTC и ETH для всех планов.",
-                     "errorTitle":  "Ошибка загрузки сигналов"
+                     "errorTitle":  "Ошибка загрузки сигналов",
+                     "analytics":  "Аналитика",
+                     "filterSmc":  "SMC сетап"
                  },
     "historico":  {
                       "allPairs":  "Все пары",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "Введи прибыль/убыток сделки.",
                    "deleteTrade":  "Удалить сделку",
                    "deleteTradeConfirm":  "Ты уверен, что хочешь удалить эту сделку?",
-                   "delete":  "Удалить"
+                   "delete":  "Удалить",
+                   "tradeEntry":  "Цена входа",
+                   "tradeExit":  "Цена выхода"
                },
     "language":  {
                      "title":  "Язык"

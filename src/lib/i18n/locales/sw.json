@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "Soko limefungwa",
                      "weekendMarketClosedBody":  "Ishara za forex zinarudi Jumatatu.",
                      "weekendCryptoAiBody":  "Mwishoni mwa wiki, AI ya TMT hutoa ishara za BTC na ETH kwa mipango yote.",
-                     "errorTitle":  "Hitilafu wakati wa kupakia ishara"
+                     "errorTitle":  "Hitilafu wakati wa kupakia ishara",
+                     "analytics":  "Uchambuzi",
+                     "filterSmc":  "Mpangilio SMC"
                  },
     "historico":  {
                       "allPairs":  "Jozi zote",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "Weka faida hasara ya biashara.",
                    "deleteTrade":  "Futa biashara",
                    "deleteTradeConfirm":  "Una uhakika unataka kufuta biashara hii?",
-                   "delete":  "Futa"
+                   "delete":  "Futa",
+                   "tradeEntry":  "Bei ya Kuingia",
+                   "tradeExit":  "Bei ya Kutoka"
                },
     "language":  {
                      "title":  "Lugha"

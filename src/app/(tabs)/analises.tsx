@@ -9,10 +9,13 @@ import { TradingViewChart } from '@/components/TradingViewChart';
 import { PriceTicker } from '@/components/PriceTicker';
 import { PremiumLock } from '@/components/PremiumLock';
 import { MetricGrid } from '@/components/MetricGrid';
+import { AnalyticsBreakdown } from '@/components/AnalyticsBreakdown';
 import { useSignals } from '@/hooks/useSignals';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useLivePrices } from '@/hooks/useLivePrices';
 import { ALL_PAIRS, TIMEFRAMES, SIGNAL_TYPES, canAccessPair, canAccessTimeframe, PLAN_LIMITS, type PlanTier } from '@/core/gating';
+
+const SMC_SETUPS = ['Todos', 'BOS', 'CHoCH', 'OB', 'FVG', 'COMBO'] as const;
 import { calcOpenPips, pipsBetween } from '@/core/pips';
 import { formatNumber } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
@@ -36,6 +39,8 @@ export default function AnalisesScreen() {
   const [pair, setPair] = useState('Todos');
   const [timeframe, setTimeframe] = useState('Todos');
   const [type, setType] = useState('Todos');
+  const [smcFilter, setSmcFilter] = useState('Todos');
+  const [viewMode, setViewMode] = useState<'signals' | 'analytics'>('signals');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const titleRef = useTourTarget('tour:analises-title');
@@ -55,9 +60,10 @@ export default function AnalisesScreen() {
         if (pair !== 'Todos' && s.pair !== pair) return false;
         if (timeframe !== 'Todos' && s.timeframe !== timeframe) return false;
         if (type !== 'Todos' && s.type !== type) return false;
+        if (smcFilter !== 'Todos' && s.smcSetup !== smcFilter) return false;
         return true;
       }),
-    [signals, pair, timeframe, type],
+    [signals, pair, timeframe, type, smcFilter],
   );
 
   const hero = selectedId ? filtered.find((s) => s.id === selectedId) ?? filtered[0] : filtered[0];
@@ -149,15 +155,50 @@ export default function AnalisesScreen() {
           />
         </View>
 
+        <AppText variant="small" style={{ color: Colors.textMuted, marginBottom: Spacing.xs }}>{t('analises.filterSmc')}</AppText>
+        <View style={styles.smcChips}>
+          {SMC_SETUPS.map((s) => (
+            <Pressable
+              key={s}
+              onPress={() => setSmcFilter(s)}
+              style={[styles.smcChip, smcFilter === s && styles.smcChipActive]}>
+              <AppText variant="small" style={{ color: smcFilter === s ? Colors.bg : Colors.textMuted, fontWeight: '600' }}>
+                {s === 'Todos' ? t('analises.filterAll') : s}
+              </AppText>
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={styles.viewToggle}>
+          {(['signals', 'analytics'] as const).map((mode) => {
+            const active = viewMode === mode;
+            return (
+              <Pressable
+                key={mode}
+                onPress={() => setViewMode(mode)}
+                style={[styles.viewToggleBtn, active && styles.viewToggleBtnActive]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}>
+                <Ionicons name={mode === 'signals' ? 'bar-chart' : 'stats-chart'} size={14} color={active ? Colors.bg : Colors.textMuted} />
+                <AppText variant="small" style={{ color: active ? Colors.bg : Colors.textMuted, fontWeight: '700' }}>
+                  {mode === 'signals' ? t('analises.title') : t('analises.analytics') || 'Analytics'}
+                </AppText>
+              </Pressable>
+            );
+          })}
+        </View>
+
         {locked ? (
           <PremiumLock
             label={pairLocked ? t('analises.premiumTitle', { what: pair }) : t('analises.premiumSignals', { what: timeframe })}
             description={t('analises.premiumDesc')}
           />
-        ) : null}
-
-        {!locked && hero ? (
-          <Pressable onPress={() => router.push(`/sinal/${hero.id}`)} style={styles.heroCard}>
+        ) : viewMode === 'analytics' ? (
+          <AnalyticsBreakdown />
+        ) : (
+          <>
+            {hero ? (
+              <Pressable onPress={() => router.push(`/sinal/${hero.id}`)} style={styles.heroCard}>
             <View style={styles.heroHeader}>
               <View style={styles.heroHeaderLeft}>
                 <AppText variant="h1">{hero.pair}</AppText>
@@ -270,6 +311,8 @@ export default function AnalisesScreen() {
             />
           ))
         )}
+          </>
+        )}
       </ScrollView>
     </Screen>
   );
@@ -296,6 +339,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.sm,
     marginBottom: Spacing.sm,
+  },
+  smcChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  smcChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  smcChipActive: {
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
+  },
+  viewToggle: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  viewToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  viewToggleBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   heroCard: {
     backgroundColor: Colors.surface,

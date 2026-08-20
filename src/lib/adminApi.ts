@@ -225,3 +225,50 @@ export async function bulkDeleteBoomTimes(ids: string[]) {
 export async function bulkDeletePosts(ids: string[]) {
   await callAdminFn('bulk_delete_posts', { ids });
 }
+
+// ── Withdrawal Requests ──────────────────────────────────────────────
+
+export interface WithdrawalRequest {
+  id: string;
+  user_id: string;
+  method: string;
+  amount: number;
+  currency: string;
+  details: string | null;
+  status: 'pending' | 'approved' | 'rejected' | 'paid';
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export async function submitWithdrawalRequest(req: {
+  method: string;
+  amount: number;
+  currency: string;
+  details?: string;
+}): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  const { error } = await supabase.from('withdrawal_requests').insert({
+    user_id: user.id,
+    method: req.method,
+    amount: req.amount,
+    currency: req.currency,
+    details: req.details ?? null,
+  });
+  if (error) throw error;
+}
+
+export async function listWithdrawals(status?: string): Promise<WithdrawalRequest[]> {
+  const data = await callAdminFn('list_withdrawals', status ? { status } : {});
+  return data.withdrawals ?? [];
+}
+
+export async function approveWithdrawal(id: string): Promise<void> {
+  await callAdminFn('approve_withdrawal', { id });
+}
+
+export async function rejectWithdrawal(id: string): Promise<void> {
+  await callAdminFn('reject_withdrawal', { id });
+}

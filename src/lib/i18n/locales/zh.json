@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "市场已关闭",
                      "weekendMarketClosedBody":  "外汇信号将于周一恢复。",
                      "weekendCryptoAiBody":  "周末时，TMT 的 AI 会为所有套餐生成 BTC 和 ETH 信号。",
-                     "errorTitle":  "加载信号出错"
+                     "errorTitle":  "加载信号出错",
+                     "analytics":  "分析",
+                     "filterSmc":  "SMC 设置"
                  },
     "historico":  {
                       "allPairs":  "所有货币对",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "输入交易的盈亏。",
                    "deleteTrade":  "删除交易",
                    "deleteTradeConfirm":  "确定要删除这笔交易吗？",
-                   "delete":  "删除"
+                   "delete":  "删除",
+                   "tradeEntry":  "入场价格",
+                   "tradeExit":  "出场价格"
                },
     "language":  {
                      "title":  "语言"

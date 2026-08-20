@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "Markt gesloten",
                      "weekendMarketClosedBody":  "Forex-signalen komen maandag terug.",
                      "weekendCryptoAiBody":  "In het weekend genereert TMT AI BTC- en ETH-signalen voor alle abonnementen.",
-                     "errorTitle":  "Fout bij het laden van signalen"
+                     "errorTitle":  "Fout bij het laden van signalen",
+                     "analytics":  "Analyse",
+                     "filterSmc":  "SMC Setup"
                  },
     "historico":  {
                       "allPairs":  "Alle paren",
@@ -244,7 +246,9 @@
                    "invalidProfit":  "Voer het winst/verlies van de trade in.",
                    "deleteTrade":  "Trade verwijderen",
                    "deleteTradeConfirm":  "Weet je zeker dat je deze trade wilt verwijderen?",
-                   "delete":  "Verwijderen"
+                   "delete":  "Verwijderen",
+                   "tradeEntry":  "Instapprijs",
+                   "tradeExit":  "Uitstapprijs"
                },
     "capital":  {
                     "title":  "Kapitaalbeheer",

@@ -689,6 +689,36 @@ serve(async (req) => {
       if (error) return errorJson(error.message, 500);
       return json({ deleted: ids.length });
     }
+    // ── Withdrawal Requests ────────────────────────────────────────────
+    case 'list_withdrawals': {
+      let query = supabase.from('withdrawal_requests').select('*').order('created_at', { ascending: false });
+      if (body.status) query = query.eq('status', body.status);
+      const { data, error } = await query;
+      if (error) return errorJson(error.message, 500);
+      return json({ withdrawals: data });
+    }
+    case 'approve_withdrawal': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { error } = await supabase.from('withdrawal_requests').update({
+        status: 'approved',
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true });
+    }
+    case 'reject_withdrawal': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { error } = await supabase.from('withdrawal_requests').update({
+        status: 'rejected',
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true });
+    }
     default:
       return errorJson(`Ação desconhecida: ${action}`, 400);
   }

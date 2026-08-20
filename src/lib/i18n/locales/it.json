@@ -53,7 +53,9 @@
                      "weekendMarketClosed":  "Mercato chiuso",
                      "weekendMarketClosedBody":  "I segnali forex tornano lunedì.",
                      "weekendCryptoAiBody":  "Nel fine settimana, l\u0027IA di TMT genera segnali BTC ed ETH per tutti i piani.",
-                     "errorTitle":  "Errore nel caricamento dei segnali"
+                     "errorTitle":  "Errore nel caricamento dei segnali",
+                     "analytics":  "Analisi",
+                     "filterSmc":  "Setup SMC"
                  },
     "historico":  {
                       "allPairs":  "Tutte le coppie",
@@ -245,7 +247,9 @@
                    "invalidProfit":  "Inserisci il profitto/perdita dell\u0027operazione.",
                    "deleteTrade":  "Elimina operazione",
                    "deleteTradeConfirm":  "Sei sicuro di voler eliminare questa operazione?",
-                   "delete":  "Elimina"
+                   "delete":  "Elimina",
+                   "tradeEntry":  "Prezzo Ingresso",
+                   "tradeExit":  "Prezzo Uscita"
                },
     "language":  {
                      "title":  "Lingua"

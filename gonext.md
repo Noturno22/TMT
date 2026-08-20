@@ -1,6 +1,6 @@
 # gonext.md — Estado do Projeto TMT Mobile
 
-> Snapshot de progresso. Actualizado a 2026-08-17.
+> Snapshot de progresso. Actualizado a 2026-08-20.
 
 ## Contexto
 - App Expo/React Native (SDK 56, expo-router v56) com i18n em 14 locales (pt, en, es, fr, de, it, nl, ja, zh, ko, ru, sw, ar, ln).
@@ -85,10 +85,11 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 - `ACCESS_CODE='239898'` (`src/lib/adminGate.ts`).
 - `EXPO_PUBLIC_ADMIN_EMAILS=jeronimo.samaina239898@gmail.com` (`isAdminEmail` case-insensitive).
 - Payment/depositos + share-intent de comprovativos já implementados (não reverter).
-- Migrations existentes: `20260814*` (whatsapp otp, repair subscriptions, pgcrypto wrappers), `20260815000000_comunidade_workspace.sql` (Fase 1: user_profiles, channels, conversations, messages, reactions, RLS, triggers, bot "TMT Bot" `11111111-1111-1111-1111-111111111111`, seed de canais, backfills), `20260816*` (weekend crypto + **`20260816010000_community_search.sql` Fase 2** + **`20260816020000_push_mentions.sql` Fase 3** + **`20260816030000_share_signal.sql` Fase 4 — todas PENDENTES de aplicar**).
+- Migrations existentes: `20260814*` (whatsapp otp, repair subscriptions, pgcrypto wrappers), `20260815000000_comunidade_workspace.sql` (Fase 1: user_profiles, channels, conversations, messages, reactions, RLS, triggers, bot "TMT Bot" `11111111-1111-1111-1111-111111111111`, seed de canais, backfills), `20260816*` (weekend crypto + **`20260816010000_community_search.sql` Fase 2** + **`20260816020000_push_mentions.sql` Fase 3** + **`20260816030000_share_signal.sql` Fase 4 — todas PENDENTES de aplicar**), `20260820*` (**`20260820000000_wallet_movements.sql`** + **`20260820010000_withdrawal_requests.sql`** — Fase 5, PENDENTES de aplicar).
 - Edge functions: `generate-crypto-signals`, `whatsapp-auth`, `ai-support`, `send-notification` (Fase 3 — **não deployada ainda**).
 
 ## Estado de git
+- Commit `484fae0`: "feat(fase5): server-side wallet/withdrawals, analytics toggle, trade journal prices, SMC filter" (24 ficheiros, +558/-61). Branch `feature/fase5-production-readiness`.
 - Commit `b3f6f29`: "feat: community phases 1-4 + signal system overhaul + admin panel + trade journal" (149 ficheiros, +41577/-15877).
 
 ---
@@ -104,12 +105,12 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 2. **Deploy edge function:** `supabase functions deploy send-notification`
 3. **Validar cron pipeline:** verificar `service_role_key` em `app_config`, sinais a gerar e auto-close a funcionar em produção.
 
-### Bloco B — Funcionalidades incompletas
-4. **Wallet server-side:** criar tabela `wallet_movements` + RLS, migrar `useMovements` de AsyncStorage para local+server.
-5. **Withdrawal server-side:** tabela `withdrawal_requests`, tab de review no admin, notificação ao utilizador.
-6. **Analytics Dashboard:** integrar `AnalyticsBreakdown.tsx` (já existe mas não renderizado) — desempenho por par, timeframe, SMC setup, equity curve. Ecrã premium.
-7. **Trade Journal completo:** adicionar entry/exit price ao `AddTradeModal` (actualmente hardcoded 0).
-8. **Filtro SMC setup:** adicionar chips de filtro (BOS, CHoCH, OB, FVG, COMBO) no ecrã de Análises.
+### Bloco B — Funcionalidades incompletas ✅ CONCLUÍDO
+4. **Wallet server-side:** ✅ Tabela `wallet_movements` + RLS + migration `20260820000000`, hook `useMovements` migrado para local-first (Supabase + AsyncStorage cache). UI actualizada em `depositos.tsx`.
+5. **Withdrawal server-side:** ✅ Tabela `withdrawal_requests` + RLS + migration `20260820010000`, `submitWithdrawalRequest` + `listWithdrawals` + `approveWithdrawal` + `rejectWithdrawal` em `adminApi.ts`, novos cases no edge function `admin-manage`. UI de depósitos submete via server-side.
+6. **Analytics Dashboard:** ✅ `AnalyticsBreakdown.tsx` integrado no ecrã Analises via toggle Signals/Analytics (botões pill com ícones bar-chart/stats-chart).
+7. **Trade Journal completo:** ✅ `AddTradeModal` tem entry/exit price fields (`diario.tradeEntry`, `diario.tradeExit`), passados ao `onSave`.
+8. **Filtro SMC setup:** ✅ Chips de filtro (BOS, CHoCH, OB, FVG, COMBO) no ecrã Analises, com `analises.filterSmc` i18n em 14 locales.
 
 ### Bloco C — UX Polish
 9. **Estender Onboarding Tour:** adicionar passos para Comunidade e Diário Trader.

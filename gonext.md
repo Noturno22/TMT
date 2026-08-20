@@ -89,4 +89,38 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 - Edge functions: `generate-crypto-signals`, `whatsapp-auth`, `ai-support`, `send-notification` (Fase 3 — **não deployada ainda**).
 
 ## Estado de git
-- Nada commitado ainda nesta sessão (muitos ficheiros modificados/novos de fases anteriores). Verificar `git status` antes de commit.
+- Commit `b3f6f29`: "feat: community phases 1-4 + signal system overhaul + admin panel + trade journal" (149 ficheiros, +41577/-15877).
+
+---
+
+## Fase 5 — Production Readiness + Feature Completion (PLANEADA, 2026-08-20)
+
+### Bloco A — Deploy pendente (OBRIGATÓRIO)
+1. **Aplicar migrations pendentes no Supabase:**
+   - `20260815000000_comunidade_workspace.sql` (Fase 1)
+   - `20260816010000_community_search.sql` (Fase 2)
+   - `20260816020000_push_mentions.sql` (Fase 3)
+   - `20260816030000_share_signal.sql` (Fase 4)
+2. **Deploy edge function:** `supabase functions deploy send-notification`
+3. **Validar cron pipeline:** verificar `service_role_key` em `app_config`, sinais a gerar e auto-close a funcionar em produção.
+
+### Bloco B — Funcionalidades incompletas
+4. **Wallet server-side:** criar tabela `wallet_movements` + RLS, migrar `useMovements` de AsyncStorage para local+server.
+5. **Withdrawal server-side:** tabela `withdrawal_requests`, tab de review no admin, notificação ao utilizador.
+6. **Analytics Dashboard:** integrar `AnalyticsBreakdown.tsx` (já existe mas não renderizado) — desempenho por par, timeframe, SMC setup, equity curve. Ecrã premium.
+7. **Trade Journal completo:** adicionar entry/exit price ao `AddTradeModal` (actualmente hardcoded 0).
+8. **Filtro SMC setup:** adicionar chips de filtro (BOS, CHoCH, OB, FVG, COMBO) no ecrã de Análises.
+
+### Bloco C — UX Polish
+9. **Estender Onboarding Tour:** adicionar passos para Comunidade e Diário Trader.
+10. **Pull-to-refresh:** Início, Análises, Horários.
+11. **Remover/replace admin access code hardcoded** (`adminGate.ts`) — usar Supabase RPC ou env var.
+12. **Notificação de expiração premium:** avisar 3 dias e 1 dia antes do fim da subscription.
+13. **Store real:** substituir `STORE_ITEMS` hardcoded por tabela Supabase `store_products`, ou marcar como "coming soon" explicitamente.
+14. **Exportar Diário Trader:** CSV/PDF do histórico de trades.
+
+### Pitfalls Fase 5
+- Migrations: aplicar em ordem cronológica; Fase 1 primeiro (funda as tabelas base).
+- `send-notification`: requer `EXPO_PUSH_ACCESS_TOKEN` como secret no Supabase.
+- Wallet: não quebrar o fluxo existente de depósito via receipt upload.
+- Admin: withdrawal review precisa de nova tab/section no admin panel existente.

@@ -283,21 +283,6 @@ async function handlePremiumCount() {
 
 // ── Payment Receipts ─────────────────────────────────────────────────────
 
-async function handleListReceipts(body: Record<string, unknown>) {
-  const status = body.status as string | undefined;
-  let query = supabase
-    .from('payment_receipts')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(100);
-
-  if (status) query = query.eq('status', status);
-
-  const { data, error } = await query;
-  if (error) return errorJson(error.message, 500);
-  return json({ receipts: data ?? [] });
-}
-
 async function handleApproveReceipt(body: Record<string, unknown>) {
   const { id, reviewed_by } = body;
   if (!id) return errorJson('id em falta.');
@@ -565,8 +550,16 @@ serve(async (req) => {
       return handleListUsers();
     case 'premium_count':
       return handlePremiumCount();
-    case 'list_receipts':
-      return handleListReceipts(body);
+    case 'list_receipts': {
+      const limit = Math.min(Number(body.limit) || 50, 200);
+      const offset = Number(body.offset) || 0;
+      let query = supabase.from('payment_receipts').select('*').order('created_at', { ascending: false });
+      if (body.status) query = query.eq('status', body.status);
+      query = query.range(offset, offset + limit - 1);
+      const { data, error } = await query;
+      if (error) return errorJson(error.message, 500);
+      return json({ receipts: data });
+    }
     case 'approve_receipt':
       return handleApproveReceipt({ ...body, reviewed_by: user.id });
     case 'reject_receipt':
@@ -691,8 +684,11 @@ serve(async (req) => {
     }
     // ── Withdrawal Requests ────────────────────────────────────────────
     case 'list_withdrawals': {
+      const limit = Math.min(Number(body.limit) || 50, 200);
+      const offset = Number(body.offset) || 0;
       let query = supabase.from('withdrawal_requests').select('*').order('created_at', { ascending: false });
       if (body.status) query = query.eq('status', body.status);
+      query = query.range(offset, offset + limit - 1);
       const { data, error } = await query;
       if (error) return errorJson(error.message, 500);
       return json({ withdrawals: data });
@@ -709,15 +705,159 @@ serve(async (req) => {
       return json({ ok: true });
     }
     case 'reject_withdrawal': {
-      const { id } = body;
+      const { id, notes } = body;
       if (!id) return errorJson('id em falta.');
       const { error } = await supabase.from('withdrawal_requests').update({
         status: 'rejected',
         reviewed_by: user.id,
         reviewed_at: new Date().toISOString(),
+        notes: notes || null,
       }).eq('id', id);
       if (error) return errorJson(error.message, 500);
       return json({ ok: true });
+    }
+    case 'mark_withdrawal_paid': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { error } = await supabase.from('withdrawal_requests').update({
+        status: 'paid',
+        reviewed_by: user.id,
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true });
+    }
+    // ── Revenue Stats ──────────────────────────────────────────────────
+    case 'revenue_stats': {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+
+      const { data: thisMonthReceipts } = await supabase
+        .from('payment_receipts')
+        .select('amount, currency, plan')
+        .eq('status', 'approved')
+        .gte('created_at', startOfMonth);
+
+      const { data: lastMonthReceipts } = await supabase
+        .from('payment_receipts')
+        .select('amount, currency, plan')
+        .eq('status', 'approved')
+        .gte('created_at', startOfLastMonth)
+        .lt('created_at', startOfMonth);
+
+      const { data: pendingWithdrawals } = await supabase
+        .from('withdrawal_requests')
+        .select('amount, currency')
+        .eq('status', 'pending');
+
+      const sumByPlan = (receipts: any[]) => {
+        const byPlan: Record<string, number> = {};
+        for (const r of receipts ?? []) {
+          const plan = r.plan || 'unknown';
+          byPlan[plan] = (byPlan[plan] || 0) + Number(r.amount);
+        }
+        return byPlan;
+      };
+
+      const sumByCurrency = (rows: any[]) => {
+        const byCur: Record<string, number> = {};
+        for (const r of rows ?? []) {
+          const cur = r.currency || 'usd';
+          byCur[cur] = (byCur[cur] || 0) + Number(r.amount);
+        }
+        return byCur;
+      };
+
+      const thisMonth = thisMonthReceipts ?? [];
+      const lastMonth = lastMonthReceipts ?? [];
+
+      return json({
+        thisMonthRevenue: sumByCurrency(thisMonth),
+        lastMonthRevenue: sumByCurrency(lastMonth),
+        thisMonthByPlan: sumByPlan(thisMonth),
+        lastMonthByPlan: sumByPlan(lastMonth),
+        thisMonthCount: thisMonth.length,
+        pendingWithdrawalsAmount: sumByCurrency(pendingWithdrawals ?? []),
+      });
+    }
+    // ── Message Reports ────────────────────────────────────────────────
+    case 'list_reports': {
+      let query = supabase
+        .from('message_reports')
+        .select('*, messages!inner(text, user_id, channel_id, conversation_id), reporter:auth.users!inner(email)')
+        .order('created_at', { ascending: false });
+      if (body.status) query = query.eq('status', body.status);
+      query = query.limit(Math.min(Number(body.limit) || 50, 200));
+      const { data, error } = await query;
+      if (error) return errorJson(error.message, 500);
+      return json({ reports: data });
+    }
+    case 'dismiss_report': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { error } = await supabase.from('message_reports').update({
+        status: 'dismissed', reviewed_by: user.id, reviewed_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true });
+    }
+    case 'act_on_report': {
+      const { id, delete_message } = body;
+      if (!id) return errorJson('id em falta.');
+      const { data: report } = await supabase.from('message_reports').select('message_id').eq('id', id).single();
+      if (report && delete_message) {
+        await supabase.from('messages').update({ deleted_at: new Date().toISOString() }).eq('id', report.message_id);
+      }
+      const { error } = await supabase.from('message_reports').update({
+        status: 'acted', reviewed_by: user.id, reviewed_at: new Date().toISOString(),
+      }).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true, message_deleted: !!delete_message });
+    }
+    case 'report_count': {
+      const { count, error } = await supabase
+        .from('message_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+      if (error) return errorJson(error.message, 500);
+      return json({ count: count ?? 0 });
+    }
+    // ── Channel Management ─────────────────────────────────────────────
+    case 'list_channels': {
+      const { data, error } = await supabase.from('channels').select('*').order('created_at', { ascending: false });
+      if (error) return errorJson(error.message, 500);
+      return json({ channels: data });
+    }
+    case 'update_channel': {
+      const { id, display_name, description, icon, is_premium } = body;
+      if (!id) return errorJson('id em falta.');
+      const updates: Record<string, any> = {};
+      if (display_name !== undefined) updates.display_name = display_name;
+      if (description !== undefined) updates.description = description;
+      if (icon !== undefined) updates.icon = icon;
+      if (is_premium !== undefined) updates.is_premium = is_premium;
+      const { error } = await supabase.from('channels').update(updates).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true });
+    }
+    case 'delete_channel': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { data: ch } = await supabase.from('channels').select('name, type').eq('id', id).single();
+      if (ch?.type === 'pair') return errorJson('Pair rooms são geridos automaticamente.');
+      const systemNames = ['geral', 'sinais', 'duvidas', 'resultados', 'off-topic'];
+      if (systemNames.includes(ch?.name)) return errorJson('Canais do sistema não podem ser apagados.');
+      const { error } = await supabase.from('channels').delete().eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true });
+    }
+    case 'toggle_channel_premium': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { data: ch } = await supabase.from('channels').select('is_premium').eq('id', id).single();
+      if (!ch) return errorJson('Canal não encontrado.', 404);
+      const { error } = await supabase.from('channels').update({ is_premium: !ch.is_premium }).eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ ok: true, is_premium: !ch.is_premium });
     }
     default:
       return errorJson(`Ação desconhecida: ${action}`, 400);

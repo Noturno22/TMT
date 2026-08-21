@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { Alert, Image, Pressable, StyleSheet, TextInput, View, type AlertButton } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -78,27 +78,43 @@ export function MessageBubble({
   }
 
   const onLongPress = () => {
-    if (!isOwn) return;
-    const actions: AlertButton[] = [];
-    if (editable) {
+    if (isOwn) {
+      const actions: AlertButton[] = [];
+      if (editable) {
+        actions.push({
+          text: t('workspace.edit'),
+          onPress: () => { setDraft(message.text); setEditing(true); },
+        });
+      }
       actions.push({
-        text: t('workspace.edit'),
-        onPress: () => {
-          setDraft(message.text);
-          setEditing(true);
-        },
+        text: t('workspace.deleteMessage'),
+        style: 'destructive',
+        onPress: () => onDelete(message),
       });
+      Alert.alert(t('workspace.messageActions'), undefined, [
+        ...actions,
+        { text: t('common.cancel'), style: 'cancel' },
+      ]);
+    } else {
+      Alert.alert(t('workspace.reportMessage') || 'Reportar', undefined, [
+        { text: 'Spam', onPress: () => handleReport('spam') },
+        { text: 'Assédio', onPress: () => handleReport('harassment') },
+        { text: 'Inadequado', onPress: () => handleReport('inappropriate') },
+        { text: 'Outro', onPress: () => handleReport('other') },
+        { text: t('common.cancel'), style: 'cancel' },
+      ]);
     }
-    actions.push({
-      text: t('workspace.deleteMessage'),
-      style: 'destructive',
-      onPress: () => onDelete(message),
-    });
-    Alert.alert(t('workspace.messageActions'), undefined, [
-      ...actions,
-      { text: t('common.cancel'), style: 'cancel' },
-    ]);
   };
+
+  const handleReport = useCallback(async (reason: string) => {
+    try {
+      const { reportMessage } = await import('@/lib/community');
+      await reportMessage(message.id, reason);
+      Alert.alert(t('common.ok') || 'OK', t('workspace.reportSent') || 'Report enviado.');
+    } catch {
+      Alert.alert(t('common.error') || 'Erro', t('workspace.reportFailed') || 'Não foi possível enviar.');
+    }
+  }, [message.id, t]);
 
   const onAddReaction = () => {
     Alert.alert(

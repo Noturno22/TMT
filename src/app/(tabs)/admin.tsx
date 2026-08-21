@@ -3,13 +3,14 @@ import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View, Refresh
 import { ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppButton, AppInput, AppText, Badge, Chip, EmptyState, Screen, Spinner } from '@/components/ui';
+import { AppButton, AppInput, AppText, Badge, Card, Chip, EmptyState, Screen, Spinner } from '@/components/ui';
 import { generateSignalsNow } from '@/lib/cryptoSignals';
 import {
   PairChips, ConfidencePresets, TimePresets, SignalTypeToggle, SessionPresets, QuickChips,
   SearchBar, FilterChips, BulkActionsBar, SkeletonList, Toast, ExportButton,
   NotificationBadge, NotificationListModal, UserDetailModal,
 } from '@/components/admin';
+import { WithdrawalsPanel, MessagingPanel, ReportsPanel, ChannelsPanel } from '@/components/admin';
 import { Colors, Spacing, Radius } from '@/core/theme';
 import { supabase, isAdminEmail } from '@/lib/supabase';
 import { isAdminUnlocked } from '@/lib/adminGate';
@@ -24,7 +25,7 @@ import type { TFunction } from 'i18next';
 import { useAdminSearch } from '@/hooks/useAdminSearch';
 import { useAdminAlerts } from '@/hooks/useAdminAlerts';
 
-type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users' | 'receipts';
+type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users' | 'receipts' | 'withdrawals' | 'messaging' | 'reports' | 'channels';
 
 const TABS = [
   { key: 'dashboard' as const, labelKey: 'admin.tabDashboard' as const },
@@ -34,6 +35,10 @@ const TABS = [
   { key: 'boom_times' as const, labelKey: 'admin.tabBoomTimes' as const },
   { key: 'posts' as const, labelKey: 'admin.tabPosts' as const },
   { key: 'users' as const, labelKey: 'admin.tabUsers' as const },
+  { key: 'withdrawals' as const, labelKey: 'admin.tabWithdrawals' as const },
+  { key: 'messaging' as const, labelKey: 'admin.tabMessaging' as const },
+  { key: 'reports' as const, labelKey: 'admin.tabReports' as const },
+  { key: 'channels' as const, labelKey: 'admin.tabChannels' as const },
 ];
 
 interface PostRow {
@@ -67,6 +72,7 @@ export default function AdminScreen() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedUser, setSelectedUser] = useState<UserWithSubscription | null>(null);
   const [showUserModal, setShowUserModal] = useState(false);
+  const [pendingReports, setPendingReports] = useState(0);
 
   const loadData = useCallback(async () => {
     const [sRes, usersRes, boomHoursRes, boomTimesRes, postsRes] = await Promise.all([
@@ -124,6 +130,8 @@ export default function AdminScreen() {
     }
   }, [user]);
 
+  useEffect(() => { adminApi.reportCount().then(setPendingReports).catch(() => {}); }, []);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadData();
@@ -172,6 +180,12 @@ export default function AdminScreen() {
         </Pressable>
         <AppText variant="h1" style={styles.headerTitle}>{t('admin.title')}</AppText>
         <NotificationBadge count={unreadCount} onPress={() => setShowNotifications(true)} />
+        {pendingReports > 0 && (
+          <Pressable onPress={() => setTab('reports')} style={styles.reportBadge}>
+            <Ionicons name="flag" size={14} color={Colors.warning} />
+            <AppText variant="small" style={{ color: Colors.warning }}>{pendingReports}</AppText>
+          </Pressable>
+        )}
         <View style={styles.headerSpacer} />
       </View>
 
@@ -193,6 +207,14 @@ export default function AdminScreen() {
         <BoomTimesPanel times={boomTimes} onRefresh={loadData} refreshing={refreshing} onPullRefresh={onRefresh} />
       ) : tab === 'posts' ? (
         <PostsPanel posts={posts} onRefresh={loadData} refreshing={refreshing} onPullRefresh={onRefresh} />
+      ) : tab === 'withdrawals' ? (
+        <WithdrawalsPanel />
+      ) : tab === 'messaging' ? (
+        <MessagingPanel />
+      ) : tab === 'reports' ? (
+        <ReportsPanel />
+      ) : tab === 'channels' ? (
+        <ChannelsPanel />
       ) : (
         <UsersPanel users={users} premium={stats.premium} refreshing={refreshing} onPullRefresh={onRefresh} onSelectUser={(u) => { setSelectedUser(u as UserWithSubscription); setShowUserModal(true); }} />
       )}
@@ -241,6 +263,8 @@ function DashboardPanel({
   onRefresh: () => void;
 }) {
   const [generating, setGenerating] = useState(false);
+  const [revStats, setRevStats] = useState<Awaited<ReturnType<typeof adminApi.revenueStats>> | null>(null);
+  useEffect(() => { adminApi.revenueStats().then(setRevStats).catch(() => {}); }, []);
   const hitRate = stats.tp + stats.sl > 0 ? Math.round((stats.tp / (stats.tp + stats.sl)) * 100) : 0;
   const cards = [
     { label: t('admin.statUsers'), value: stats.users.toLocaleString('pt-PT'), color: Colors.secondary, icon: 'people' as const },
@@ -264,6 +288,23 @@ function DashboardPanel({
             <AppText variant="small" style={{ color: Colors.textMuted }}>{c.label}</AppText>
           </View>
         ))}
+        {revStats && (
+          <>
+            <Card style={styles.statCard}>
+              <AppText variant="small" style={styles.statLabel}>Receita (Mês)</AppText>
+              <AppText variant="h1">${(revStats.thisMonthRevenue.usd ?? 0).toFixed(2)}</AppText>
+              {revStats.thisMonthRevenue.aoa ? <AppText variant="small" style={styles.statLabel}>{revStats.thisMonthRevenue.aoa.toLocaleString()} Kz</AppText> : null}
+            </Card>
+            <Card style={styles.statCard}>
+              <AppText variant="small" style={styles.statLabel}>Pagamentos</AppText>
+              <AppText variant="h1">{revStats.thisMonthCount}</AppText>
+            </Card>
+            <Card style={styles.statCard}>
+              <AppText variant="small" style={styles.statLabel}>Levantamentos Pendentes</AppText>
+              <AppText variant="h1" style={{ color: Colors.warning }}>${(revStats.pendingWithdrawalsAmount.usd ?? 0).toFixed(2)}</AppText>
+            </Card>
+          </>
+        )}
       </View>
 
       <View style={styles.actionRow}>
@@ -1428,6 +1469,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     gap: 2,
   },
+  statLabel: { color: Colors.textMuted },
   actionRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm },
   tabs: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginVertical: Spacing.md },
   inlineRow: { flexDirection: 'row', gap: Spacing.sm },
@@ -1479,6 +1521,7 @@ const styles = StyleSheet.create({
   headerRefresh: { padding: Spacing.xs },
   headerTitle: { flex: 1, textAlign: 'center' },
   headerSpacer: { width: Spacing.xl },
+  reportBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: Colors.surface, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   receiptCard: {
     backgroundColor: Colors.surface,
     borderColor: Colors.border,

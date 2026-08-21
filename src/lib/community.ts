@@ -75,3 +75,13 @@ export async function uploadCommunityImage(
   if (error) return null;
   return supabase.storage.from('community').getPublicUrl(path).data.publicUrl;
 }
+
+export async function reportMessage(messageId: string, reason: string, details?: string): Promise<void> {
+  const { error } = await supabase.from('message_reports').insert({
+    message_id: messageId,
+    reporter_id: (await supabase.auth.getUser()).data.user?.id,
+    reason,
+    details: details || null,
+  });
+  if (error) throw error;
+}

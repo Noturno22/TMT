@@ -4,7 +4,7 @@ import { i18n } from '@/lib/i18n';
 
 const ADMIN_FN = `${SUPABASE_URL}/functions/v1/admin-manage`;
 
-async function callAdminFn(action: string, payload: Record<string, unknown> = {}): Promise<any> {
+async function callAdminFn<T = any>(action: string, payload: Record<string, unknown> = {}): Promise<T> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error(i18n.t('adminErrors.notAuthenticated'));
 
@@ -140,9 +140,9 @@ export interface PaymentReceipt {
   created_at: string;
 }
 
-export async function listReceipts(status?: string): Promise<PaymentReceipt[]> {
-  const data = await callAdminFn('list_receipts', status ? { status } : {});
-  return data.receipts ?? [];
+export async function listReceipts(status?: string, limit = 50, offset = 0): Promise<PaymentReceipt[]> {
+  const { receipts } = await callAdminFn<{ receipts: PaymentReceipt[] }>('list_receipts', { status, limit, offset });
+  return receipts;
 }
 
 export async function approveReceipt(id: string): Promise<void> {
@@ -208,6 +208,73 @@ export async function expiringCount() {
   return data?.count ?? 0;
 }
 
+export async function revenueStats(): Promise<{
+  thisMonthRevenue: Record<string, number>;
+  lastMonthRevenue: Record<string, number>;
+  thisMonthByPlan: Record<string, number>;
+  lastMonthByPlan: Record<string, number>;
+  thisMonthCount: number;
+  pendingWithdrawalsAmount: Record<string, number>;
+}> {
+  return callAdminFn('revenue_stats', {});
+}
+
+export async function sendDm(userId: string, text: string): Promise<{ conversation_id: string; message_id: string; notified: number }> {
+  return callAdminFn('send_dm', { user_id: userId, text });
+}
+
+export async function sendPush(userIds: string[] | null, title: string, message: string): Promise<{ notified: number; target_users: number }> {
+  return callAdminFn('send_push', { user_ids: userIds, title, message });
+}
+
+export interface MessageReport {
+  id: string; message_id: string; reporter_id: string; reason: string;
+  details: string | null; status: 'pending' | 'reviewed' | 'dismissed' | 'acted';
+  reviewed_by: string | null; reviewed_at: string | null; created_at: string;
+  messages?: { text: string; user_id: string; channel_id: string | null; conversation_id: string | null };
+  reporter?: { email: string };
+}
+
+export async function listReports(status?: string): Promise<MessageReport[]> {
+  const { reports } = await callAdminFn<{ reports: MessageReport[] }>('list_reports', { status });
+  return reports;
+}
+
+export async function dismissReport(id: string): Promise<void> {
+  await callAdminFn('dismiss_report', { id });
+}
+
+export async function actOnReport(id: string, deleteMessage: boolean): Promise<void> {
+  await callAdminFn('act_on_report', { id, delete_message: deleteMessage });
+}
+
+export async function reportCount(): Promise<number> {
+  const { count } = await callAdminFn<{ count: number }>('report_count', {});
+  return count;
+}
+
+export interface AdminChannel {
+  id: string; name: string; display_name: string; description: string | null;
+  icon: string | null; type: string; is_premium: boolean; created_at: string; updated_at: string | null;
+}
+
+export async function listChannels(): Promise<AdminChannel[]> {
+  const { channels } = await callAdminFn<{ channels: AdminChannel[] }>('list_channels', {});
+  return channels;
+}
+
+export async function updateChannel(id: string, updates: { display_name?: string; description?: string; icon?: string; is_premium?: boolean }): Promise<void> {
+  await callAdminFn('update_channel', { id, ...updates });
+}
+
+export async function deleteChannel(id: string): Promise<void> {
+  await callAdminFn('delete_channel', { id });
+}
+
+export async function toggleChannelPremium(id: string): Promise<{ is_premium: boolean }> {
+  return callAdminFn('toggle_channel_premium', { id });
+}
+
 // ── Bulk Delete ────────────────────────────────────────────────────────
 
 export async function bulkDeleteSignals(ids: string[]) {
@@ -260,9 +327,9 @@ export async function submitWithdrawalRequest(req: {
   if (error) throw error;
 }
 
-export async function listWithdrawals(status?: string): Promise<WithdrawalRequest[]> {
-  const data = await callAdminFn('list_withdrawals', status ? { status } : {});
-  return data.withdrawals ?? [];
+export async function listWithdrawals(status?: string, limit = 50, offset = 0): Promise<WithdrawalRequest[]> {
+  const { withdrawals } = await callAdminFn<{ withdrawals: WithdrawalRequest[] }>('list_withdrawals', { status, limit, offset });
+  return withdrawals;
 }
 
 export async function approveWithdrawal(id: string): Promise<void> {
@@ -271,4 +338,12 @@ export async function approveWithdrawal(id: string): Promise<void> {
 
 export async function rejectWithdrawal(id: string): Promise<void> {
   await callAdminFn('reject_withdrawal', { id });
+}
+
+export async function markWithdrawalPaid(id: string): Promise<void> {
+  await callAdminFn('mark_withdrawal_paid', { id });
+}
+
+export async function rejectWithdrawalWithNotes(id: string, notes?: string): Promise<void> {
+  await callAdminFn('reject_withdrawal', { id, notes });
 }

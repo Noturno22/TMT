@@ -14,3 +14,7 @@ export { NotificationBadge } from './NotificationBadge';
 export { ExportButton } from './ExportButton';
 export { NotificationListModal } from './NotificationListModal';
 export { UserDetailModal } from './UserDetailModal';
+export { WithdrawalsPanel } from './WithdrawalsPanel';
+export { MessagingPanel } from './MessagingPanel';
+export { ReportsPanel } from './ReportsPanel';
+export { ChannelsPanel } from './ChannelsPanel';

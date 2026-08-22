@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -107,6 +108,14 @@ export function Composer({
       setUploading(true);
       imageUrl = await uploadCommunityImage(user.id, image.uri, image.type);
       setUploading(false);
+      if (!imageUrl) {
+        setSending(false);
+        Alert.alert(
+          t('workspace.imageUploadFailedTitle'),
+          t('workspace.imageUploadFailedBody'),
+        );
+        return;
+      }
     }
     const trimmed = text.trim();
     const validMentions = mentionIds.filter((id) => {

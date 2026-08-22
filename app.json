@@ -39,16 +39,20 @@
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
-      "plugins": [
-        "./plugins/fix-splash-window",
-        "expo-router",
+    "plugins": [
+      "./plugins/fix-splash-window",
+      "expo-router",
       [
         "expo-splash-screen",
         {
           "backgroundColor": "#05050D",
-          "image": "./assets/images/bg-splash.png",
-          "imageWidth": 170,
-          "resizeMode": "contain"
+          "image": "./assets/images/splash-full.png",
+          "imageWidth": 300,
+          "enableFullScreenImageLegacy": true,
+          "dark": {
+            "backgroundColor": "#05050D",
+            "image": "./assets/images/splash-full.png"
+          }
         }
       ],
       [
@@ -80,7 +84,9 @@
       [
         "expo-share-intent",
         {
-          "androidIntentFilters": ["image/*"],
+          "androidIntentFilters": [
+            "image/*"
+          ],
           "iosActivationRules": {
             "NSExtensionActivationSupportsImageWithMaxCount": 1
           }

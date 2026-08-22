@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { uploadReceipt, type ReceiptFile } from '@/lib/payments';
 import { clearReceiptInbox, getReceiptInbox } from '@/lib/receiptInbox';
 import { saveReceipt, submitWithdrawalRequest } from '@/lib/adminApi';
+import { notifyPlanRequestSubmitted } from '@/lib/planRequests';
 import { ReceiptSuccessModal } from '@/components/ReceiptSuccessModal';
 import {
   PAYMENT_METHODS,
@@ -150,6 +151,7 @@ export default function DepositosScreen() {
     setSending(false);
     setDepositModal(null);
     setShowReceiptSuccess(true);
+    void notifyPlanRequestSubmitted(planLabel(plan), price);
   };
 
   const submitWithdrawal = async () => {

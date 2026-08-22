@@ -3,17 +3,32 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { AppButton, AppText, Card, EmptyState, Screen, Spinner } from '@/components/ui';
+import { AppButton, AppText, Badge, Card, EmptyState, Screen, Spinner } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
+import {
+  clearPlanRequests,
+  getPlanRequests,
+  pruneExpiredPlanRequests,
+  removePlanRequest,
+  type PlanRequestEntry,
+} from '@/lib/planRequests';
+import {
+  clearUserNotifications,
+  deleteUserNotification,
+  fetchUserNotifications,
+} from '@/lib/userNotifications';
+import { formatShortDate } from '@/core/format';
 
 interface NotifItem {
   identifier: string;
   title: string;
   body: string;
   fireAt: Date | null;
+  createdAt?: Date;
   kind: 'boom' | 'plan' | 'other';
+  source: 'remote' | 'plan-request' | 'local';
 }
 
 function getFireDate(trigger: Notifications.NotificationTrigger): Date | null {
@@ -24,10 +39,12 @@ function getFireDate(trigger: Notifications.NotificationTrigger): Date | null {
   return null;
 }
 
-function kindOf(title: string | null): NotifItem['kind'] {
-  if (!title) return 'other';
-  if (/boom|alarme/i.test(title)) return 'boom';
-  if (/premium|plano|oferta/i.test(title)) return 'plan';
+function kindOf(item: { title: string | null; data?: unknown }): NotifItem['kind'] {
+  const d = item.data as { kind?: unknown } | undefined;
+  if (d?.kind === 'plan') return 'plan';
+  if (!item.title) return 'other';
+  if (/boom|alarme/i.test(item.title)) return 'boom';
+  if (/premium|plano|oferta|pedido/i.test(item.title)) return 'plan';
   return 'other';
 }
 
@@ -55,16 +72,43 @@ export default function NotificacoesScreen() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<NotifItem[]> => {
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    return scheduled
-      .map((n) => ({
-        identifier: n.identifier,
-        title: n.content.title ?? t('notificacoes.title'),
-        body: n.content.body ?? '',
-        fireAt: getFireDate(n.trigger),
-        kind: kindOf(n.content.title),
-      }))
-      .sort((a, b) => (a.fireAt?.getTime() ?? 0) - (b.fireAt?.getTime() ?? 0));
+    await pruneExpiredPlanRequests().catch(() => {});
+    const [scheduled, planRequests, remote] = await Promise.all([
+      Notifications.getAllScheduledNotificationsAsync(),
+      getPlanRequests().catch(() => [] as PlanRequestEntry[]),
+      fetchUserNotifications(30).catch(() => []),
+    ]);
+    const scheduledItems: NotifItem[] = scheduled.map((n) => ({
+      identifier: n.identifier,
+      title: n.content.title ?? t('notificacoes.title'),
+      body: n.content.body ?? '',
+      fireAt: getFireDate(n.trigger),
+      kind: kindOf(n.content),
+      source: 'local',
+    }));
+    const planItems: NotifItem[] = planRequests.map((p) => ({
+      identifier: p.id,
+      title: p.title,
+      body: p.body,
+      fireAt: null,
+      createdAt: new Date(p.createdAt),
+      kind: 'plan',
+      source: 'plan-request',
+    }));
+    const remoteItems: NotifItem[] = remote.map((n) => ({
+      identifier: n.id,
+      title: n.title,
+      body: n.body,
+      fireAt: null,
+      createdAt: new Date(n.created_at),
+      kind: n.kind === 'plan' ? 'plan' : 'other',
+      source: 'remote',
+    }));
+    return [...remoteItems, ...planItems, ...scheduledItems].sort(
+      (a, b) =>
+        (b.createdAt?.getTime() ?? b.fireAt?.getTime() ?? Infinity) -
+        (a.createdAt?.getTime() ?? a.fireAt?.getTime() ?? Infinity),
+    );
   }, [t]);
 
   useEffect(() => {
@@ -74,7 +118,14 @@ export default function NotificacoesScreen() {
   const remove = async (identifier: string) => {
     setBusyId(identifier);
     try {
-      await Notifications.cancelScheduledNotificationAsync(identifier);
+      const item = items?.find((i) => i.identifier === identifier);
+      if (item?.source === 'remote') {
+        await deleteUserNotification(identifier).catch(() => {});
+      } else if (identifier.startsWith('plan-request-')) {
+        await removePlanRequest(identifier);
+      } else {
+        await Notifications.cancelScheduledNotificationAsync(identifier);
+      }
       setItems(await load());
     } finally {
       setBusyId(null);
@@ -84,7 +135,11 @@ export default function NotificacoesScreen() {
   const clearAll = async () => {
     setBusyId('all');
     try {
-      await Notifications.cancelAllScheduledNotificationsAsync();
+      await Promise.all([
+        Notifications.cancelAllScheduledNotificationsAsync(),
+        clearPlanRequests().catch(() => {}),
+        clearUserNotifications().catch(() => {}),
+      ]);
       setItems(await load());
     } finally {
       setBusyId(null);
@@ -114,6 +169,7 @@ export default function NotificacoesScreen() {
             {items.map((item) => {
               const s = KIND_STYLE[item.kind];
               const busy = busyId === item.identifier;
+              const isPendingPlan = item.source === 'plan-request';
               return (
                 <Card key={item.identifier} style={styles.row}>
                   <View style={[styles.iconWrap, { borderColor: `${s.color}40`, backgroundColor: `${s.color}14` }]}>
@@ -124,11 +180,23 @@ export default function NotificacoesScreen() {
                     {item.body ? (
                       <AppText variant="small" style={{ color: Colors.textMuted }}>{item.body}</AppText>
                     ) : null}
-                    <AppText variant="small" style={{ color: Colors.textFaint }}>{formatFire(item.fireAt, t)}</AppText>
+                    <AppText variant="small" style={{ color: Colors.textFaint }}>
+                      {isPendingPlan
+                        ? t('notificacoes.planProcessing')
+                        : item.source === 'remote' && item.createdAt
+                          ? formatShortDate(item.createdAt.toISOString())
+                          : formatFire(item.fireAt, t)}
+                    </AppText>
                   </View>
-                  <Pressable onPress={() => remove(item.identifier)} disabled={busy} hitSlop={8}>
-                    <Ionicons name="trash-outline" size={18} color={busy ? Colors.textFaint : Colors.textMuted} />
-                  </Pressable>
+                  {isPendingPlan ? (
+                    <Badge color={Colors.warning} bg={`${Colors.warning}20`}>
+                      {t('notificacoes.planPending')}
+                    </Badge>
+                  ) : (
+                    <Pressable onPress={() => remove(item.identifier)} disabled={busy} hitSlop={8}>
+                      <Ionicons name="trash-outline" size={18} color={busy ? Colors.textFaint : Colors.textMuted} />
+                    </Pressable>
+                  )}
                 </Card>
               );
             })}

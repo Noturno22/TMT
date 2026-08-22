@@ -12,7 +12,8 @@
     "all": "Nionso",
     "trader": "Trader",
     "waiting": "KOZELA",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "Sika te"
   },
   "tabs": {
     "inicio": "Ebandeli",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "Na mpokwa, IA ya TMT epreparaka signal BTC na ETH mpo na ba plan nionso.",
     "errorTitle": "Libunga ya kotia ba signaux",
     "analytics": "Analyse",
-    "filterSmc": "Setup SMC"
+    "filterSmc": "Setup SMC",
+    "upsellPoint1": "Ba pairs nyonso na ba timeframes",
+    "upsellPoint2": "Ba signaux sans limite par jour",
+    "upsellPoint3": "Ba notifications en temps réel"
   },
   "historico": {
     "allPairs": "Bapaires nyonso",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "Ekoki te kotya elilingi",
+    "imageUploadFailedBody": "Tokoki kotya elilingi te. Talá connexion na yo mpe meka lisusu.",
+    "liveBadge": "NA DIRECT",
+    "heroTitle": "Communauté na direct",
+    "heroSubtitle": "Ba salons, ba signaux mpe ba traders na temps réel.",
+    "statsChannels": "Ba chaînes {{count}}",
+    "statsRooms": "Ba salons {{count}} ya mosala",
+    "channelNoDesc": "Elisolo te",
+    "enterRoom": "Kokota",
+    "dmOnline": "Na ligne sikoyo",
+    "dmOffline": "Ya mosika",
+    "emptyChannelsHint": "Communauté ezali kokola — zela moke.",
+    "emptyChannelsHintCreator": "Salá chaîne ya yambo ya communauté.",
+    "emptyPairRoomsHint": "Ba salons efungwaka na ndenge ya moko na session ya marché.",
+    "emptyDmsHint": "Luka ba traders na recherche mpe bandá conversation.",
+    "emptyDmsHintPremium": "Salela + na likolo mpo na kobanda conversation."
   },
   "userProfile": {
     "title": "Profil",
@@ -256,7 +276,9 @@
     "delete": "Kobimisa",
     "tradeEntry": "Prix entrée",
     "tradeExit": "Prix sortie",
-    "exportCsv": "Exporter CSV"
+    "exportCsv": "Exporter CSV",
+    "currentPrice": "Talo ya sikoyo: {{price}}",
+    "pipsAuto": "Ba pips bakosangwa automatiquement"
   },
   "capital": {
     "title": "Gestion ya Capital",
@@ -505,7 +527,14 @@
       "Gestion ya capital ya likoló",
       "Analyse ya capital ya yo (1:1)",
       "Support 1:1 mpo na yo"
-    ]
+    ],
+    "capitalSpotTitle": "Gestion professionnelle ya capital",
+    "capitalSpotDesc": "Na Premium, équipe na biso gestionaka capital na yo na marché, mpe ozali kolanda ba résultats nyonso na app.",
+    "capitalItem1": "Risque na operation moko etyami na ba traders professionnels",
+    "capitalItem2": "Objectif ya retour na intérêts composés automatiques",
+    "capitalItem3": "Kokanga mbongo ya mosolo weekele na weekele",
+    "capitalItem4": "Ba rapports ya performance mpe progrès ya objectif",
+    "capitalCta": "Tala Gestion ya Capital"
   },
   "banca": {
     "title": "Gestion ya capital",
@@ -574,7 +603,9 @@
     "emptyBody": "Ba alarmes ya Ngonga ya Boom bimonaka awa soki obongisi bango.",
     "enableAlarms": "Kofungola ba alarmes",
     "manageAlerts": "Kamba ba alertes",
-    "clearAll": "Kolongola nyonso"
+    "clearAll": "Kolongola nyonso",
+    "planProcessing": "Ezali kotalelama",
+    "planPending": "Ezali kolikya"
   },
   "tour": {
     "skip": "Kangisa",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "Baplan mpe offres",
     "upgradeTitle": "Fungola Premium",
     "upgradeBody": "Póna Basic, Pro to Premium mpe bimá na plan ya pamba.",
+    "planRequestTitle": "Plano {{plan}} — demande reçu",
+    "planRequestBodyAmount": "Requête {{plan}} ({{amount}}) ekende. Ekosila na kati ya ngonga 24.",
+    "planRequestBody": "Demande na yo ezali kokende na équipe. Ekosila na kati ya ngonga 24.",
     "signalChannelName": "Ba signaux ya sika",
     "signalTitle": "{{emoji}} Signal ya sika {{tier}}: {{pair}} {{type}}",
     "signalBody": "Entrée: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "Mbote ya mwini",
       "evening": "Mbote ya butu",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "Analyser setup",
+      "setupAnalysis": "Analyse ya Setup",
+      "analyzing": "To analyse setup na yo...",
+      "cameraPermission": "Tokosaka accès ya galerie mpo na kopona bilili.",
+      "chooseAnother": "Pona elilingi mosusu",
+      "subtitle": "AI ebali graphe na yo mpe epesi tendance, bisika mpe likanisi.",
+      "copyResult": "Kopia analyse",
+      "copied": "Ekopia!",
+      "disclaimer": "Analyse automatique ya AI. Trading ezali na risque — vérifie toujours."
     },
     "performanceCard": {
       "title": "PERFORMANCE",
@@ -804,8 +847,8 @@
       "closedHint": "Ekangami · cycle ebandaka lisusu lobí"
     },
     "alarmToggle": {
-      "active": "Alarme ya mosala",
-      "activate": "Kofungola alarme",
+      "active": "Notification ekangi",
+      "activate": "Kanga notification",
       "hint5min": "Toyebisaka yo minuta 5 liboso.",
       "blocked": "Ba notificações epekami — fungola na ba définitions ya système."
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "Bilamba",
     "statsFree": "Ya libanda",
     "statsRating": "Nota",

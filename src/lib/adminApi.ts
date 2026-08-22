@@ -138,6 +138,7 @@ export interface PaymentReceipt {
   status: 'pending' | 'approved' | 'rejected';
   reviewed_by: string | null;
   reviewed_at: string | null;
+  duplicate_of?: string | null;
   created_at: string;
 }
 

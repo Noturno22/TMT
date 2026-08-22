@@ -2,26 +2,34 @@ import { useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { AppText, Badge, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
 import { OptionMenu } from '@/components/OptionMenu';
 import { SignalCard } from '@/components/SignalCard';
 import { TradingViewChart } from '@/components/TradingViewChart';
 import { PriceTicker } from '@/components/PriceTicker';
-import { PremiumLock } from '@/components/PremiumLock';
 import { MetricGrid } from '@/components/MetricGrid';
 import { AnalyticsBreakdown } from '@/components/AnalyticsBreakdown';
+import { PlanUpsellModal } from '@/components/PlanUpsellModal';
 import { useSignals } from '@/hooks/useSignals';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useLivePrices } from '@/hooks/useLivePrices';
-import { ALL_PAIRS, TIMEFRAMES, SIGNAL_TYPES, canAccessPair, canAccessTimeframe, PLAN_LIMITS, type PlanTier } from '@/core/gating';
-
-const SMC_SETUPS = ['Todos', 'BOS', 'CHoCH', 'OB', 'FVG', 'COMBO'] as const;
+import {
+  TIMEFRAMES,
+  SIGNAL_TYPES,
+  canAccessPair,
+  canAccessTimeframe,
+  PLAN_LIMITS,
+  type PlanTier,
+} from '@/core/gating';
 import { calcOpenPips, pipsBetween } from '@/core/pips';
 import { formatNumber } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import { isWeekendUtc } from '@/core/community';
 import { useTourTarget } from '@/components/tour/registry';
 import { useTranslation } from 'react-i18next';
+
+const SMC_SETUPS = ['Todos', 'BOS', 'CHoCH', 'OB', 'FVG', 'COMBO'] as const;
 
 function decimalsFor(pair: string): number {
   if (pair.includes('JPY')) return 3;
@@ -43,16 +51,19 @@ export default function AnalisesScreen() {
   const [viewMode, setViewMode] = useState<'signals' | 'analytics'>('signals');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [upsell, setUpsell] = useState<string | null>(null);
   const titleRef = useTourTarget('tour:analises-title');
   const weekend = isWeekendUtc();
 
   const limits = PLAN_LIMITS[planTier as PlanTier] ?? PLAN_LIMITS.free;
   const visiblePairs = limits.pairs;
-  const pairLocked = pair !== 'Todos' && !canAccessPair(pair, planTier as PlanTier);
   const tfLocked = timeframe !== 'Todos' && !canAccessTimeframe(timeframe, planTier as PlanTier);
-  const locked = pairLocked || tfLocked;
 
-  const { prices, loading: pricesLoading } = useLivePrices(visiblePairs);
+  const {
+    prices,
+    loading: pricesLoading,
+    activePairs,
+  } = useLivePrices(visiblePairs);
 
   const filtered = useMemo(
     () =>
@@ -67,6 +78,8 @@ export default function AnalisesScreen() {
   );
 
   const hero = selectedId ? filtered.find((s) => s.id === selectedId) ?? filtered[0] : filtered[0];
+  const heroPairLocked = !!hero && !canAccessPair(hero.pair, planTier as PlanTier);
+  const chartLocked = heroPairLocked || tfLocked;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -125,7 +138,7 @@ export default function AnalisesScreen() {
 
         <View style={styles.tickerWrap}>
           <PriceTicker
-            pairs={visiblePairs}
+            pairs={activePairs}
             prices={prices}
             loading={pricesLoading}
             onPressPair={(p) => setPair(p)}
@@ -188,12 +201,7 @@ export default function AnalisesScreen() {
           })}
         </View>
 
-        {locked ? (
-          <PremiumLock
-            label={pairLocked ? t('analises.premiumTitle', { what: pair }) : t('analises.premiumSignals', { what: timeframe })}
-            description={t('analises.premiumDesc')}
-          />
-        ) : viewMode === 'analytics' ? (
+        {viewMode === 'analytics' ? (
           <AnalyticsBreakdown />
         ) : (
           <>
@@ -208,16 +216,47 @@ export default function AnalisesScreen() {
               <Badge color={Colors.accent} bg={`${Colors.accent}1F`}>{t('analises.highlight')}</Badge>
             </View>
 
-            <TradingViewChart
-              pair={hero.pair}
-              timeframe={hero.timeframe}
-              height={260}
-              entry={hero.entry}
-              stopLoss={hero.stopLoss}
-              takeProfit={hero.takeProfit}
-              style={{ marginHorizontal: -Spacing.md, borderRadius: 0 }}
-              onPress={() => router.push(`/sinal/chart/${hero.id}`)}
-            />
+            <View style={styles.chartWrap}>
+              <TradingViewChart
+                pair={hero.pair}
+                timeframe={hero.timeframe}
+                height={260}
+                entry={hero.entry}
+                stopLoss={hero.stopLoss}
+                takeProfit={hero.takeProfit}
+                style={{ marginHorizontal: -Spacing.md, borderRadius: 0 }}
+                onPress={() => router.push(`/sinal/chart/${hero.id}`)}
+              />
+              {chartLocked ? (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setUpsell(heroPairLocked ? hero.pair : timeframe)}
+                  style={styles.chartFrost}>
+                  <LinearGradient
+                    colors={['rgba(10,13,20,0.62)', 'rgba(10,13,20,0.88)']}
+                    style={StyleSheet.absoluteFill}
+                    pointerEvents="none"
+                  />
+                  <View style={styles.frostInner}>
+                    <View style={styles.frostIconWrap}>
+                      <Ionicons name="lock-closed" size={16} color="#FFD75E" />
+                    </View>
+                    <AppText variant="label" style={styles.frostTitle}>
+                      {t('analises.premiumTitle', { what: heroPairLocked ? hero.pair : timeframe })}
+                    </AppText>
+                    <AppText variant="small" style={styles.frostBody}>
+                      {t('analises.premiumDesc')}
+                    </AppText>
+                    <View style={styles.frostCta}>
+                      <AppText variant="small" style={styles.frostCtaText}>
+                        {t('components.premiumLock.viewPlans')}
+                      </AppText>
+                      <Ionicons name="chevron-forward" size={12} color={Colors.bg} />
+                    </View>
+                  </View>
+                </Pressable>
+              ) : null}
+            </View>
 
             <MetricGrid
               items={[
@@ -314,6 +353,7 @@ export default function AnalisesScreen() {
           </>
         )}
       </ScrollView>
+      <PlanUpsellModal visible={upsell !== null} what={upsell ?? ''} onClose={() => setUpsell(null)} />
     </Screen>
   );
 }
@@ -389,6 +429,46 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     gap: Spacing.sm,
   },
+  chartWrap: { marginHorizontal: -Spacing.md, borderRadius: 0, overflow: 'hidden' },
+  chartFrost: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.xl,
+  },
+  frostInner: { alignItems: 'center', gap: Spacing.xs },
+  frostIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: `${Colors.accent}66`,
+    backgroundColor: 'rgba(255,159,10,0.14)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.xs,
+  },
+  frostTitle: { color: Colors.text, textAlign: 'center' },
+  frostBody: {
+    color: Colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: Spacing.sm,
+  },
+  frostCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.accent,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  frostCtaText: { color: Colors.bg, fontWeight: '800' },
   heroHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   heroHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   heroLevels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.xs },

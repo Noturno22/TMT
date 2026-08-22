@@ -12,7 +12,8 @@
     "all": "Все",
     "trader": "Трейдер",
     "waiting": "ЖДАТЬ",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "Не сейчас"
   },
   "tabs": {
     "inicio": "Главная",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "В выходные ИИ TMT генерирует сигналы BTC и ETH для всех планов.",
     "errorTitle": "Ошибка загрузки сигналов",
     "analytics": "Аналитика",
-    "filterSmc": "SMC сетап"
+    "filterSmc": "SMC сетап",
+    "upsellPoint1": "Все пары и таймфреймы",
+    "upsellPoint2": "Неограниченные сигналы в день",
+    "upsellPoint3": "Push-уведомления в реальном времени"
   },
   "historico": {
     "allPairs": "Все пары",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "Не удалось загрузить изображение",
+    "imageUploadFailedBody": "Не удалось загрузить изображение. Проверьте соединение и попробуйте снова.",
+    "liveBadge": "В ЭФИРЕ",
+    "heroTitle": "Сообщество в прямом эфире",
+    "heroSubtitle": "Комнаты, сигналы и трейдеры в реальном времени.",
+    "statsChannels": "{{count}} каналов",
+    "statsRooms": "{{count}} активных комнат",
+    "channelNoDesc": "Без описания",
+    "enterRoom": "Войти",
+    "dmOnline": "В сети",
+    "dmOffline": "Отошёл",
+    "emptyChannelsHint": "Сообщество растёт — заглядывайте позже.",
+    "emptyChannelsHintCreator": "Создайте первый канал сообщества.",
+    "emptyPairRoomsHint": "Комнаты открываются автоматически с торговой сессией.",
+    "emptyDmsHint": "Найдите трейдеров в поиске и начните общение.",
+    "emptyDmsHintPremium": "Нажмите + выше, чтобы начать беседу."
   },
   "userProfile": {
     "title": "Профиль",
@@ -256,7 +276,9 @@
     "delete": "Удалить",
     "tradeEntry": "Цена входа",
     "tradeExit": "Цена выхода",
-    "exportCsv": "Экспорт CSV"
+    "exportCsv": "Экспорт CSV",
+    "currentPrice": "Текущая цена: {{price}}",
+    "pipsAuto": "Пипсы рассчитываются автоматически"
   },
   "language": {
     "title": "Язык"
@@ -474,7 +496,14 @@
       "Расширенное управление банкроллом",
       "Персональный анализ банкролла (1:1)",
       "Выделенная поддержка 1:1"
-    ]
+    ],
+    "capitalSpotTitle": "Профессиональное управление капиталом",
+    "capitalSpotDesc": "С Premium наша команда управляет вашим капиталом на рынке, а вы отслеживаете каждый результат в приложении.",
+    "capitalItem1": "Риск на сделку устанавливают профессиональные трейдеры",
+    "capitalItem2": "Цель доходности с автоматическим сложным процентом",
+    "capitalItem3": "Еженедельный вывод прибыли",
+    "capitalItem4": "Отчёты о результатах и прогрессе к цели",
+    "capitalCta": "Открыть управление капиталом"
   },
   "banca": {
     "title": "Управление банкроллом",
@@ -574,7 +603,9 @@
     "emptyBody": "Будильники Boom-часа появятся здесь, когда вы их активируете.",
     "enableAlarms": "Включить будильники",
     "manageAlerts": "Управление оповещениями",
-    "clearAll": "Очистить всё"
+    "clearAll": "Очистить всё",
+    "planProcessing": "На рассмотрении",
+    "planPending": "Ожидание"
   },
   "tour": {
     "skip": "Пропустить",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "Тарифы и предложения",
     "upgradeTitle": "Разблокируйте Premium",
     "upgradeBody": "Выберите Basic, Pro или Premium и выйдите из бесплатного тарифа.",
+    "planRequestTitle": "План {{plan}} — запрос получен",
+    "planRequestBodyAmount": "Запрос {{plan}} ({{amount}}) передан. Выполнение в течение 24 часов.",
+    "planRequestBody": "Ваш запрос передаётся команде. Он будет выполнен в течение 24 часов.",
     "signalChannelName": "Новые сигналы",
     "signalTitle": "{{emoji}} Новый сигнал {{tier}}: {{pair}} {{type}}",
     "signalBody": "Вход: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "Добрый день",
       "evening": "Добрый вечер",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "Анализировать сетап",
+      "setupAnalysis": "Анализ сетапа",
+      "analyzing": "Анализируем твой сетап...",
+      "cameraPermission": "Нужен доступ к галерее, чтобы выбирать изображения.",
+      "chooseAnother": "Выбрать другое изображение",
+      "subtitle": "ИИ читает график и определяет тренд, зоны и рекомендацию.",
+      "copyResult": "Копировать анализ",
+      "copied": "Скопировано!",
+      "disclaimer": "Автоматический ИИ-анализ. Трейдинг связан с риском — всегда проверяй."
     },
     "performanceCard": {
       "title": "ПРОИЗВОДИТЕЛЬНОСТЬ",
@@ -804,8 +847,8 @@
       "closedHint": "Завершено · цикл повторится завтра"
     },
     "alarmToggle": {
-      "active": "Будильник активен",
-      "activate": "Включить будильник",
+      "active": "Уведомление включено",
+      "activate": "Включить уведомление",
       "hint5min": "Уведомим вас за 5 мин.",
       "blocked": "Уведомления заблокированы — включите их в настройках системы."
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "Продукты",
     "statsFree": "Бесплатно",
     "statsRating": "Рейтинг",

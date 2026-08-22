@@ -1,4 +1,5 @@
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { FlatList, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,16 +8,49 @@ import { useTranslation } from 'react-i18next';
 import { AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
+import type { Announcement } from '@/core/types';
+
+const AUTOPLAY_MS = 5000;
 
 export function AnnouncementCard() {
   const { t } = useTranslation();
   const router = useRouter();
   const { announcements } = useAnnouncements();
-  const ad = announcements[0];
+  const listRef = useRef<FlatList<Announcement> | null>(null);
+  const indexRef = useRef(0);
+  const [width, setWidth] = useState(0);
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
 
-  if (!ad) return null;
+  const count = announcements.length;
 
-  const openLink = () => {
+  // Reset to the first slide whenever data or measured width changes.
+  const [resetKey, setResetKey] = useState('');
+  const nextResetKey = `${count}-${width}`;
+  if (resetKey !== nextResetKey) {
+    setResetKey(nextResetKey);
+    setIndex(0);
+  }
+
+  useEffect(() => {
+    indexRef.current = 0;
+    if (width > 0) listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [resetKey, width]);
+
+  useEffect(() => {
+    if (paused || count <= 1 || width === 0) return;
+    const id = setInterval(() => {
+      const next = (indexRef.current + 1) % count;
+      indexRef.current = next;
+      setIndex(next);
+      listRef.current?.scrollToIndex({ index: next, animated: true });
+    }, AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [paused, count, width]);
+
+  if (count === 0) return null;
+
+  const openLink = (ad: Announcement) => {
     if (!ad.link) return;
     if (ad.link.startsWith('/')) {
       // @ts-expect-error rota dinâmica gerida pelos admins
@@ -26,7 +60,7 @@ export function AnnouncementCard() {
     Linking.openURL(ad.link).catch(() => {});
   };
 
-  const cta = (
+  const ctaFor = (ad: Announcement) => (
     <View style={styles.cta}>
       <AppText variant="small" style={styles.ctaText} numberOfLines={1}>
         {ad.link_label || t('inicio.announceCta')}
@@ -35,55 +69,97 @@ export function AnnouncementCard() {
     </View>
   );
 
-  const content = (
-    <>
-      {ad.image_url ? <Image source={{ uri: ad.image_url }} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
-      <LinearGradient
-        colors={ad.image_url ? ['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.85)'] : [Colors.primaryDim, 'rgba(22,164,58,0.22)']}
-        start={{ x: 0, y: 0 }}
-        end={ad.image_url ? { x: 1, y: 0 } : { x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={[styles.row, !ad.image_url && styles.plainBorder]}>
-        <View style={styles.iconWrap}>
-          <Ionicons name="megaphone" size={20} color={Colors.success} />
+  const renderSlide = ({ item }: { item: Announcement }) => {
+    const content = (
+      <>
+        {item.image_url ? (
+          <Image source={{ uri: item.image_url }} style={StyleSheet.absoluteFill} contentFit="cover" />
+        ) : null}
+        <LinearGradient
+          colors={item.image_url ? ['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.85)'] : [Colors.primaryDim, 'rgba(22,164,58,0.22)']}
+          start={{ x: 0, y: 0 }}
+          end={item.image_url ? { x: 1, y: 0 } : { x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={[styles.row, !item.image_url && styles.plainBorder]}>
+          <View style={styles.iconWrap}>
+            <Ionicons name="megaphone" size={20} color={Colors.success} />
+          </View>
+          <View style={styles.textWrap}>
+            <AppText variant="label" numberOfLines={1}>{item.title}</AppText>
+            {item.body ? (
+              <AppText variant="small" style={styles.body} numberOfLines={2}>
+                {item.body}
+              </AppText>
+            ) : null}
+          </View>
+          {item.link ? ctaFor(item) : null}
         </View>
-        <View style={styles.textWrap}>
-          <AppText variant="label" numberOfLines={1}>{ad.title}</AppText>
-          {ad.body ? (
-            <AppText variant="small" style={styles.body} numberOfLines={2}>
-              {ad.body}
-            </AppText>
-          ) : null}
-        </View>
-        {ad.link ? cta : null}
-      </View>
-    </>
-  );
-
-  if (ad.link) {
-    return (
-      <Pressable
-        onPress={openLink}
-        accessibilityRole="button"
-        accessibilityLabel={ad.title}
-        style={({ pressed }) => [styles.banner, pressed && { opacity: 0.85 }]}>
-        {content}
-      </Pressable>
+      </>
     );
-  }
 
-  return <View style={styles.banner}>{content}</View>;
+    if (item.link) {
+      return (
+        <Pressable
+          onPress={() => openLink(item)}
+          accessibilityRole="button"
+          accessibilityLabel={item.title}
+          style={({ pressed }) => [{ width, opacity: pressed ? 0.85 : 1 }]}>
+          {content}
+        </Pressable>
+      );
+    }
+
+    return <View style={{ width }}>{content}</View>;
+  };
+
+  return (
+    <View style={styles.wrapper} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+      <View style={[styles.banner, !announcements[0]?.image_url && styles.plainBg]}>
+        <FlatList
+          ref={listRef}
+          data={announcements}
+          keyExtractor={(item, i) => String(item.id ?? i)}
+          renderItem={renderSlide}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
+          onScrollBeginDrag={() => setPaused(true)}
+          onMomentumScrollEnd={(e) => {
+            setPaused(false);
+            if (width > 0) {
+              const i = Math.round(e.nativeEvent.contentOffset.x / width);
+              indexRef.current = i;
+              setIndex(i);
+            }
+          }}
+        />
+        {count > 1 ? (
+          <View pointerEvents="none" style={styles.dots}>
+            {announcements.map((_, i) => (
+              <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
+            ))}
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    marginBottom: Spacing.lg,
+  },
   banner: {
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: 'hidden',
     backgroundColor: Colors.surface,
-    marginBottom: Spacing.lg,
+  },
+  plainBg: {
+    backgroundColor: Colors.surface,
   },
   plainBorder: {
     backgroundColor: 'transparent',
@@ -122,5 +198,25 @@ const styles = StyleSheet.create({
   ctaText: {
     color: '#0A0A0A',
     fontWeight: '800',
+  },
+  dots: {
+    position: 'absolute',
+    bottom: 6,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.45)',
+  },
+  dotActive: {
+    width: 14,
+    backgroundColor: Colors.accent,
   },
 });

@@ -30,7 +30,11 @@ export default function InicioScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isPremium } = useSubscription();
-  const { prices, loading: pricesLoading } = useLivePrices(TICKER_PAIRS);
+  const {
+    prices,
+    loading: pricesLoading,
+    activePairs,
+  } = useLivePrices(TICKER_PAIRS);
   const { stats, loading: historyLoading, refetch: refetchHistory } = useHistory();
   const { signals, refetch: refetchSignals } = useSignals();
   const { hours, loading: hoursLoading, refetch: refetchHours } = useBoomHours();
@@ -78,11 +82,15 @@ export default function InicioScreen() {
         }>
         <DashboardHeader isPremium={isPremium} />
 
-        <AnnouncementCard />
-
         <View style={styles.ticker}>
-          <PriceTicker pairs={TICKER_PAIRS} prices={prices} loading={pricesLoading} />
+          <PriceTicker
+            pairs={activePairs}
+            prices={prices}
+            loading={pricesLoading}
+          />
         </View>
+
+        <AnnouncementCard />
 
         <View ref={performanceRef} collapsable={false}>
           <PerformanceCard
@@ -160,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   boomTimeCol: { alignItems: 'center', minWidth: 64 },
-  boomTime: { fontSize: 22, fontWeight: '800', color: Colors.accent, fontFamily: 'monospace' },
+  boomTime: { fontSize: 22, lineHeight: 30, fontWeight: '800', color: Colors.accent, fontFamily: 'monospace' },
   boomBody: { flex: 1, gap: Spacing.xs },
   pairs: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
   pairChip: {

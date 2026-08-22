@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppText, Screen } from '@/components/ui';
@@ -44,7 +44,9 @@ export default function ChannelScreen() {
   return (
     <Screen scroll={false}>
       <Stack.Screen options={{ title: channel?.display_name || '#' }} />
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <MessageList
           messages={messages.messages}
           reactions={messages.reactions}
@@ -53,6 +55,7 @@ export default function ChannelScreen() {
           currentUserId={user?.id ?? null}
           hasOlder={messages.hasOlder}
           loadingOlder={messages.loadingOlder}
+          loading={messages.loading || (!channel && channels.loading)}
           error={messages.error}
           onLoadOlder={messages.loadOlder}
           onToggleReaction={messages.toggleReaction}
@@ -68,8 +71,8 @@ export default function ChannelScreen() {
           currentUserId={user?.id ?? null}
           initialImageUri={pendingImageUri}
         />
-      </View>
-      {!channel && !channels.loading ? (
+      </KeyboardAvoidingView>
+      {!channel && !channels.loading && !messages.loading ? (
         <AppText style={styles.missing}>{t('workspace.emptyChannels')}</AppText>
       ) : null}
     </Screen>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Dimensions, PanResponder } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText } from '@/components/ui';
@@ -27,12 +27,12 @@ const TOAST_CONFIG: Record<ToastType, { icon: keyof typeof Ionicons.glyphMap; co
 };
 
 export function Toast({ toast, onDismiss }: ToastProps) {
-  const translateY = useRef(new Animated.Value(-100)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateX = useRef(new Animated.Value(0)).current;
+  const [translateY] = useState(() => new Animated.Value(-100));
+  const [opacity] = useState(() => new Animated.Value(0));
+  const [translateX] = useState(() => new Animated.Value(0));
   const config = TOAST_CONFIG[toast.type];
 
-  const panResponder = useRef(
+  const [panResponder] = useState(() =>
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dx) > 10,
       onPanResponderMove: (_, gestureState) => {
@@ -50,7 +50,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         }
       },
     })
-  ).current;
+  );
 
   useEffect(() => {
     Animated.parallel([

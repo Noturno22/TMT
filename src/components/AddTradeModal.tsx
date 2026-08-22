@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { AppButton, AppInput, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { ALL_PAIRS } from '@/core/gating';
+import { calcPips, fetchPairPrice, pairDecimals } from '@/lib/pairPrice';
 import type { TradeDirection, TradeResult } from '@/core/types';
 
 const PAIRS = ALL_PAIRS.filter((p) => p !== 'BTC/USD');
@@ -35,9 +36,40 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
   const [entryPrice, setEntryPrice] = useState('');
   const [exitPrice, setExitPrice] = useState('');
   const [profitUsd, setProfitUsd] = useState('');
-  const [pips, setPips] = useState('');
   const [lotSize, setLotSize] = useState('');
   const [notes, setNotes] = useState('');
+
+  // Price suggestion + auto pips (overridden as soon as the user edits a field).
+  const entryTouched = useRef(false);
+  const exitTouched = useRef(false);
+  const [pipsEdited, setPipsEdited] = useState<string | null>(null);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    let active = true;
+    fetchPairPrice(pair)
+      .then((price) => {
+        if (!active || price == null) return;
+        const s = price.toFixed(pairDecimals(pair));
+        setSuggestion(s);
+        if (!entryTouched.current) setEntryPrice(s);
+        if (!exitTouched.current) setExitPrice(s);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [visible, pair]);
+
+  // Auto pips derived during render; the user's manual value wins once edited.
+  const entryNum = Number(entryPrice);
+  const exitNum = Number(exitPrice);
+  const autoPips =
+    entryPrice && exitPrice && isFinite(entryNum) && isFinite(exitNum)
+      ? String(calcPips(pair, direction, entryNum, exitNum))
+      : '';
+  const pipsValue = pipsEdited ?? autoPips;
 
   const reset = () => {
     setPair(PAIRS[0]);
@@ -46,9 +78,12 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
     setEntryPrice('');
     setExitPrice('');
     setProfitUsd('');
-    setPips('');
     setLotSize('');
     setNotes('');
+    entryTouched.current = false;
+    exitTouched.current = false;
+    setPipsEdited(null);
+    setSuggestion(null);
   };
 
   const handleSave = () => {
@@ -65,7 +100,7 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
       lotSize: lotSize ? Number(lotSize) : 0.01,
       result,
       profitUsd: pnl,
-      pips: pips ? Number(pips) : 0,
+      pips: pipsValue ? Number(pipsValue) : 0,
       notes,
       boomHourId: null,
       closedAt: new Date().toISOString(),
@@ -73,9 +108,6 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
     reset();
     onClose();
   };
-
-  const resultColor =
-    result === 'WIN' ? Colors.success : result === 'LOSS' ? Colors.destructive : Colors.textMuted;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -145,7 +177,7 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
                 <AppInput
                   label={t('diario.tradeEntry')}
                   value={entryPrice}
-                  onChangeText={setEntryPrice}
+                  onChangeText={(v) => { entryTouched.current = true; setEntryPrice(v); }}
                   keyboardType="decimal-pad"
                   placeholder="0.00000"
                 />
@@ -154,12 +186,17 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
                 <AppInput
                   label={t('diario.tradeExit')}
                   value={exitPrice}
-                  onChangeText={setExitPrice}
+                  onChangeText={(v) => { exitTouched.current = true; setExitPrice(v); }}
                   keyboardType="decimal-pad"
                   placeholder="0.00000"
                 />
               </View>
             </View>
+            {suggestion ? (
+              <AppText variant="small" style={styles.hintText}>
+                {t('diario.currentPrice', { price: suggestion })}
+              </AppText>
+            ) : null}
 
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
@@ -174,11 +211,14 @@ export function AddTradeModal({ visible, onClose, onSave }: Props) {
               <View style={{ flex: 1 }}>
                 <AppInput
                   label={t('diario.tradePips')}
-                  value={pips}
-                  onChangeText={setPips}
+                  value={pipsValue}
+                  onChangeText={(v) => setPipsEdited(v)}
                   keyboardType="decimal-pad"
                   placeholder="0"
                 />
+                <AppText variant="small" style={styles.hintText}>
+                  {t('diario.pipsAuto')}
+                </AppText>
               </View>
             </View>
 
@@ -275,6 +315,7 @@ const styles = StyleSheet.create({
   dirBuy: { backgroundColor: Colors.success, borderColor: Colors.success },
   dirSell: { backgroundColor: Colors.destructive, borderColor: Colors.destructive },
   row: { flexDirection: 'row', gap: Spacing.sm },
+  hintText: { color: Colors.textFaint, marginTop: -Spacing.xs, marginBottom: Spacing.sm },
   resultRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm },
   resultBtn: {
     flex: 1,

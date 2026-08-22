@@ -14,7 +14,7 @@ import { AppText, EmptyState } from '@/components/ui';
 import { MessageBubble } from '@/components/community/MessageBubble';
 import { BoomMessage } from '@/components/community/BoomMessage';
 import { formatChatDate } from '@/core/format';
-import { Colors, Spacing } from '@/core/theme';
+import { Colors, Radius, Spacing } from '@/core/theme';
 import type { Message, MessageReaction, UserProfile } from '@/core/types';
 
 type ListItem =
@@ -29,6 +29,7 @@ export function MessageList({
   currentUserId,
   hasOlder,
   loadingOlder,
+  loading = false,
   error,
   onLoadOlder,
   onToggleReaction,
@@ -45,6 +46,7 @@ export function MessageList({
   currentUserId: string | null;
   hasOlder: boolean;
   loadingOlder: boolean;
+  loading?: boolean;
   error?: string | null;
   onLoadOlder: () => void;
   onToggleReaction: (messageId: string, emoji: string) => void;
@@ -108,6 +110,25 @@ export function MessageList({
     );
   };
 
+  if (loading && messages.length === 0 && !error) {
+    return (
+      <View style={styles.empty}>
+        {[0, 1, 2, 3].map((i) => {
+          const own = i % 2 === 1;
+          return (
+            <View key={i} style={[styles.skRow, own && styles.skRowOwn]}>
+              {!own ? <View style={styles.skAvatar} /> : null}
+              <View style={own ? styles.skBubbleOwn : styles.skBubble}>
+                <View style={own ? styles.skLineOwn : styles.skLine} />
+                <View style={styles.skLineMeta} />
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
+
   if (messages.length === 0) {
     return (
       <View style={styles.empty}>
@@ -161,6 +182,53 @@ export function MessageList({
 const styles = StyleSheet.create({
   empty: { flex: 1, justifyContent: 'center' },
   list: { paddingBottom: Spacing.md, gap: Spacing.md },
+  skRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  skRowOwn: { justifyContent: 'flex-end' },
+  skAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.surfaceElevated,
+  },
+  skBubble: {
+    width: '62%',
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  skBubbleOwn: {
+    width: '55%',
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  skLine: {
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.bg,
+    width: '86%',
+  },
+  skLineOwn: {
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.surfaceElevated,
+    width: '78%',
+    alignSelf: 'flex-end',
+  },
+  skLineMeta: {
+    height: 7,
+    width: '34%',
+    borderRadius: 4,
+    backgroundColor: Colors.bg,
+    opacity: 0.6,
+  },
   dayHeader: { alignItems: 'center', paddingVertical: Spacing.sm },
   dayText: { color: Colors.textMuted, fontWeight: '700' },
   older: {

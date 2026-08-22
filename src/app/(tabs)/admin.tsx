@@ -1364,6 +1364,13 @@ function ReceiptsPanel({
                   </View>
                 </View>
 
+                {r.duplicate_of ? (
+                  <View style={[styles.receiptStatusBadge, { alignSelf: 'flex-start', marginBottom: Spacing.xs, backgroundColor: 'rgba(255,69,58,0.12)', borderColor: 'rgba(255,69,58,0.35)' }]}>
+                    <Ionicons name="copy-outline" size={12} color={Colors.destructive} />
+                    <AppText variant="small" style={{ color: Colors.destructive, fontWeight: '700' }}>Possível duplicado</AppText>
+                  </View>
+                ) : null}
+
                 <View style={styles.receiptInfoGrid}>
                   <View style={styles.receiptInfoCell}>
                     <Ionicons name="pricetag-outline" size={13} color={Colors.textFaint} />

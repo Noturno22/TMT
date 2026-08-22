@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PriceData } from '@/core/types';
+import { isCryptoPair, isForexSessionOpen, DEFAULT_CRYPTO_PAIRS } from '@/core/markets';
 
 /* ── config ─────────────────────────────────────────────────── */
 
@@ -232,9 +233,24 @@ function connectBinanceWs(
 export function useLivePrices(pairs: string[]) {
   const [prices, setPrices] = useState<Record<string, PriceData>>({});
   const [loading, setLoading] = useState(true);
+  const [marketOpen, setMarketOpen] = useState(() => isForexSessionOpen());
   const wsRef = useRef<WebSocket | null>(null);
   const prevRef = useRef<Record<string, PriceData>>({});
-  const pairsKey = pairs.join(',');
+
+  // Reavalia a sessão a cada 60s: sexta 22:00 → só crypto até segunda.
+  useEffect(() => {
+    const id = setInterval(() => setMarketOpen(isForexSessionOpen()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Fora da sessão forex, mantém só crypto; se a lista não tiver nenhuma,
+  // usa o fallback (BTC/ETH) para que a área do ticker nunca desapareça.
+  const tradablePairs = marketOpen
+    ? pairs
+    : pairs.filter((p) => isCryptoPair(p)).length > 0
+      ? pairs.filter((p) => isCryptoPair(p))
+      : DEFAULT_CRYPTO_PAIRS;
+  const pairsKey = tradablePairs.join(',');
 
   const updatePrice = useCallback(
     (pair: string, pd: PriceData) => {
@@ -257,11 +273,11 @@ export function useLivePrices(pairs: string[]) {
     };
 
     const tdPairs = TD_KEY
-      ? pairs.filter((p) => p !== 'BTC/USD' && p !== 'ETH/USD')
+      ? tradablePairs.filter((p) => p !== 'BTC/USD' && p !== 'ETH/USD')
       : [];
     const binancePairs = TD_KEY
-      ? pairs.filter((p) => p === 'BTC/USD' || p === 'ETH/USD')
-      : pairs;
+      ? tradablePairs.filter((p) => p === 'BTC/USD' || p === 'ETH/USD')
+      : tradablePairs;
 
     (async () => {
       if (TD_KEY && tdPairs.length > 0) {
@@ -338,7 +354,7 @@ export function useLivePrices(pairs: string[]) {
         );
       } else {
         // ── Binance-only fallback ──
-        const results = await fetchBinanceBatch(pairs);
+        const results = await fetchBinanceBatch(tradablePairs);
         if (!active) return;
 
         if (Object.keys(results).length > 0) {
@@ -347,7 +363,7 @@ export function useLivePrices(pairs: string[]) {
         }
         setLoading(false);
 
-        const ws = connectBinanceWs(pairs, (pair, price, change) => {
+        const ws = connectBinanceWs(tradablePairs, (pair, price, change) => {
           if (!active) return;
           updatePrice(pair, { price: price.toFixed(dec(pair)), change });
         });
@@ -356,7 +372,7 @@ export function useLivePrices(pairs: string[]) {
 
         intervals.push(
           setInterval(async () => {
-            const r = await fetchBinanceBatch(pairs);
+            const r = await fetchBinanceBatch(tradablePairs);
             if (!active) return;
             if (Object.keys(r).length > 0) {
               prevRef.current = { ...prevRef.current, ...r };
@@ -375,8 +391,8 @@ export function useLivePrices(pairs: string[]) {
     let results: Record<string, PriceData>;
 
     if (TD_KEY) {
-      const tdPairs = pairs.filter((p) => p !== 'BTC/USD' && p !== 'ETH/USD');
-      const binancePairs = pairs.filter((p) => p === 'BTC/USD' || p === 'ETH/USD');
+      const tdPairs = tradablePairs.filter((p) => p !== 'BTC/USD' && p !== 'ETH/USD');
+      const binancePairs = tradablePairs.filter((p) => p === 'BTC/USD' || p === 'ETH/USD');
 
       const [td, bn] = await Promise.all([
         fetchTdTimeSeries(tdPairs),
@@ -384,7 +400,7 @@ export function useLivePrices(pairs: string[]) {
       ]);
       results = { ...bn, ...td };
     } else {
-      results = await fetchBinanceBatch(pairs);
+      results = await fetchBinanceBatch(tradablePairs);
     }
 
     if (Object.keys(results).length > 0) {
@@ -394,5 +410,5 @@ export function useLivePrices(pairs: string[]) {
     setLoading(false);
   }, [pairsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { prices, loading, refetch };
+  return { prices, loading, refetch, marketOpen, activePairs: tradablePairs };
 }

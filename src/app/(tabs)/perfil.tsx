@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppInput, AppText, Badge, Screen } from '@/components/ui';
@@ -64,6 +64,7 @@ export default function PerfilScreen() {
   const [editing, setEditing] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const [savingName, setSavingName] = useState(false);
+  const [signOutVisible, setSignOutVisible] = useState(false);
 
   const periodEnd = subscription?.current_period_end
     ? new Date(subscription.current_period_end).toLocaleDateString(i18n.language)
@@ -94,10 +95,7 @@ export default function PerfilScreen() {
   };
 
   const confirmSignOut = () => {
-    Alert.alert(t('perfil.signOutTitle'), t('perfil.signOutBody'), [
-      { text: t('common.cancel'), style: 'cancel' },
-      { text: t('perfil.signOut'), style: 'destructive', onPress: () => signOut() },
-    ]);
+    setSignOutVisible(true);
   };
 
   return (
@@ -237,6 +235,40 @@ export default function PerfilScreen() {
 
         <AppText variant="small" style={styles.version}>{t('perfil.version')}</AppText>
       </ScrollView>
+
+      <Modal
+        visible={signOutVisible}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setSignOutVisible(false)}>
+        <Pressable style={styles.sheetBackdrop} onPress={() => setSignOutVisible(false)}>
+          <Pressable style={styles.signOutCard} onPress={() => {}}>
+            <View style={styles.signOutIcon}>
+              <Ionicons name="log-out-outline" size={26} color={Colors.destructive} />
+            </View>
+            <AppText variant="h2" style={styles.signOutTitle}>{t('perfil.signOutTitle')}</AppText>
+            <AppText variant="small" style={styles.signOutBody}>{t('perfil.signOutBody')}</AppText>
+            <View style={styles.signOutActions}>
+              <AppButton
+                title={t('common.cancel')}
+                variant="outline"
+                onPress={() => setSignOutVisible(false)}
+                style={styles.signOutCancelBtn}
+              />
+              <AppButton
+                title={t('perfil.signOut')}
+                variant="danger"
+                onPress={() => {
+                  setSignOutVisible(false);
+                  signOut();
+                }}
+                style={styles.signOutConfirmBtn}
+              />
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
@@ -354,4 +386,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   version: { textAlign: 'center', color: Colors.textFaint, marginTop: Spacing.lg },
+  sheetBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
+  },
+  signOutCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  signOutIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: `${Colors.destructive}1A`,
+    borderWidth: 1,
+    borderColor: `${Colors.destructive}44`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.xs,
+  },
+  signOutTitle: { textAlign: 'center' },
+  signOutBody: { color: Colors.textMuted, textAlign: 'center', lineHeight: 20 },
+  signOutActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    width: '100%',
+    marginTop: Spacing.md,
+  },
+  signOutCancelBtn: { flex: 1 },
+  signOutConfirmBtn: { flex: 1 },
 });

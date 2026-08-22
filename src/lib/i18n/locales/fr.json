@@ -12,7 +12,8 @@
     "all": "Tous",
     "trader": "Trader",
     "waiting": "ATTENDRE",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "Pas maintenant"
   },
   "tabs": {
     "inicio": "Accueil",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "Le week-end, l'IA de TMT génère des signaux BTC et ETH pour tous les plans.",
     "errorTitle": "Erreur lors du chargement des signaux",
     "analytics": "Analyse",
-    "filterSmc": "Setup SMC"
+    "filterSmc": "Setup SMC",
+    "upsellPoint1": "Toutes les paires et timeframes",
+    "upsellPoint2": "Signaux illimités par jour",
+    "upsellPoint3": "Alertes push en temps réel"
   },
   "historico": {
     "allPairs": "Toutes les paires",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "Échec de l'envoi de l'image",
+    "imageUploadFailedBody": "Impossible d'envoyer l'image. Vérifie ta connexion et réessaie.",
+    "liveBadge": "EN DIRECT",
+    "heroTitle": "Communauté en direct",
+    "heroSubtitle": "Salles, signaux et traders en temps réel.",
+    "statsChannels": "{{count}} canaux",
+    "statsRooms": "{{count}} salles actives",
+    "channelNoDesc": "Aucune description",
+    "enterRoom": "Rejoindre",
+    "dmOnline": "Actif maintenant",
+    "dmOffline": "Absent",
+    "emptyChannelsHint": "La communauté grandit — revenez bientôt.",
+    "emptyChannelsHintCreator": "Créez le premier canal de la communauté.",
+    "emptyPairRoomsHint": "Les salles s'ouvrent automatiquement avec la session de marché.",
+    "emptyDmsHint": "Trouvez des traders via la recherche pour démarrer des conversations.",
+    "emptyDmsHintPremium": "Appuyez sur + ci-dessus pour démarrer une conversation."
   },
   "userProfile": {
     "title": "Profil",
@@ -256,7 +276,9 @@
     "delete": "Supprimer",
     "tradeEntry": "Prix Entrée",
     "tradeExit": "Prix Sortie",
-    "exportCsv": "Exporter CSV"
+    "exportCsv": "Exporter CSV",
+    "currentPrice": "Prix actuel : {{price}}",
+    "pipsAuto": "Pips calculés automatiquement"
   },
   "language": {
     "title": "Langue"
@@ -474,7 +496,14 @@
       "Gestion de banca avancée",
       "Analyse personnalisée de banca (1:1)",
       "Support 1:1 dédié"
-    ]
+    ],
+    "capitalSpotTitle": "Gestion de Capital Professionnelle",
+    "capitalSpotDesc": "Avec Premium, notre équipe gère votre capital sur le marché pendant que vous suivez chaque résultat dans l'app.",
+    "capitalItem1": "Risque par trade défini par des traders professionnels",
+    "capitalItem2": "Objectif de rendement avec intérêts composés automatiques",
+    "capitalItem3": "Retraits hebdomadaires des profits",
+    "capitalItem4": "Rapports de performance et suivi de l'objectif",
+    "capitalCta": "Voir la Gestion de Capital"
   },
   "banca": {
     "title": "Gestion de Banca",
@@ -574,7 +603,9 @@
     "emptyBody": "Les alarmes de l'Heure du Boom apparaissent ici lorsque tu les actives.",
     "enableAlarms": "Activer les alarmes",
     "manageAlerts": "Gérer les Alertes",
-    "clearAll": "Tout effacer"
+    "clearAll": "Tout effacer",
+    "planProcessing": "En cours d'examen",
+    "planPending": "En attente"
   },
   "tour": {
     "skip": "Passer",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "Plans et Offres",
     "upgradeTitle": "Débloque le Premium",
     "upgradeBody": "Choisis Basic, Pro ou Premium et sors du plan gratuit.",
+    "planRequestTitle": "Forfait {{plan}} — demande reçue",
+    "planRequestBodyAmount": "Demande {{plan}} ({{amount}}) transmise. Traitement sous 24 heures.",
+    "planRequestBody": "Votre demande est transmise à l'équipe. Elle sera traitée sous 24 heures au plus tard.",
     "signalChannelName": "Nouveaux Signaux",
     "signalTitle": "{{emoji}} Nouveau Signal {{tier}} : {{pair}} {{type}}",
     "signalBody": "Entrée : {{entry}} | SL : {{sl}} | TP : {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "Bon après-midi",
       "evening": "Bonsoir",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "Analyser un setup",
+      "setupAnalysis": "Analyse de Setup",
+      "analyzing": "Analyse de ton setup...",
+      "cameraPermission": "Nous avons besoin de l'accès à la galerie pour sélectionner des images.",
+      "chooseAnother": "Choisir une autre image",
+      "subtitle": "L'IA lit ton graphique et renvoie tendance, zones et suggestion.",
+      "copyResult": "Copier l'analyse",
+      "copied": "Copié !",
+      "disclaimer": "Analyse automatique par IA. Le trading comporte des risques — vérifie toujours."
     },
     "performanceCard": {
       "title": "PERFORMANCE",
@@ -804,8 +847,8 @@
       "closedHint": "Clôturé · le cycle recommence demain"
     },
     "alarmToggle": {
-      "active": "Alarme active",
-      "activate": "Activer l'alarme",
+      "active": "Notification activée",
+      "activate": "Activer la notification",
       "hint5min": "Nous te prévenons 5 min avant.",
       "blocked": "Notifications bloquées — active-les dans les réglages du système."
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "Produits",
     "statsFree": "Gratuit",
     "statsRating": "Note",

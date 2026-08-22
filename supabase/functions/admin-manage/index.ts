@@ -283,6 +283,72 @@ async function handlePremiumCount() {
 
 // ── Payment Receipts ─────────────────────────────────────────────────────
 
+function capitalizePlan(plan: unknown): string {
+  const p = String(plan ?? '').trim();
+  return p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : '';
+}
+
+/**
+ * Notifica o utilizador sobre mudanças no seu pedido:
+ * 1. Grava na tabela user_notifications (fica visível na app, /notificacoes).
+ * 2. Envia push Expo para todos os dispositivos registados.
+ * Falhas são best-effort — não devem bloquear a aprovação.
+ */
+async function notifyUser(userId: string, title: string, body: string, data?: Record<string, unknown>): Promise<void> {
+  try {
+    const { error: insertError } = await supabase.from('user_notifications').insert({
+      user_id: userId,
+      title,
+      body,
+      kind: 'plan',
+      data: data ?? {},
+    });
+    if (insertError) console.error('admin-manage: falha ao gravar user_notification', insertError.message);
+  } catch (e) {
+    console.error('admin-manage: exceção ao gravar user_notification', e);
+  }
+
+  try {
+    const { data: tokens } = await supabase
+      .from('push_tokens')
+      .select('token')
+      .eq('user_id', userId);
+    const tokenList = (tokens ?? []).map((t: { token: string }) => t.token);
+    if (tokenList.length > 0) {
+      await sendExpoPush(tokenList, title, body, { url: '/notificacoes', kind: 'plan' }, 'planos');
+    }
+  } catch (e) {
+    console.error('admin-manage: falha ao enviar push ao utilizador', e);
+  }
+}
+
+/**
+ * Envia email transacional via Resend (best-effort).
+ * Requer os secrets RESEND_API_KEY e opcionalmente EMAIL_FROM.
+ * Sem RESEND_API_KEY configurado, não faz nada (não bloqueia).
+ */
+async function sendUserEmail(to: string | null | undefined, subject: string, html: string): Promise<void> {
+  const apiKey = Deno.env.get('RESEND_API_KEY') ?? '';
+  if (!apiKey || !to) return;
+
+  const from = Deno.env.get('EMAIL_FROM') ?? 'TMT <onboarding@resend.dev>';
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ from, to: [to], subject, html }),
+    });
+    if (!res.ok) {
+      console.error('admin-manage: falha ao enviar email', res.status, await res.text().catch(() => ''));
+    }
+  } catch (e) {
+    console.error('admin-manage: exceção ao enviar email', e);
+  }
+}
+
 async function handleApproveReceipt(body: Record<string, unknown>) {
   const { id, reviewed_by } = body;
   if (!id) return errorJson('id em falta.');
@@ -295,25 +361,33 @@ async function handleApproveReceipt(body: Record<string, unknown>) {
 
   if (fetchErr || !receipt) return errorJson('Comprovativo não encontrado.', 404);
 
-  const { error: updateErr } = await supabase
+  // Transição atómica: só quem converte pending→approved notifica o utilizador
+  const { data: transitioned, error: updateErr } = await supabase
     .from('payment_receipts')
     .update({
       status: 'approved',
       reviewed_by: reviewed_by ?? null,
       reviewed_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle();
 
   if (updateErr) return errorJson(updateErr.message, 500);
+  if (!transitioned) {
+    // Outro admin já processou este recibo — nada a fazer
+    return json({ approved: true, alreadyProcessed: true });
+  }
 
-  // Upsert subscription
+  // Upsert subscription — falha já NÃO é silenciosa: sem isto o plano nunca muda
   if (receipt.user_id && receipt.plan) {
     const planName = String(receipt.plan).toLowerCase();
     const now = new Date();
     const periodEnd = new Date(now);
     periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-    await supabase
+    const { error: subError } = await supabase
       .from('subscriptions')
       .upsert(
         {
@@ -325,6 +399,26 @@ async function handleApproveReceipt(body: Record<string, unknown>) {
         },
         { onConflict: 'user_id' },
       );
+
+    if (subError) {
+      return errorJson(`Comprovativo aprovado mas falha ao ativar o plano: ${subError.message}`, 500);
+    }
+  }
+
+  // Notifica o utilizador (apenas quem fez a transição pending→approved)
+  if (receipt.user_id && receipt.plan) {
+    const planLabel = capitalizePlan(receipt.plan) || 'seu plano';
+    await notifyUser(
+      receipt.user_id,
+      'Plano ativado',
+      `O seu pagamento foi aprovado e o plano ${planLabel} está ativo durante 1 mês.`,
+      { receiptId: String(id), plan: String(receipt.plan).toLowerCase() },
+    );
+    void sendUserEmail(
+      receipt.user_email,
+      'TMT - Plano ativado',
+      `<p>Olá,</p><p>O seu pagamento foi aprovado e o plano <strong>${planLabel}</strong> está ativo durante 1 mês.</p><p>Abra a app TMT para começar a usufruir.</p><p>Obrigado,<br/>Equipa TMT</p>`,
+    );
   }
 
   return json({ approved: true });
@@ -334,16 +428,46 @@ async function handleRejectReceipt(body: Record<string, unknown>) {
   const { id, reviewed_by } = body;
   if (!id) return errorJson('id em falta.');
 
-  const { error } = await supabase
+  const { data: receipt, error: fetchErr } = await supabase
+    .from('payment_receipts')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (fetchErr || !receipt) return errorJson('Comprovativo não encontrado.', 404);
+
+  const { data: transitioned, error } = await supabase
     .from('payment_receipts')
     .update({
       status: 'rejected',
       reviewed_by: reviewed_by ?? null,
       reviewed_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle();
 
   if (error) return errorJson(error.message, 500);
+  if (!transitioned) {
+    return json({ rejected: true, alreadyProcessed: true });
+  }
+
+  if (receipt.user_id) {
+    const planLabel = capitalizePlan(receipt.plan) || 'seu plano';
+    await notifyUser(
+      receipt.user_id,
+      'Pedido não aprovado',
+      `O seu pedido do plano ${planLabel} não foi aprovado. Contacte o suporte para mais detalhes.`,
+      { receiptId: String(id), plan: String(receipt.plan).toLowerCase() },
+    );
+    void sendUserEmail(
+      receipt.user_email,
+      'TMT - Pedido não aprovado',
+      `<p>Olá,</p><p>Infelizmente o seu pedido do plano <strong>${planLabel}</strong> não foi aprovado.</p><p>Contacte o suporte para mais detalhes.</p><p>Equipa TMT</p>`,
+    );
+  }
+
   return json({ rejected: true });
 }
 
@@ -383,7 +507,7 @@ async function handleSaveReceipt(body: Record<string, unknown>) {
 
 const EXPO_PUSH_API = 'https://exp.host/--/api/v2/push/send';
 
-async function sendExpoPush(tokens: string[], title: string, body: string, data?: Record<string, unknown>) {
+async function sendExpoPush(tokens: string[], title: string, body: string, data?: Record<string, unknown>, channelId = 'comunidade') {
   const expoToken = Deno.env.get('EXPO_PUSH_ACCESS_TOKEN') ?? '';
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (expoToken) headers['Authorization'] = `Bearer ${expoToken}`;
@@ -395,7 +519,7 @@ async function sendExpoPush(tokens: string[], title: string, body: string, data?
       title,
       body: body.length > 140 ? body.slice(0, 139) + '…' : body,
       sound: 'default',
-      channelId: 'comunidade',
+      channelId,
       ...(data ? { data } : {}),
     }));
     try {

@@ -65,7 +65,7 @@ export function AlarmToggle({
         onPress={toggle}
         style={[styles.button, armed && styles.armed]}>
         <Ionicons
-          name={armed ? 'alarm' : 'alarm-outline'}
+          name={armed ? 'notifications' : 'notifications-outline'}
           size={16}
           color={armed ? Colors.bg : Colors.accent}
         />

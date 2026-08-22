@@ -13,7 +13,8 @@
     "all": "All",
     "trader": "Trader",
     "waiting": "WAIT",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "Not now"
   },
   "tabs": {
     "inicio": "Home",
@@ -67,7 +68,10 @@
     "weekendCryptoAiBody": "On weekends, TMT AI generates BTC and ETH signals for all plans.",
     "errorTitle": "Error loading signals",
     "analytics": "Analytics",
-    "filterSmc": "SMC Setup"
+    "filterSmc": "SMC Setup",
+    "upsellPoint1": "All pairs & timeframes",
+    "upsellPoint2": "Unlimited daily signals",
+    "upsellPoint3": "Real-time push alerts"
   },
   "historico": {
     "allPairs": "All pairs",
@@ -185,7 +189,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "Image upload failed",
+    "imageUploadFailedBody": "We couldn't upload the image. Check your connection and try again.",
+    "liveBadge": "LIVE",
+    "heroTitle": "Live community",
+    "heroSubtitle": "Rooms, signals and traders in real time.",
+    "statsChannels": "{{count}} channels",
+    "statsRooms": "{{count}} active rooms",
+    "channelNoDesc": "No description",
+    "enterRoom": "Join",
+    "dmOnline": "Active now",
+    "dmOffline": "Away",
+    "emptyChannelsHint": "The community is growing — check back soon.",
+    "emptyChannelsHintCreator": "Create the community's first channel.",
+    "emptyPairRoomsHint": "Rooms open automatically with the market session.",
+    "emptyDmsHint": "Find traders in search to start conversations.",
+    "emptyDmsHintPremium": "Tap + above to start a conversation."
   },
   "userProfile": {
     "title": "Profile",
@@ -531,7 +551,14 @@
       "Advanced bankroll management",
       "Personalized bankroll analysis (1:1)",
       "Dedicated 1:1 support"
-    ]
+    ],
+    "capitalSpotTitle": "Professional Capital Management",
+    "capitalSpotDesc": "With Premium, our team manages your capital in the market while you track every result in the app.",
+    "capitalItem1": "Risk per trade set by professional traders",
+    "capitalItem2": "Return target with automatic compound interest",
+    "capitalItem3": "Weekly profit withdrawals",
+    "capitalItem4": "Performance reports and target progress tracking",
+    "capitalCta": "View Capital Management"
   },
   "banca": {
     "title": "Bankroll Management",
@@ -648,7 +675,9 @@
     "delete": "Delete",
     "tradeEntry": "Entry Price",
     "tradeExit": "Exit Price",
-    "exportCsv": "Export CSV"
+    "exportCsv": "Export CSV",
+    "currentPrice": "Current price: {{price}}",
+    "pipsAuto": "Pips calculated automatically"
   },
   "depositos": {
     "title": "Deposits & Withdrawals",
@@ -696,7 +725,9 @@
     "emptyBody": "Boom Time alarms will appear here when you enable them.",
     "enableAlarms": "Enable alarms",
     "manageAlerts": "Manage Alerts",
-    "clearAll": "Clear all"
+    "clearAll": "Clear all",
+    "planProcessing": "Under review",
+    "planPending": "Pending"
   },
   "tour": {
     "skip": "Skip",
@@ -727,6 +758,9 @@
     "upgradeChannelName": "Plans and Offers",
     "upgradeTitle": "Unlock Premium",
     "upgradeBody": "Choose Basic, Pro or Premium and leave the free plan.",
+    "planRequestTitle": "{{plan}} plan — request received",
+    "planRequestBodyAmount": "{{plan}} ({{amount}}) request forwarded. Completion within 24 hours.",
+    "planRequestBody": "Your request is being forwarded to our team. It will be completed within 24 hours.",
     "signalChannelName": "New Signals",
     "signalTitle": "{{emoji}} New {{tier}} Signal: {{pair}} {{type}}",
     "signalBody": "Entry: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -786,7 +820,9 @@
     "suggestion1": "How do the plans work?",
     "suggestion2": "What is Boom Time?",
     "suggestion3": "How do I enable alarms?",
-    "suggestion4": "How do I manage my bankroll?"
+    "suggestion4": "How do I manage my bankroll?",
+    "remainingChat": "Messages left today: {{count}}",
+    "remainingImage": "Analyses left today: {{count}}"
   },
   "planoCrescimento": {
     "title": "Growth Plan",
@@ -809,7 +845,11 @@
   "aiErrors": {
     "contact": "Error contacting support. Try again.",
     "noResponse": "The AI did not return a response.",
-    "connection": "Connection error. Check your internet and try again."
+    "connection": "Connection error. Check your internet and try again.",
+    "auth": "Sign in to use the AI assistant.",
+    "quotaChat": "You reached your plan's daily limit. Upgrade to keep chatting.",
+    "quotaImage": "Image analysis requires a paid plan. Upgrade in the Plans tab.",
+    "quotaBurst": "Too many requests in a row. Wait a few minutes and try again."
   },
   "legal": {
     "termos": "Terms and Conditions",
@@ -901,7 +941,11 @@
       "setupAnalysis": "Setup Analysis",
       "analyzing": "Analyzing your setup...",
       "cameraPermission": "We need gallery access to select images.",
-      "chooseAnother": "Choose another image"
+      "chooseAnother": "Choose another image",
+      "subtitle": "The AI reads your chart and returns trend, zones and a suggestion.",
+      "copyResult": "Copy analysis",
+      "copied": "Copied!",
+      "disclaimer": "Automatic AI analysis. Trading involves risk — always confirm."
     },
     "performanceCard": {
       "title": "PERFORMANCE",
@@ -931,8 +975,8 @@
       "closedHint": "Closed · the cycle restarts tomorrow"
     },
     "alarmToggle": {
-      "active": "Alarm active",
-      "activate": "Enable alarm",
+      "active": "Notifications on",
+      "activate": "Enable notification",
       "hint5min": "We'll notify you 5 min before.",
       "blocked": "Notifications blocked — enable them in the system settings."
     },

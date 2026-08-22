@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
@@ -17,7 +17,7 @@ function PriceChip({
   selected?: string;
   onPressPair?: (pair: string) => void;
 }) {
-  const flashAnim = useRef(new Animated.Value(0)).current;
+  const [flashAnim] = useState(() => new Animated.Value(0));
   const prevPrice = useRef(data.price);
 
   useEffect(() => {

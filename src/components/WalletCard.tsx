@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  balanceValue: { fontSize: 34, color: Colors.text, letterSpacing: 0.5 },
+  balanceValue: { fontSize: 34, lineHeight: 44, color: Colors.text, letterSpacing: 0.5 },
   balanceFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, Badge, Screen } from '@/components/ui';
+import { AppButton, AppText, Badge, Screen } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { PlanCard } from '@/components/PlanCard';
 import { Colors, Spacing } from '@/core/theme';
@@ -40,6 +40,13 @@ type PlanKey =
   | 'planos.featurePremium.4'
   | 'planos.featurePremium.5'
   | 'planos.featurePremium.6'
+  | 'planos.capitalSpotTitle'
+  | 'planos.capitalSpotDesc'
+  | 'planos.capitalItem1'
+  | 'planos.capitalItem2'
+  | 'planos.capitalItem3'
+  | 'planos.capitalItem4'
+  | 'planos.capitalCta'
   | 'planos.trustSecure'
   | 'planos.trustCancel'
   | 'planos.trustSupport'
@@ -94,6 +101,7 @@ const PREMIUM_FEATURES: PlanFeature[] = [
   { text: 'planos.featurePremium.4', included: true },
   { text: 'planos.featurePremium.5', included: true },
   { text: 'planos.featurePremium.6', included: true },
+  { text: 'planos.capitalSpotTitle', included: true },
 ];
 
 const TRUST: { icon: keyof typeof Ionicons.glyphMap; label: PlanKey }[] = [
@@ -237,6 +245,32 @@ export default function PlanosScreen() {
         ))}
       </View>
 
+      <GradientCard
+        colors={[`${Colors.accent}16`, `${Colors.primary}0A`]}
+        style={styles.capital}>
+        <View style={styles.capitalHead}>
+          <View style={styles.capitalIcon}>
+            <Ionicons name="pie-chart" size={20} color={Colors.accent} />
+          </View>
+          <AppText variant="h2" style={{ flex: 1 }}>{tr('planos.capitalSpotTitle')}</AppText>
+        </View>
+        <AppText variant="muted">{tr('planos.capitalSpotDesc')}</AppText>
+        <View style={styles.capitalList}>
+          {([1, 2, 3, 4] as const).map((n) => (
+            <View key={n} style={styles.capitalRow}>
+              <Ionicons name="checkmark-circle" size={15} color={Colors.success} />
+              <AppText variant="small" style={styles.capitalText}>{tr(`planos.capitalItem${n}`)}</AppText>
+            </View>
+          ))}
+        </View>
+        <AppButton
+          title={tr('planos.capitalCta')}
+          variant="gold"
+          onPress={() => router.push('/banca')}
+          loading={loading}
+        />
+      </GradientCard>
+
       <View style={styles.alerts}>
         <AppText variant="h2" style={styles.sectionTitle}>{t('planos.premiumAlerts')}</AppText>
         <View style={styles.alertRow}>
@@ -349,6 +383,25 @@ const styles = StyleSheet.create({
   },
   alerts: { marginTop: Spacing.xs },
   sectionTitle: { textAlign: 'center', marginBottom: Spacing.md },
+  capital: {
+    padding: Spacing.lg,
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  capitalHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  capitalIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: `${Colors.accent}55`,
+    backgroundColor: `${Colors.accent}1F`,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  capitalList: { gap: Spacing.sm },
+  capitalRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  capitalText: { flex: 1, color: Colors.textBody },
   alertRow: { flexDirection: 'row', gap: Spacing.sm },
   alertCard: {
     flex: 1,

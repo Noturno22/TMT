@@ -12,7 +12,8 @@
     "all": "Zote",
     "trader": "Trader",
     "waiting": "SUBIRI",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "Sio sasa"
   },
   "tabs": {
     "inicio": "Mwanzo",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "Mwishoni mwa wiki, AI ya TMT hutoa ishara za BTC na ETH kwa mipango yote.",
     "errorTitle": "Hitilafu wakati wa kupakia ishara",
     "analytics": "Uchambuzi",
-    "filterSmc": "Mpangilio SMC"
+    "filterSmc": "Mpangilio SMC",
+    "upsellPoint1": "Pair zote na timeframes",
+    "upsellPoint2": "Ishara zisizo na kikomo kwa siku",
+    "upsellPoint3": "Taarifa za papo hapo"
   },
   "historico": {
     "allPairs": "Jozi zote",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "Imeshindikana kutuma picha",
+    "imageUploadFailedBody": "Haikuweza kupakia picha. Angalia muunganisho wako na ujaribu tena.",
+    "liveBadge": "MUBASHARA",
+    "heroTitle": "Jumuiya ya moja kwa moja",
+    "heroSubtitle": "Vyumba, ishara na wafanyabiashara papo hapo.",
+    "statsChannels": "Channeli {{count}}",
+    "statsRooms": "Vyumba {{count}} vinavyofanya kazi",
+    "channelNoDesc": "Hakuna maelezo",
+    "enterRoom": "Jiunge",
+    "dmOnline": "Yupo mtandaoni",
+    "dmOffline": "Hayupo",
+    "emptyChannelsHint": "Jumuiya inakua — rudi hivi karibuni.",
+    "emptyChannelsHintCreator": "Unda chaneli ya kwanza ya jumuiya.",
+    "emptyPairRoomsHint": "Vyumba hufunguka kiotomatiki na kipindi cha soko.",
+    "emptyDmsHint": "Tafuta wafanyabiashara kuanza mazungumzo.",
+    "emptyDmsHintPremium": "Gusa + hapo juu kuanza mazungumzo."
   },
   "userProfile": {
     "title": "Wasifu",
@@ -256,7 +276,9 @@
     "delete": "Futa",
     "tradeEntry": "Bei ya Kuingia",
     "tradeExit": "Bei ya Kutoka",
-    "exportCsv": "Hamisha CSV"
+    "exportCsv": "Hamisha CSV",
+    "currentPrice": "Bei ya sasa: {{price}}",
+    "pipsAuto": "Pips zinahesabiwa kiotomatiki"
   },
   "language": {
     "title": "Lugha"
@@ -474,7 +496,14 @@
       "Usimamizi wa mtaji wa hali ya juu",
       "Uchambuzi maalum wa mtaji (1:1)",
       "Msaada maalum 1:1"
-    ]
+    ],
+    "capitalSpotTitle": "Usimamizi wa Kitaalamu wa Mtaji",
+    "capitalSpotDesc": "Kwa Premium, timu yetu inasimamia mtaji wako sokoni nayo unafuatilia kila matokeo kwenye programu.",
+    "capitalItem1": "Hatari kwa biashara imewekwa na wafanyabiashara wa kitaalamu",
+    "capitalItem2": "Lengo la marejesho kwa riba tata ya kiotomatiki",
+    "capitalItem3": "Kutoa faida kila wiki",
+    "capitalItem4": "Ripoti za utendaji na maendeleo ya lengo",
+    "capitalCta": "Ona Usimamizi wa Mtaji"
   },
   "capital": {
     "title": "Usimamizi wa Mtaji",
@@ -574,7 +603,9 @@
     "emptyBody": "Kengele za Saa ya Boom zinaonekana hapa utakapoziwasha.",
     "enableAlarms": "Washa kengele",
     "manageAlerts": "Dhibiti Tahadhari",
-    "clearAll": "Futa yote"
+    "clearAll": "Futa yote",
+    "planProcessing": "Inachakatwa",
+    "planPending": "Inasubiri"
   },
   "tour": {
     "skip": "Ruka",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "Mipango na Ofa",
     "upgradeTitle": "Fungua Premium",
     "upgradeBody": "Chagua Basic, Pro au Premium na uondoke kwenye mpango wa bure.",
+    "planRequestTitle": "Mpango wa {{plan}} — ombi limewasili",
+    "planRequestBodyAmount": "Ombi la {{plan}} ({{amount}}) limewasilishwa. Litakamilika ndani ya saa 24.",
+    "planRequestBody": "Ombi lako linapelekwa kwa timu. Litakamilika ndani ya saa 24.",
     "signalChannelName": "Ishara Mpya",
     "signalTitle": "{{emoji}} Ishara Mpya {{tier}}: {{pair}} {{type}}",
     "signalBody": "Entry: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "Habari za mchana",
       "evening": "Habari za jioni",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "Chambua setup",
+      "setupAnalysis": "Uchambuzi wa Setup",
+      "analyzing": "Inachambua setup yako...",
+      "cameraPermission": "Tunahitaji ruhusa ya matunzio kuchagua picha.",
+      "chooseAnother": "Chagua picha nyingine",
+      "subtitle": "AI husoma chati yako na kurudisha mwelekeo, maeneo na pendekezo.",
+      "copyResult": "Nakili uchambuzi",
+      "copied": "Imenakiliwa!",
+      "disclaimer": "Uchambuzi wa kiotomatiki wa AI. Biashara ina hatari — thibitisha kila wakati."
     },
     "performanceCard": {
       "title": "UTENDAJI",
@@ -804,8 +847,8 @@
       "closedHint": "Imefungwa · mzunguko unaanza tena kesho"
     },
     "alarmToggle": {
-      "active": "Kengele imewashwa",
-      "activate": "Washa kengele",
+      "active": "Taarifa imewashwa",
+      "activate": "Washa taarifa",
       "hint5min": "Tunakujulisha dk 5 kabla.",
       "blocked": "Arifa zimezuiwa — washa kwenye mipangilio ya mfumo."
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "Bidhaa",
     "statsFree": "Bure",
     "statsRating": "Kadirio",

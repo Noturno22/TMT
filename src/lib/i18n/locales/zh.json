@@ -12,7 +12,8 @@
     "all": "全部",
     "trader": "交易员",
     "waiting": "等待中",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "暂不"
   },
   "tabs": {
     "inicio": "首页",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "周末时，TMT 的 AI 会为所有套餐生成 BTC 和 ETH 信号。",
     "errorTitle": "加载信号出错",
     "analytics": "分析",
-    "filterSmc": "SMC 设置"
+    "filterSmc": "SMC 设置",
+    "upsellPoint1": "所有交易对与时间周期",
+    "upsellPoint2": "每日无限信号",
+    "upsellPoint3": "实时推送提醒"
   },
   "historico": {
     "allPairs": "所有货币对",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "图片上传失败",
+    "imageUploadFailedBody": "无法上传图片，请检查网络后重试。",
+    "liveBadge": "直播中",
+    "heroTitle": "实时社区",
+    "heroSubtitle": "房间、信号与交易者，实时在线。",
+    "statsChannels": "{{count}} 个频道",
+    "statsRooms": "{{count}} 个活跃房间",
+    "channelNoDesc": "暂无描述",
+    "enterRoom": "进入",
+    "dmOnline": "当前活跃",
+    "dmOffline": "离开",
+    "emptyChannelsHint": "社区正在成长——请稍后再来。",
+    "emptyChannelsHintCreator": "创建社区的第一个频道。",
+    "emptyPairRoomsHint": "房间会随市场时段自动开放。",
+    "emptyDmsHint": "在搜索中找到交易者开始对话。",
+    "emptyDmsHintPremium": "点击上方 + 开始对话。"
   },
   "userProfile": {
     "title": "个人资料",
@@ -256,7 +276,9 @@
     "delete": "删除",
     "tradeEntry": "入场价格",
     "tradeExit": "出场价格",
-    "exportCsv": "导出 CSV"
+    "exportCsv": "导出 CSV",
+    "currentPrice": "当前价格：{{price}}",
+    "pipsAuto": "自动计算点数"
   },
   "language": {
     "title": "语言"
@@ -474,7 +496,14 @@
       "高级资金管理",
       "个性化资金分析 (1:1)",
       "1:1 专属支持"
-    ]
+    ],
+    "capitalSpotTitle": "专业资金管理",
+    "capitalSpotDesc": "使用Premium，我们的团队在市场上管理您的资金，您可在应用中跟踪每个结果。",
+    "capitalItem1": "每笔交易的风险由专业交易员设定",
+    "capitalItem2": "收益目标支持自动复利",
+    "capitalItem3": "每周提取利润",
+    "capitalItem4": "业绩报告与目标进度跟踪",
+    "capitalCta": "查看资金管理"
   },
   "banca": {
     "title": "资金管理",
@@ -574,7 +603,9 @@
     "emptyBody": "启用后，Boom 时间闹钟将显示在这里。",
     "enableAlarms": "启用闹钟",
     "manageAlerts": "管理提醒",
-    "clearAll": "全部清除"
+    "clearAll": "全部清除",
+    "planProcessing": "审核中",
+    "planPending": "待处理"
   },
   "tour": {
     "skip": "跳过",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "套餐与优惠",
     "upgradeTitle": "解锁 Premium",
     "upgradeBody": "选择 Basic、Pro 或 Premium，脱离免费套餐。",
+    "planRequestTitle": "{{plan}} 套餐——已收到申请",
+    "planRequestBodyAmount": "已提交 {{plan}}（{{amount}}）申请，将在24小时内完成。",
+    "planRequestBody": "您的申请正在转交团队处理，将在24小时内完成。",
     "signalChannelName": "新信号",
     "signalTitle": "{{emoji}} 新信号 {{tier}}: {{pair}} {{type}}",
     "signalBody": "入场: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "下午好",
       "evening": "晚上好",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "分析交易形态",
+      "setupAnalysis": "交易形态分析",
+      "analyzing": "正在分析你的形态...",
+      "cameraPermission": "需要访问相册以选择图片。",
+      "chooseAnother": "选择其他图片",
+      "subtitle": "AI 读取你的图表并给出趋势、区域和建议。",
+      "copyResult": "复制分析",
+      "copied": "已复制！",
+      "disclaimer": "AI 自动分析，交易有风险，请务必自行确认。"
     },
     "performanceCard": {
       "title": "表现",
@@ -804,8 +847,8 @@
       "closedHint": "已结束 · 周期将于明天重新开始"
     },
     "alarmToggle": {
-      "active": "闹钟已启用",
-      "activate": "启用闹钟",
+      "active": "通知已开启",
+      "activate": "开启通知",
       "hint5min": "我们会在开始前 5 分钟通知你。",
       "blocked": "通知已被阻止 — 请在系统设置中启用。"
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "产品",
     "statsFree": "免费",
     "statsRating": "评分",

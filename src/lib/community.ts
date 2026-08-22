@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 
 export async function findOrCreateConversation(
@@ -64,16 +65,23 @@ export async function uploadCommunityImage(
   uri: string,
   mimeType: string,
 ): Promise<string | null> {
-  const ext = (uri.split('.').pop() || 'jpg').toLowerCase();
-  const name = `img-${Date.now()}.${ext}`;
-  const path = `community/${userId}/${name}`;
-  const form = new FormData();
-  form.append('file', { uri, name, type: mimeType } as any);
-  const { error } = await supabase.storage
-    .from('community')
-    .upload(path, form as any, { contentType: mimeType, upsert: false });
-  if (error) return null;
-  return supabase.storage.from('community').getPublicUrl(path).data.publicUrl;
+  try {
+    const ext = (uri.split('.').pop() || 'jpg').toLowerCase();
+    const name = `img-${Date.now()}.${ext}`;
+    const path = `community/${userId}/${name}`;
+    const file = new File(uri);
+    const { error } = await supabase.storage
+      .from('community')
+      .upload(path, file, { contentType: mimeType || 'image/jpeg', upsert: false });
+    if (error) {
+      console.warn('[uploadCommunityImage] Supabase error:', error.message);
+      return null;
+    }
+    return supabase.storage.from('community').getPublicUrl(path).data.publicUrl;
+  } catch (err: any) {
+    console.warn('[uploadCommunityImage] Exception:', err);
+    return null;
+  }
 }
 
 export async function reportMessage(messageId: string, reason: string, details?: string): Promise<void> {

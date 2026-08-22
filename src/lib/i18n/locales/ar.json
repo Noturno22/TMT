@@ -12,7 +12,8 @@
     "all": "الكل",
     "trader": "متداوِل",
     "waiting": "انتظار",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "ليس الآن"
   },
   "tabs": {
     "inicio": "الرئيسية",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "في عطلة نهاية الأسبوع، يولد ذكاء TMT الاصطناعي إشارات BTC وETH لجميع الخطط.",
     "errorTitle": "خطأ في تحميل الإشارات",
     "analytics": "تحليلات",
-    "filterSmc": "إعداد SMC"
+    "filterSmc": "إعداد SMC",
+    "upsellPoint1": "جميع الأزواج والأطر الزمنية",
+    "upsellPoint2": "إشارات غير محدودة يوميًا",
+    "upsellPoint3": "تنبيهات فورية في الوقت الحقيقي"
   },
   "historico": {
     "allPairs": "جميع الأزواج",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "فشل تحميل الصورة",
+    "imageUploadFailedBody": "تعذّر رفع الصورة. تحقّق من اتصالك وحاول مرة أخرى.",
+    "liveBadge": "مباشر",
+    "heroTitle": "مجتمع مباشر",
+    "heroSubtitle": "غرف وإشارات ومتداولون في الوقت الفعلي.",
+    "statsChannels": "{{count}} قنوات",
+    "statsRooms": "{{count}} غرف نشطة",
+    "channelNoDesc": "لا يوجد وصف",
+    "enterRoom": "انضم",
+    "dmOnline": "نشط الآن",
+    "dmOffline": "بعيد",
+    "emptyChannelsHint": "المجتمع ينمو — عد قريباً.",
+    "emptyChannelsHintCreator": "أنشئ أول قناة للمجتمع.",
+    "emptyPairRoomsHint": "تفتح الغرف تلقائياً مع جلسة السوق.",
+    "emptyDmsHint": "ابحث عن متداولين لبدء المحادثات.",
+    "emptyDmsHintPremium": "اضغط + في الأعلى لبدء محادثة."
   },
   "userProfile": {
     "title": "الملف الشخصي",
@@ -256,7 +276,9 @@
     "delete": "حذف",
     "tradeEntry": "سعر الدخول",
     "tradeExit": "سعر الخروج",
-    "exportCsv": "تصدير CSV"
+    "exportCsv": "تصدير CSV",
+    "currentPrice": "السعر الحالي: {{price}}",
+    "pipsAuto": "يتم حساب النقاط تلقائياً"
   },
   "language": {
     "title": "اللغة"
@@ -474,7 +496,14 @@
       "إدارة رأس مال متقدمة",
       "تحليل رأس مال مخصص (1:1)",
       "دعم مخصص 1:1"
-    ]
+    ],
+    "capitalSpotTitle": "إدارة رأس المال الاحترافية",
+    "capitalSpotDesc": "مع Premium، يدير فريقنا رأس مالك في السوق وتتابع كل نتيجة في التطبيق.",
+    "capitalItem1": "مخاطرة كل صفقة يحددها متداولون محترفون",
+    "capitalItem2": "هدف العائد مع فوائد مركبة تلقائية",
+    "capitalItem3": "سحب الأرباح أسبوعياً",
+    "capitalItem4": "تقارير الأداء ومتابعة تقدم الهدف",
+    "capitalCta": "عرض إدارة رأس المال"
   },
   "banca": {
     "title": "إدارة رأس المال",
@@ -574,7 +603,9 @@
     "emptyBody": "ستظهر تنبيهات ساعة الـ Boom هنا عند تفعيلها.",
     "enableAlarms": "تفعيل التنبيهات",
     "manageAlerts": "إدارة التنبيهات",
-    "clearAll": "مسح الكل"
+    "clearAll": "مسح الكل",
+    "planProcessing": "قيد المراجعة",
+    "planPending": "قيد الانتظار"
   },
   "tour": {
     "skip": "تخطي",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "الخطط والعروض",
     "upgradeTitle": "ألغِ قفل Premium",
     "upgradeBody": "اختر Basic أو Pro أو Premium واخرج من الخطة المجانية.",
+    "planRequestTitle": "خطة {{plan}} — تم استلام الطلب",
+    "planRequestBodyAmount": "تم إحالة طلب {{plan}} ({{amount}})، وسيكتمل خلال 24 ساعة كحد أقصى.",
+    "planRequestBody": "يتم إحالة طلبك إلى الفريق، وسيكتمل خلال 24 ساعة كحد أقصى.",
     "signalChannelName": "إشارات جديدة",
     "signalTitle": "{{emoji}} إشارة جديدة {{tier}}: {{pair}} {{type}}",
     "signalBody": "الدخول: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "مساء الخير",
       "evening": "مساء الخير",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "تحليل نمط التداول",
+      "setupAnalysis": "تحليل النمط",
+      "analyzing": "جارٍ تحليل نمطك...",
+      "cameraPermission": "نحتاج إلى الوصول إلى المعرض لاختيار الصور.",
+      "chooseAnother": "اختر صورة أخرى",
+      "subtitle": "يقرأ الذكاء الاصطناعي الرسم البياني ويحدد الاتجاه والمناطق والتوصية.",
+      "copyResult": "نسخ التحليل",
+      "copied": "تم النسخ!",
+      "disclaimer": "تحليل تلقائي بالذكاء الاصطناعي. التداول ينطوي على مخاطر — تحقق دائماً."
     },
     "performanceCard": {
       "title": "الأداء",
@@ -804,8 +847,8 @@
       "closedHint": "مغلق · تعود الدورة غداً"
     },
     "alarmToggle": {
-      "active": "التنبيه نشط",
-      "activate": "تفعيل التنبيه",
+      "active": "الإشعار مفعّل",
+      "activate": "تفعيل الإشعار",
       "hint5min": "نخطرك قبل 5 دقائق.",
       "blocked": "الإشعارات محظورة — فعّلها في إعدادات النظام."
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "المنتجات",
     "statsFree": "مجاني",
     "statsRating": "التقييم",

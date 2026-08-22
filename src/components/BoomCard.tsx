@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { File } from 'expo-file-system';
 import type { BoomComment, BoomTime, BoomVote } from '@/core/types';
 import { getBoomStatus, boomCountdown } from '@/core/booms';
 import { formatDateTimeWAT, timeAgo, displayName, avatarLetter } from '@/core/format';
@@ -108,17 +109,18 @@ export function BoomCard({
     const path = `comments/${user.id}/${Date.now()}.${ext}`;
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append('file', {
-        uri: audio.uri,
-        name: path.split('/').pop(),
-        type: audio.mimeType,
-      } as any);
+      const file = new File(audio.uri);
       const { error } = await supabase.storage
         .from('comments-audio')
-        .upload(path, form as any, { contentType: audio.mimeType, upsert: false });
-      if (error) return null;
+        .upload(path, file, { contentType: audio.mimeType || 'audio/m4a', upsert: false });
+      if (error) {
+        console.warn('[uploadAudio] Supabase error:', error.message);
+        return null;
+      }
       return supabase.storage.from('comments-audio').getPublicUrl(path).data.publicUrl;
+    } catch (err: any) {
+      console.warn('[uploadAudio] Exception:', err);
+      return null;
     } finally {
       setUploading(false);
     }
@@ -286,7 +288,7 @@ const styles = StyleSheet.create({
   cover: { height: 160, borderRadius: 12, width: '100%' },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  countdown: { fontSize: 22, color: Colors.accent, fontWeight: '700', letterSpacing: 1 },
+  countdown: { fontSize: 22, lineHeight: 30, color: Colors.accent, fontWeight: '700', letterSpacing: 1 },
   resultRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   voteArea: { gap: Spacing.sm },
   voteRow: { flexDirection: 'row', gap: Spacing.sm },

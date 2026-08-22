@@ -12,7 +12,8 @@
     "all": "すべて",
     "trader": "トレーダー",
     "waiting": "待機中",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "今はしない"
   },
   "tabs": {
     "inicio": "ホーム",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "週末はTMTのAIが全プラン向けにBTCとETHのシグナルを生成します。",
     "errorTitle": "シグナルの読み込みエラー",
     "analytics": "分析",
-    "filterSmc": "SMC セットアップ"
+    "filterSmc": "SMC セットアップ",
+    "upsellPoint1": "すべてのペアと時間足",
+    "upsellPoint2": "1日のシグナル無制限",
+    "upsellPoint3": "リアルタイムのプッシュ通知"
   },
   "historico": {
     "allPairs": "全ペア",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "画像のアップロードに失敗しました",
+    "imageUploadFailedBody": "画像をアップロードできませんでした。接続を確認してもう一度お試しください。",
+    "liveBadge": "ライブ",
+    "heroTitle": "ライブコミュニティ",
+    "heroSubtitle": "ルーム・シグナル・トレーダーがリアルタイムで。",
+    "statsChannels": "{{count}} チャンネル",
+    "statsRooms": "アクティブルーム {{count}}",
+    "channelNoDesc": "説明なし",
+    "enterRoom": "参加",
+    "dmOnline": "オンライン",
+    "dmOffline": "退席中",
+    "emptyChannelsHint": "コミュニティは成長中です。また後でご覧ください。",
+    "emptyChannelsHintCreator": "コミュニティの最初のチャンネルを作成しましょう。",
+    "emptyPairRoomsHint": "ルームはマーケットセッションで自動的に開きます。",
+    "emptyDmsHint": "検索でトレーダーを見つけて会話を始めましょう。",
+    "emptyDmsHintPremium": "上部の + をタップして会話を始めましょう。"
   },
   "userProfile": {
     "title": "プロフィール",
@@ -256,7 +276,9 @@
     "delete": "削除",
     "tradeEntry": "エントリー価格",
     "tradeExit": "エグジット価格",
-    "exportCsv": "CSVをエクスポート"
+    "exportCsv": "CSVをエクスポート",
+    "currentPrice": "現在価格: {{price}}",
+    "pipsAuto": "pipsは自動計算されます"
   },
   "language": {
     "title": "言語"
@@ -474,7 +496,14 @@
       "高度な資金管理",
       "カスタマイズ資金分析（1:1）",
       "専用1:1サポート"
-    ]
+    ],
+    "capitalSpotTitle": "プロフェッショナルな資金管理",
+    "capitalSpotDesc": "Premiumでは、私たちのチームが市場で資金を運用し、すべての結果をアプリで追跡できます。",
+    "capitalItem1": "1トレードあたりのリスクをプロが設定",
+    "capitalItem2": "自動複利でリターン目標を達成",
+    "capitalItem3": "週次で利益を出金可能",
+    "capitalItem4": "パフォーマンスレポートと目標進捗",
+    "capitalCta": "資金管理を見る"
   },
   "banca": {
     "title": "資金管理",
@@ -574,7 +603,9 @@
     "emptyBody": "ブーム時刻のアラームを有効にすると、ここに表示されます。",
     "enableAlarms": "アラームを有効にする",
     "manageAlerts": "アラートを管理",
-    "clearAll": "すべてクリア"
+    "clearAll": "すべてクリア",
+    "planProcessing": "審査中",
+    "planPending": "保留中"
   },
   "tour": {
     "skip": "スキップ",
@@ -605,6 +636,9 @@
     "upgradeChannelName": "プランとオファー",
     "upgradeTitle": "プレミアムをアンロック",
     "upgradeBody": "Basic、Pro、Premiumから選んで、無料プランからアップグレードしましょう。",
+    "planRequestTitle": "{{plan}}プラン — リクエストを受付ました",
+    "planRequestBodyAmount": "{{plan}}（{{amount}}）のリクエストを送信しました。24時間以内に完了します。",
+    "planRequestBody": "リクエストをチームに転送しています。24時間以内に完了します。",
     "signalChannelName": "新しいシグナル",
     "signalTitle": "{{emoji}} 新しいシグナル {{tier}}: {{pair}} {{type}}",
     "signalBody": "エントリー: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -774,7 +808,16 @@
       "afternoon": "こんにちは",
       "evening": "こんばんは",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "セットアップを分析",
+      "setupAnalysis": "セットアップ分析",
+      "analyzing": "セットアップを分析中...",
+      "cameraPermission": "画像を選択するにはギャラリーへのアクセスが必要です。",
+      "chooseAnother": "別の画像を選択",
+      "subtitle": "AIがチャートを読み取り、トレンド・ゾーン・提案を返します。",
+      "copyResult": "分析をコピー",
+      "copied": "コピーしました！",
+      "disclaimer": "AIによる自動分析です。取引にはリスクがあります。必ず確認してください。"
     },
     "performanceCard": {
       "title": "パフォーマンス",
@@ -804,8 +847,8 @@
       "closedHint": "終了しました · サイクルは明日再開します"
     },
     "alarmToggle": {
-      "active": "アラーム有効",
-      "activate": "アラームを有効にする",
+      "active": "通知オン",
+      "activate": "通知をオンにする",
       "hint5min": "5分前に通知します。",
       "blocked": "通知がブロックされています — システム設定で有効にしてください。"
     },
@@ -886,8 +929,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "商品",
     "statsFree": "無料",
     "statsRating": "評価",

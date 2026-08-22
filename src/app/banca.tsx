@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   hero: { gap: Spacing.sm, marginBottom: Spacing.md },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   heroEyebrow: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', letterSpacing: 1 },
-  heroValue: { fontSize: 36, color: Colors.text, letterSpacing: 0.5 },
+  heroValue: { fontSize: 36, lineHeight: 46, color: Colors.text, letterSpacing: 0.5 },
   heroFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   pill: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.xs,

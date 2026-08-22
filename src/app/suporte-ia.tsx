@@ -47,6 +47,7 @@ export default function SuporteIaScreen() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(null);
   const listRef = useRef<FlatList<AiMessage>>(null);
 
   useEffect(() => {
@@ -85,6 +86,7 @@ export default function SuporteIaScreen() {
         setError(result.error);
       } else {
         setMessages([...next, { role: 'model', text: result.reply }]);
+        setRemaining(result.remainingChat ?? null);
       }
       setSending(false);
     },
@@ -117,9 +119,15 @@ export default function SuporteIaScreen() {
             </LinearGradient>
             <View style={styles.headerText}>
               <AppText variant="h2">{t('suporteIa.title')}</AppText>
-              <AppText variant="small" style={{ color: Colors.textMuted }}>
-                {t('suporteIa.subtitle')}
-              </AppText>
+              {remaining !== null ? (
+                <AppText variant="small" style={{ color: Colors.textMuted }}>
+                  {t('suporteIa.remainingChat', { count: remaining })}
+                </AppText>
+              ) : (
+                <AppText variant="small" style={{ color: Colors.textMuted }}>
+                  {t('suporteIa.subtitle')}
+                </AppText>
+              )}
             </View>
             <Pressable
               onPress={clearChat}

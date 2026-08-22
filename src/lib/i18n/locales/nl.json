@@ -12,7 +12,8 @@
     "all": "Alles",
     "trader": "Trader",
     "waiting": "WACHTEN",
-    "permission": "Permission"
+    "permission": "Permission",
+    "notNow": "Niet nu"
   },
   "tabs": {
     "inicio": "Home",
@@ -61,7 +62,10 @@
     "weekendCryptoAiBody": "In het weekend genereert TMT AI BTC- en ETH-signalen voor alle abonnementen.",
     "errorTitle": "Fout bij het laden van signalen",
     "analytics": "Analyse",
-    "filterSmc": "SMC Setup"
+    "filterSmc": "SMC Setup",
+    "upsellPoint1": "Alle paren & timeframes",
+    "upsellPoint2": "Onbeperkte signalen per dag",
+    "upsellPoint3": "Realtime pushmeldingen"
   },
   "historico": {
     "allPairs": "Alle paren",
@@ -176,7 +180,23 @@
     "channelCreate": "Create Channel",
     "channelCreating": "Creating channel…",
     "channelCreated": "Channel created successfully!",
-    "channelCreateFailed": "Failed to create channel"
+    "channelCreateFailed": "Failed to create channel",
+    "imageUploadFailedTitle": "Uploaden van afbeelding mislukt",
+    "imageUploadFailedBody": "De afbeelding kon niet worden geüpload. Controleer je verbinding en probeer het opnieuw.",
+    "liveBadge": "LIVE",
+    "heroTitle": "Live community",
+    "heroSubtitle": "Kamers, signalen en traders in realtime.",
+    "statsChannels": "{{count}} kanalen",
+    "statsRooms": "{{count}} actieve kamers",
+    "channelNoDesc": "Geen beschrijving",
+    "enterRoom": "Deelnemen",
+    "dmOnline": "Nu actief",
+    "dmOffline": "Afwezig",
+    "emptyChannelsHint": "De community groeit — kom snel terug.",
+    "emptyChannelsHintCreator": "Maak het eerste kanaal van de community.",
+    "emptyPairRoomsHint": "Kamers openen automatisch met de marktsessie.",
+    "emptyDmsHint": "Vind traders via zoeken om gesprekken te starten.",
+    "emptyDmsHintPremium": "Tik hierboven op + om een gesprek te starten."
   },
   "userProfile": {
     "title": "Profiel",
@@ -255,7 +275,9 @@
     "delete": "Verwijderen",
     "tradeEntry": "Instapprijs",
     "tradeExit": "Uitstapprijs",
-    "exportCsv": "CSV exporteren"
+    "exportCsv": "CSV exporteren",
+    "currentPrice": "Huidige prijs: {{price}}",
+    "pipsAuto": "Pips automatisch berekend"
   },
   "capital": {
     "title": "Kapitaalbeheer",
@@ -504,7 +526,14 @@
       "Geavanceerd bankrollbeheer",
       "Persoonlijke bankrollanalyse (1:1)",
       "Dedicated 1:1-support"
-    ]
+    ],
+    "capitalSpotTitle": "Professioneel Kapitaalbeheer",
+    "capitalSpotDesc": "Met Premium beheert ons team je kapitaal op de markt terwijl je elk resultaat in de app volgt.",
+    "capitalItem1": "Risico per trade vastgesteld door professionele traders",
+    "capitalItem2": "Rendementsdoel met automatisch samengestelde rente",
+    "capitalItem3": "Wekelijkse winstopnames",
+    "capitalItem4": "Prestatierapporten en voortgang van je doel",
+    "capitalCta": "Bekijk Kapitaalbeheer"
   },
   "banca": {
     "title": "Bankrollbeheer",
@@ -573,7 +602,9 @@
     "emptyBody": "De Boom-tijd alarmen verschijnen hier wanneer je ze activeert.",
     "enableAlarms": "Alarmen activeren",
     "manageAlerts": "Alerts beheren",
-    "clearAll": "Alles wissen"
+    "clearAll": "Alles wissen",
+    "planProcessing": "Wordt beoordeeld",
+    "planPending": "In behandeling"
   },
   "tour": {
     "skip": "Overslaan",
@@ -604,6 +635,9 @@
     "upgradeChannelName": "Abonnementen en aanbiedingen",
     "upgradeTitle": "Ontgrendel Premium",
     "upgradeBody": "Kies Basic, Pro of Premium en verlaat het gratis abonnement.",
+    "planRequestTitle": "{{plan}}-abonnement — aanvraag ontvangen",
+    "planRequestBodyAmount": "{{plan}}-aanvraag ({{amount}}) doorgestuurd. Afronding binnen 24 uur.",
+    "planRequestBody": "Je aanvraag wordt doorgestuurd naar het team. Deze wordt binnen 24 uur afgerond.",
     "signalChannelName": "Nieuwe Signalen",
     "signalTitle": "{{emoji}} Nieuw signaal {{tier}}: {{pair}} {{type}}",
     "signalBody": "Entry: {{entry}} | SL: {{sl}} | TP: {{tp}} {{rr}}{{expires}}",
@@ -773,7 +807,16 @@
       "afternoon": "Goedemiddag",
       "evening": "Goedenavond",
       "appName": "The Magic Trader",
-      "pro": "PRO"
+      "pro": "PRO",
+      "scanSetup": "Setup analyseren",
+      "setupAnalysis": "Setup-analyse",
+      "analyzing": "Je setup wordt geanalyseerd...",
+      "cameraPermission": "We hebben toegang tot je galerij nodig om afbeeldingen te kiezen.",
+      "chooseAnother": "Andere afbeelding kiezen",
+      "subtitle": "De AI leest je grafiek en geeft trend, zones en een suggestie.",
+      "copyResult": "Analyse kopiëren",
+      "copied": "Gekopieerd!",
+      "disclaimer": "Automatische AI-analyse. Traden brengt risico's mee — controleer altijd."
     },
     "performanceCard": {
       "title": "PRESTATIE",
@@ -803,8 +846,8 @@
       "closedHint": "Gesloten · de cyclus begint morgen opnieuw"
     },
     "alarmToggle": {
-      "active": "Alarm actief",
-      "activate": "Alarm activeren",
+      "active": "Melding aan",
+      "activate": "Melding inschakelen",
       "hint5min": "We waarschuwen je 5 min van tevoren.",
       "blocked": "Meldingen geblokkeerd — schakel ze in via de systeeminstellingen."
     },
@@ -885,8 +928,7 @@
     "free": "Grátis",
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
-    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
-  ,
+    "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?",
     "statsProducts": "Producten",
     "statsFree": "Gratis",
     "statsRating": "Beoordeling",

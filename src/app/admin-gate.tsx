@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -74,37 +74,41 @@ export default function AdminGateScreen() {
           resizeMode="contain"
         />
         <View pointerEvents="none" style={styles.aura} />
-        <SafeAreaView style={styles.safe}>
-          <View style={styles.wrap}>
-            <View style={styles.iconWrap}>
-              <Ionicons name="shield-checkmark" size={34} color={Colors.accent} />
-            </View>
-            <AppText variant="h1" style={styles.title}>{t('admin.gateTitle')}</AppText>
-            <AppText variant="muted" style={styles.subtitle}>{t('admin.gateSubtitle')}</AppText>
-
-            <AppInput
-              label={t('admin.gateCodeLabel')}
-              value={code}
-              onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
-              placeholder="••••••"
-              keyboardType="number-pad"
-              secureTextEntry
-              maxLength={6}
-              autoFocus
-              onSubmitEditing={submit}
-              icon={<Ionicons name="keypad-outline" size={18} color={Colors.textMuted} />}
-            />
-
-            {error ? (
-              <View style={styles.errorBox}>
-                <Ionicons name="alert-circle" size={16} color={Colors.destructive} />
-                <AppText style={styles.errorText}>{error}</AppText>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <SafeAreaView style={styles.safe}>
+            <View style={styles.wrap}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="shield-checkmark" size={34} color={Colors.accent} />
               </View>
-            ) : null}
+              <AppText variant="h1" style={styles.title}>{t('admin.gateTitle')}</AppText>
+              <AppText variant="muted" style={styles.subtitle}>{t('admin.gateSubtitle')}</AppText>
 
-            <AppButton title={t('admin.gateCta')} loading={busy} style={styles.cta} onPress={submit} />
-          </View>
-        </SafeAreaView>
+              <AppInput
+                label={t('admin.gateCodeLabel')}
+                value={code}
+                onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))}
+                placeholder="••••••"
+                keyboardType="number-pad"
+                secureTextEntry
+                maxLength={6}
+                autoFocus
+                onSubmitEditing={submit}
+                icon={<Ionicons name="keypad-outline" size={18} color={Colors.textMuted} />}
+              />
+
+              {error ? (
+                <View style={styles.errorBox}>
+                  <Ionicons name="alert-circle" size={16} color={Colors.destructive} />
+                  <AppText style={styles.errorText}>{error}</AppText>
+                </View>
+              ) : null}
+
+              <AppButton title={t('admin.gateCta')} loading={busy} style={styles.cta} onPress={submit} />
+            </View>
+          </SafeAreaView>
+        </KeyboardAvoidingView>
       </LinearGradient>
     </View>
   );
@@ -121,6 +125,7 @@ const styles = StyleSheet.create({
     height: undefined,
   },
   safe: { flex: 1 },
+  flex: { flex: 1 },
   aura: {
     position: 'absolute',
     top: -160,

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppText, Screen } from '@/components/ui';
@@ -29,7 +29,9 @@ export default function DmScreen() {
   return (
     <Screen scroll={false}>
       <Stack.Screen options={{ title: otherName || '…' }} />
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <MessageList
           messages={messages.messages}
           reactions={messages.reactions}
@@ -38,6 +40,7 @@ export default function DmScreen() {
           currentUserId={user?.id ?? null}
           hasOlder={messages.hasOlder}
           loadingOlder={messages.loadingOlder}
+          loading={messages.loading || (!dm && conversations.loading)}
           error={messages.error}
           onLoadOlder={messages.loadOlder}
           onToggleReaction={messages.toggleReaction}
@@ -52,8 +55,8 @@ export default function DmScreen() {
           profiles={profiles.profiles}
           currentUserId={user?.id ?? null}
         />
-      </View>
-      {!dm && !conversations.loading ? (
+      </KeyboardAvoidingView>
+      {!dm && !conversations.loading && !messages.loading ? (
         <AppText style={styles.missing}>{t('workspace.emptyDms')}</AppText>
       ) : null}
     </Screen>

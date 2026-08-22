@@ -274,9 +274,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heroTimeRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.sm },
-  heroTime: { fontSize: 44, fontWeight: '800', color: Colors.accent },
+  heroTime: { fontSize: 44, lineHeight: 56, fontWeight: '800', color: Colors.accent },
   heroCountdown: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing.sm },
-  heroCd: { fontSize: 24, fontWeight: '800', color: Colors.text, letterSpacing: 1 },
+  heroCd: { fontSize: 24, lineHeight: 32, fontWeight: '800', color: Colors.text, letterSpacing: 1 },
   pairs: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
   pairChip: {
     backgroundColor: `${Colors.success}1A`,
@@ -304,8 +304,8 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   clockCol: { flex: 1, gap: 2 },
-  clockValue: { fontSize: 22, fontWeight: '800', color: Colors.primary },
-  clockValueMuted: { fontSize: 22, fontWeight: '800', color: Colors.textMuted },
+  clockValue: { fontSize: 22, lineHeight: 30, fontWeight: '800', color: Colors.primary },
+  clockValueMuted: { fontSize: 22, lineHeight: 30, fontWeight: '800', color: Colors.textMuted },
   divider: { width: 1, height: 40, backgroundColor: Colors.border, marginHorizontal: Spacing.md },
   group: { marginBottom: Spacing.lg },
   upgradeAlarmBtn: {

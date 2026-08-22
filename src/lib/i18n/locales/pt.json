@@ -13,7 +13,8 @@
     "all": "Todos",
     "trader": "Trader",
     "waiting": "AGUARDAR",
-    "permission": "Permissão"
+    "permission": "Permissão",
+    "notNow": "Agora não"
   },
   "tabs": {
     "inicio": "Início",
@@ -67,7 +68,10 @@
     "weekendCryptoAiBody": "Ao fim de semana a IA do TMT gera sinais de BTC e ETH para todos os planos.",
     "errorTitle": "Erro a carregar sinais",
     "analytics": "Analytics",
-    "filterSmc": "Setup SMC"
+    "filterSmc": "Setup SMC",
+    "upsellPoint1": "Todos os pares e timeframes",
+    "upsellPoint2": "Sinais ilimitados por dia",
+    "upsellPoint3": "Alertas push em tempo real"
   },
   "historico": {
     "allPairs": "Todos os pares",
@@ -179,7 +183,23 @@
     "channelCreate": "Criar Canal",
     "channelCreating": "A criar canal…",
     "channelCreated": "Canal criado com sucesso!",
-    "channelCreateFailed": "Erro ao criar canal"
+    "channelCreateFailed": "Erro ao criar canal",
+    "imageUploadFailedTitle": "Falha no envio da imagem",
+    "imageUploadFailedBody": "Não foi possível carregar a imagem. Verifica a ligação e tenta novamente.",
+    "liveBadge": "AO VIVO",
+    "heroTitle": "Comunidade ao vivo",
+    "heroSubtitle": "Salas, sinais e traders em tempo real.",
+    "statsChannels": "{{count}} canais",
+    "statsRooms": "{{count}} salas ativas",
+    "channelNoDesc": "Sem descrição",
+    "enterRoom": "Entrar",
+    "dmOnline": "Ativo agora",
+    "dmOffline": "Ausente",
+    "emptyChannelsHint": "A comunidade está a crescer — volta em breve.",
+    "emptyChannelsHintCreator": "Cria o primeiro canal da comunidade.",
+    "emptyPairRoomsHint": "As salas abrem automaticamente com a sessão de mercado.",
+    "emptyDmsHint": "Encontra traders na pesquisa para iniciares conversas.",
+    "emptyDmsHintPremium": "Usa o + no topo para iniciares uma conversa."
   },
   "userProfile": {
     "title": "Perfil",
@@ -540,7 +560,14 @@
       "API de sinais para bots próprios",
       "Suporte 1:1 dedicado via WhatsApp",
       "Meta de banca automática com compound"
-    ]
+    ],
+    "capitalSpotTitle": "Gestão de Capital Profissional",
+    "capitalSpotDesc": "No Premium, a nossa equipa gere o teu capital no mercado e tu acompanhas cada resultado na app.",
+    "capitalItem1": "Risco por operação definido por traders profissionais",
+    "capitalItem2": "Meta de retorno com juros compostos automáticos",
+    "capitalItem3": "Levantamentos semanais dos lucros",
+    "capitalItem4": "Relatórios de desempenho e progresso da meta",
+    "capitalCta": "Ver Gestão de Capital"
   },
   "banca": {
     "title": "Gestão de Banca",
@@ -657,7 +684,9 @@
     "delete": "Apagar",
     "tradeEntry": "Preço Entrada",
     "tradeExit": "Preço Saída",
-    "exportCsv": "Exportar CSV"
+    "exportCsv": "Exportar CSV",
+    "currentPrice": "Preço atual: {{price}}",
+    "pipsAuto": "Pips calculados automaticamente"
   },
   "depositos": {
     "title": "Depósitos e Levantamentos",
@@ -705,7 +734,9 @@
     "emptyBody": "Os alarmes da Hora do Boom aparecem aqui quando os ativares.",
     "enableAlarms": "Ativar alarmes",
     "manageAlerts": "Gerenciar Alertas",
-    "clearAll": "Limpar tudo"
+    "clearAll": "Limpar tudo",
+    "planProcessing": "Em análise",
+    "planPending": "Pendente"
   },
   "tour": {
     "skip": "Saltar",
@@ -736,6 +767,9 @@
     "upgradeChannelName": "Planos e Ofertas",
     "upgradeTitle": "Desbloqueia o Premium",
     "upgradeBody": "Escolhe Basic, Pro ou Premium e sai do plano gratuito.",
+    "planRequestTitle": "Plano {{plan}} — pedido recebido",
+    "planRequestBodyAmount": "Pedido do plano {{plan}} ({{amount}}) encaminhado. Conclusão em até 24 horas.",
+    "planRequestBody": "O teu pedido está a ser encaminhado para a equipa. Será concluído em até 24 horas.",
     "welcomeChannelName": "Boas-vindas",
     "welcomeTitle": "Bem-vindo à The Magic Trader",
     "welcomeBody": "Obrigado por te juntares! Explora a app e começa a receber sinais em tempo real.",
@@ -795,7 +829,9 @@
     "suggestion1": "Como funcionam os planos?",
     "suggestion2": "O que é a Hora do Boom?",
     "suggestion3": "Como ativo os alarmes?",
-    "suggestion4": "Como gero a minha banca?"
+    "suggestion4": "Como gero a minha banca?",
+    "remainingChat": "Mensagens restantes hoje: {{count}}",
+    "remainingImage": "Análises restantes hoje: {{count}}"
   },
   "planoCrescimento": {
     "title": "Plano de Crescimento",
@@ -818,7 +854,11 @@
   "aiErrors": {
     "contact": "Erro ao contactar o suporte. Tenta novamente.",
     "noResponse": "A IA não devolveu uma resposta.",
-    "connection": "Erro de ligação. Verifica a tua internet e tenta novamente."
+    "connection": "Erro de ligação. Verifica a tua internet e tenta novamente.",
+    "auth": "Inicia sessão para usares o assistente de IA.",
+    "quotaChat": "Atingiste o limite diário do teu plano. Faz upgrade para continuares a conversar.",
+    "quotaImage": "As análises de imagem requerem um plano pago. Faz upgrade no separador Planos.",
+    "quotaBurst": "Muitos pedidos seguidos. Aguarda alguns minutos e tenta de novo."
   },
   "legal": {
     "termos": "Termos e Condições",
@@ -910,7 +950,11 @@
       "setupAnalysis": "Análise de Setup",
       "analyzing": "A analisar o teu setup...",
       "cameraPermission": "Precisamos de acesso à galeria para selecionar imagens.",
-      "chooseAnother": "Escolher outra imagem"
+      "chooseAnother": "Escolher outra imagem",
+      "subtitle": "A IA lê o teu gráfico e devolve tendência, zonas e sugestão.",
+      "copyResult": "Copiar análise",
+      "copied": "Copiada!",
+      "disclaimer": "Análise automática por IA. Trading envolve risco — confirma sempre."
     },
     "performanceCard": {
       "title": "DESEMPENHO",
@@ -940,8 +984,8 @@
       "closedHint": "Encerrado · o ciclo recomeça amanhã"
     },
     "alarmToggle": {
-      "active": "Alarme ativo",
-      "activate": "Ativar alarme",
+      "active": "Notificação ativa",
+      "activate": "Ativar notificação",
       "hint5min": "Notificamos-te 5 min antes.",
       "blocked": "Notificações bloqueadas — ativa nas definições do sistema."
     },

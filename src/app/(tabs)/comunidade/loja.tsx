@@ -66,7 +66,9 @@ export default function LojaScreen() {
   const featuredItems = products.filter((item) => item.featured);
 
   const gap = Spacing.sm;
-  const cardWidth = (width - Spacing.md * 2 - gap) / 2;
+  // Grid lives inside Screen (padding 20) + section (paddingHorizontal md).
+  const gridInset = 20 + Spacing.md;
+  const cardWidth = (width - gridInset * 2 - gap) / 2;
   const featuredWidth = Math.min(width - Spacing.xl, 340);
 
   const isLocked = (item: StoreProduct) => item.isPremium && !isPremium;
@@ -304,8 +306,9 @@ export default function LojaScreen() {
                       onPress={() => setSelectedItem(item)}
                       accessibilityRole="button"
                       accessibilityLabel={item.title}
+                      style={styles.gridCell}
                     >
-                      <View style={styles.card}>
+                      <View style={[styles.card, styles.cardFill]}>
                         <View style={styles.cardTopRow}>
                           <View style={[styles.iconTile, { backgroundColor: `${accent}1F` }]}>
                             <Ionicons name={item.icon} size={20} color={accent} />
@@ -636,6 +639,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Spacing.sm,
   },
+  gridCell: { flex: 1 },
+  cardFill: { flex: 1 },
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,

@@ -11,7 +11,7 @@ interface NotificationBadgeProps {
 
 export function NotificationBadge({ count, onPress }: NotificationBadgeProps) {
   return (
-    <Pressable onPress={onPress} style={styles.container}>
+    <Pressable onPress={onPress} style={styles.container} accessibilityRole="button" accessibilityLabel="Notifications">
       <Ionicons name="notifications-outline" size={22} color={Colors.text} />
       {count > 0 && (
         <View style={styles.badge}>

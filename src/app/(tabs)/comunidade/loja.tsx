@@ -1,40 +1,77 @@
-import { useCallback, useState } from 'react';
-import { Alert, Pressable, RefreshControl, StyleSheet, View, ScrollView } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { AppText, EmptyState, Screen } from '@/components/ui';
+import { AppButton, AppText, EmptyState, Screen } from '@/components/ui';
+import { Animated, AnimatedPressable, FadeInDown } from '@/lib/animations';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useStoreProducts, type StoreProduct } from '@/hooks/useStoreProducts';
+import { useStoreProducts, type StoreCategory, type StoreProduct } from '@/hooks/useStoreProducts';
 import { Colors, Radius, Spacing } from '@/core/theme';
 
-type Category = 'all' | 'bots' | 'mentorias' | 'ebooks';
+type Category = 'all' | StoreCategory;
 
-const CATEGORIES = [
-  { key: 'all' as Category, labelKey: 'store.categoryAll' as const, icon: 'grid-outline' as const },
-  { key: 'bots' as Category, labelKey: 'store.categoryBots' as const, icon: 'hardware-chip-outline' as const },
-  { key: 'mentorias' as Category, labelKey: 'store.categoryMentorias' as const, icon: 'people-outline' as const },
-  { key: 'ebooks' as Category, labelKey: 'store.categoryEbooks' as const, icon: 'book-outline' as const },
-] as const;
+const CATEGORY_ACCENT: Record<StoreCategory, string> = {
+  bots: '#30D158',
+  mentorias: Colors.accent,
+  ebooks: '#64D2FF',
+};
+
+const CATEGORY_ICON: Record<StoreCategory, keyof typeof Ionicons.glyphMap> = {
+  bots: 'hardware-chip-outline',
+  mentorias: 'people-outline',
+  ebooks: 'book-outline',
+};
+
+const CATEGORIES: {
+  key: Category;
+  labelKey: 'store.categoryAll' | 'store.categoryBots' | 'store.categoryMentorias' | 'store.categoryEbooks';
+}[] = [
+  { key: 'all', labelKey: 'store.categoryAll' },
+  { key: 'bots', labelKey: 'store.categoryBots' },
+  { key: 'mentorias', labelKey: 'store.categoryMentorias' },
+  { key: 'ebooks', labelKey: 'store.categoryEbooks' },
+];
+
+const INCLUDED_KEYS = {
+  bots: ['store.incBot1', 'store.incBot2', 'store.incBot3'],
+  mentorias: ['store.incMentor1', 'store.incMentor2', 'store.incMentor3'],
+  ebooks: ['store.incEbook1', 'store.incEbook2', 'store.incEbook3'],
+} as const;
 
 export default function LojaScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { isPremium } = useSubscription();
   const { products, refresh } = useStoreProducts();
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
+  const [selectedItem, setSelectedItem] = useState<StoreProduct | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const { width } = useWindowDimensions();
+
+  const stats = useMemo(() => {
+    const total = products.length;
+    const free = products.filter((i) => !i.isPremium).length;
+    const ratingSum = products.reduce((acc, i) => acc + (i.rating ?? 0), 0);
+    const rating = total > 0 ? ratingSum / total : 0;
+    return { total, free, rating: rating.toFixed(1) };
+  }, [products]);
 
   const filteredItems =
     selectedCategory === 'all'
       ? products
       : products.filter((item) => item.category === selectedCategory);
 
-  const featuredItem = products.find((item) => item.featured);
-  const totalProducts = products.length;
-  const freeCount = products.filter((i) => !i.isPremium).length;
-  const avgRating =
-    totalProducts > 0
-      ? (Math.round((products.reduce((acc, i) => acc + (i.rating ?? 0), 0) / totalProducts) * 10) / 10).toFixed(1)
-      : '0.0';
+  const featuredItems = products.filter((item) => item.featured);
+
+  const gap = Spacing.sm;
+  const cardWidth = (width - Spacing.md * 2 - gap) / 2;
+  const featuredWidth = Math.min(width - Spacing.xl, 340);
+
+  const isLocked = (item: StoreProduct) => item.isPremium && !isPremium;
+
+  const closeItem = () => setSelectedItem(null);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -42,18 +79,23 @@ export default function LojaScreen() {
     setRefreshing(false);
   }, [refresh]);
 
-  const handlePress = (item: StoreProduct) => {
-    if (item.isPremium && !isPremium) {
-      Alert.alert(t('store.premiumRequired'), t('store.premiumMessage'), [
-        { text: t('common.close') },
-      ]);
-      return;
-    }
-    Alert.alert(item.title, item.description, [
-      { text: t('common.close') },
-      { text: t('common.confirm') },
-    ]);
+  const handleCta = () => {
+    if (!selectedItem) return;
+    const locked = isLocked(selectedItem);
+    closeItem();
+    router.push(locked ? '/planos' : '/suporte-ia');
   };
+
+  const renderPrice = (item: StoreProduct, locked: boolean) =>
+    item.isPremium || locked ? (
+      <AppText variant="label" style={styles.pricePaid}>
+        {item.price}
+      </AppText>
+    ) : (
+      <AppText variant="label" style={styles.priceFree}>
+        {t('store.free')}
+      </AppText>
+    );
 
   return (
     <Screen scroll={false}>
@@ -64,377 +106,575 @@ export default function LojaScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
       >
-        <View style={styles.container}>
-          <View style={styles.heroBanner}>
-            <View style={styles.heroOverlay} />
-            <View style={styles.heroContent}>
-              <View style={styles.heroIconRow}>
-                <View style={styles.heroIcon}>
-                  <Ionicons name="storefront" size={28} color={Colors.accent} />
-                </View>
+        <Animated.View entering={FadeInDown.springify()}>
+          <LinearGradient
+            colors={['rgba(255,159,10,0.14)', 'rgba(22,164,58,0.08)', 'rgba(255,255,255,0.02)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.hero}
+          >
+            <View style={styles.heroHeader}>
+              <View style={styles.heroIcon}>
+                <Ionicons name="storefront" size={22} color={Colors.accent} />
               </View>
-              <AppText variant="title" style={styles.heroTitle}>{t('store.title')}</AppText>
-              <AppText variant="body" style={styles.heroSubtitle}>{t('store.subtitle')}</AppText>
-              <View style={styles.heroStats}>
-                <View style={styles.heroStat}>
-                  <AppText variant="h1" style={styles.heroStatValue}>{totalProducts}</AppText>
-                  <AppText variant="small" style={styles.heroStatLabel}>Produtos</AppText>
-                </View>
-                <View style={styles.heroStatDivider} />
-                <View style={styles.heroStat}>
-                  <AppText variant="h1" style={styles.heroStatValue}>{freeCount}</AppText>
-                  <AppText variant="small" style={styles.heroStatLabel}>Grátis</AppText>
-                </View>
-                <View style={styles.heroStatDivider} />
-                <View style={styles.heroStat}>
-                  <AppText variant="h1" style={styles.heroStatValue}>{avgRating}</AppText>
-                  <AppText variant="small" style={styles.heroStatLabel}>Avaliação</AppText>
-                </View>
+              <View style={styles.flex}>
+                <AppText variant="h2">{t('store.title')}</AppText>
+                <AppText variant="small" style={styles.heroSubtitle} numberOfLines={2}>
+                  {t('store.subtitle')}
+                </AppText>
               </View>
             </View>
-          </View>
-
-          {featuredItem && (
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="star" size={16} color={Colors.accent} />
-                <AppText variant="label" style={styles.sectionTitle}>Destaques</AppText>
+            <View style={styles.heroStats}>
+              <View style={styles.heroStat}>
+                <AppText variant="h2" style={styles.heroStatValue}>{stats.total}</AppText>
+                <AppText variant="small" style={styles.heroStatLabel}>{t('store.statsProducts')}</AppText>
               </View>
-              <Pressable onPress={() => handlePress(featuredItem)} style={styles.featuredCard}>
-                <View style={[styles.featuredIconBg, { backgroundColor: `${featuredItem.color}20` }]}>
-                  <Ionicons name={featuredItem.icon} size={32} color={featuredItem.color} />
+              <View style={styles.heroDivider} />
+              <View style={styles.heroStat}>
+                <AppText variant="h2" style={styles.heroStatValue}>{stats.free}</AppText>
+                <AppText variant="small" style={styles.heroStatLabel}>{t('store.statsFree')}</AppText>
+              </View>
+              <View style={styles.heroDivider} />
+              <View style={styles.heroStat}>
+                <View style={styles.heroRatingValue}>
+                  <Ionicons name="star" size={14} color={Colors.accent} />
+                  <AppText variant="h2" style={styles.heroStatValue}>{stats.rating}</AppText>
                 </View>
-                <View style={styles.featuredInfo}>
-                  <View style={styles.featuredTopRow}>
-                    <AppText variant="h2" style={{ color: Colors.text }}>{featuredItem.title}</AppText>
-                    {featuredItem.isPremium ? (
-                      <View style={styles.featuredPremiumBadge}>
-                        <Ionicons name="diamond" size={10} color={Colors.accent} />
-                        <AppText variant="small" style={{ color: Colors.accent, fontWeight: '700' }}>PRO</AppText>
-                      </View>
-                    ) : (
-                      <View style={styles.featuredFreeBadge}>
-                        <AppText variant="small" style={{ color: Colors.primary, fontWeight: '700' }}>GRÁTIS</AppText>
-                      </View>
-                    )}
-                  </View>
-                  <AppText variant="small" style={{ color: Colors.textMuted, lineHeight: 18 }}>
-                    {featuredItem.description}
-                  </AppText>
-                  <View style={styles.featuredBottomRow}>
-                    <View style={styles.featuredRating}>
-                      <Ionicons name="star" size={12} color={Colors.accent} />
-                      <AppText variant="small" style={{ color: Colors.accent, fontWeight: '700' }}>{featuredItem.rating}</AppText>
-                      <AppText variant="small" style={{ color: Colors.textFaint }}>({featuredItem.users})</AppText>
-                    </View>
-                    <AppText variant="h2" style={{ color: Colors.text }}>{featuredItem.price}</AppText>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={Colors.textFaint} />
-              </Pressable>
+                <AppText variant="small" style={styles.heroStatLabel}>{t('store.statsRating')}</AppText>
+              </View>
             </View>
-          )}
+          </LinearGradient>
+        </Animated.View>
 
-          <View style={styles.section}>
-            <View style={styles.categoryTabs}>
-              {CATEGORIES.map((cat) => {
-                const isActive = selectedCategory === cat.key;
-                const count = cat.key === 'all' ? products.length : products.filter((i) => i.category === cat.key).length;
+        {featuredItems.length > 0 && (
+          <Animated.View entering={FadeInDown.delay(60).springify()}>
+            <View style={[styles.sectionHeader, { paddingHorizontal: Spacing.md, marginTop: Spacing.md }]}>
+              <Ionicons name="star" size={14} color={Colors.accent} />
+              <AppText variant="label" style={styles.sectionTitle}>{t('store.featuredSection')}</AppText>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              decelerationRate="fast"
+              snapToInterval={featuredWidth + gap}
+              contentContainerStyle={{ gap, paddingHorizontal: Spacing.md }}
+            >
+              {featuredItems.map((item) => {
+                const accent = item.color ?? CATEGORY_ACCENT[item.category];
+                const locked = isLocked(item);
                 return (
-                  <Pressable
-                    key={cat.key}
-                    onPress={() => setSelectedCategory(cat.key)}
+                  <AnimatedPressable
+                    key={item.id}
+                    onPress={() => setSelectedItem(item)}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.title}
+                    style={{ width: featuredWidth }}
+                  >
+                    <LinearGradient
+                      colors={['rgba(255,159,10,0.16)', 'rgba(255,159,10,0.04)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.featuredCard}
+                    >
+                      <View style={styles.featuredRibbon}>
+                        <Ionicons name="star" size={10} color={Colors.accent} />
+                        <AppText variant="small" style={styles.featuredRibbonText}>
+                          {t('store.featuredSection')}
+                        </AppText>
+                      </View>
+                      <View style={styles.featuredTopRow}>
+                        <View style={[styles.iconTile, styles.iconTileLg, { backgroundColor: `${accent}1F` }]}>
+                          <Ionicons name={item.icon} size={26} color={accent} />
+                        </View>
+                        <View style={styles.flex}>
+                          <AppText variant="h2" numberOfLines={1}>{item.title}</AppText>
+                          <View style={styles.badgeRow}>
+                            {item.isPremium ? (
+                              <View style={styles.proBadge}>
+                                <Ionicons name="diamond" size={9} color={Colors.accent} />
+                                <AppText variant="small" style={styles.proBadgeText}>PRO</AppText>
+                              </View>
+                            ) : (
+                              <View style={styles.freeBadge}>
+                                <AppText variant="small" style={styles.freeBadgeText}>{t('store.free')}</AppText>
+                              </View>
+                            )}
+                            {locked && (
+                              <View style={styles.lockBadge}>
+                                <Ionicons name="lock-closed" size={9} color={Colors.textFaint} />
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      </View>
+                      <AppText variant="small" style={styles.cardDesc} numberOfLines={2}>
+                        {item.description}
+                      </AppText>
+                      <View style={styles.cardFooter}>
+                        <View style={styles.metaRow}>
+                          <Ionicons name="star" size={11} color={Colors.accent} />
+                          <AppText variant="small" style={styles.ratingText}>{item.rating ?? 0}</AppText>
+                          <AppText variant="small" style={styles.usersText}>({item.users ?? 0})</AppText>
+                        </View>
+                        {renderPrice(item, locked)}
+                      </View>
+                    </LinearGradient>
+                  </AnimatedPressable>
+                );
+              })}
+            </ScrollView>
+          </Animated.View>
+        )}
+
+        <Animated.View entering={FadeInDown.delay(120).springify()}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs }}
+          >
+            {CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat.key;
+              const count =
+                cat.key === 'all'
+                  ? products.length
+                  : products.filter((i) => i.category === cat.key).length;
+              return (
+                <AnimatedPressable
+                  key={cat.key}
+                  onPress={() => setSelectedCategory(cat.key)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isActive }}
+                  scaleTo={0.94}
+                >
+                  <View
                     style={[
-                      styles.categoryTab,
-                      isActive
-                        ? { backgroundColor: Colors.accent, borderColor: Colors.accent }
-                        : { backgroundColor: Colors.surface, borderColor: Colors.border },
+                      styles.chip,
+                      isActive ? styles.chipActive : styles.chipInactive,
                     ]}
                   >
-                    <Ionicons name={cat.icon} size={14} color={isActive ? '#1A1A2E' : Colors.textMuted} />
-                    <AppText variant="small" style={{
-                      color: isActive ? '#1A1A2E' : Colors.textMuted,
-                      fontWeight: '600',
-                    }}>
+                    <Ionicons
+                      name={cat.key === 'all' ? 'grid-outline' : CATEGORY_ICON[cat.key]}
+                      size={13}
+                      color={isActive ? '#1A1A2E' : Colors.textMuted}
+                    />
+                    <AppText
+                      variant="small"
+                      style={isActive ? styles.chipLabelActive : styles.chipLabel}
+                    >
                       {t(cat.labelKey)}
                     </AppText>
-                    <View style={[styles.categoryCount, isActive && styles.categoryCountActive]}>
-                      <AppText variant="small" style={{ color: isActive ? '#1A1A2E' : Colors.textFaint, fontSize: 10 }}>
+                    <View style={[styles.chipCount, isActive && styles.chipCountActive]}>
+                      <AppText variant="small" style={isActive ? styles.chipCountLabelActive : styles.chipCountLabel}>
                         {count}
                       </AppText>
                     </View>
-                  </Pressable>
+                  </View>
+                </AnimatedPressable>
+              );
+            })}
+          </ScrollView>
+        </Animated.View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <AppText variant="label" style={styles.sectionTitle}>
+              {selectedCategory === 'all'
+                ? t('store.allProducts')
+                : t(CATEGORIES.find((c) => c.key === selectedCategory)!.labelKey)}
+            </AppText>
+            <AppText variant="small" style={styles.itemsCount}>
+              {t('store.items', { count: filteredItems.length })}
+            </AppText>
+          </View>
+
+          {filteredItems.length === 0 ? (
+            <EmptyState title={t('store.empty')} />
+          ) : (
+            <View style={styles.grid}>
+              {filteredItems.map((item, idx) => {
+                const accent = item.color ?? CATEGORY_ACCENT[item.category];
+                const locked = isLocked(item);
+                return (
+                  <Animated.View
+                    key={item.id}
+                    entering={FadeInDown.delay(idx * 40).springify()}
+                    style={{ width: cardWidth }}
+                  >
+                    <AnimatedPressable
+                      onPress={() => setSelectedItem(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel={item.title}
+                    >
+                      <View style={styles.card}>
+                        <View style={styles.cardTopRow}>
+                          <View style={[styles.iconTile, { backgroundColor: `${accent}1F` }]}>
+                            <Ionicons name={item.icon} size={20} color={accent} />
+                          </View>
+                          {item.isPremium ? (
+                            <View style={styles.proBadge}>
+                              <Ionicons name="diamond" size={8} color={Colors.accent} />
+                              <AppText variant="small" style={styles.proBadgeText}>PRO</AppText>
+                            </View>
+                          ) : (
+                            <View style={styles.freeBadge}>
+                              <AppText variant="small" style={styles.freeBadgeText}>{t('store.free')}</AppText>
+                            </View>
+                          )}
+                        </View>
+                        <AppText variant="label" numberOfLines={1} style={styles.cardTitle}>
+                          {item.title}
+                        </AppText>
+                        <AppText variant="small" numberOfLines={2} style={styles.cardDesc}>
+                          {item.description}
+                        </AppText>
+                        <View style={styles.cardFooter}>
+                          <View style={styles.metaRow}>
+                            <Ionicons name="star" size={11} color={Colors.accent} />
+                            <AppText variant="small" style={styles.ratingText}>{item.rating ?? 0}</AppText>
+                          </View>
+                          {renderPrice(item, locked)}
+                        </View>
+                      </View>
+                    </AnimatedPressable>
+                  </Animated.View>
                 );
               })}
             </View>
-          </View>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <AppText variant="label" style={styles.sectionTitle}>
-                {selectedCategory === 'all' ? 'Todos os Produtos' : t(CATEGORIES.find((c) => c.key === selectedCategory)!.labelKey)}
-              </AppText>
-              <AppText variant="small" style={{ color: Colors.textFaint }}>{filteredItems.length} itens</AppText>
-            </View>
-
-            {filteredItems.length === 0 ? (
-              <EmptyState title={t('store.empty')} />
-            ) : (
-              <View style={styles.productGrid}>
-                {filteredItems.map((item) => (
-                  <Pressable key={item.id} onPress={() => handlePress(item)} style={styles.productCard}>
-                    <View style={styles.productCardTop}>
-                      <View style={[styles.productIcon, { backgroundColor: `${item.color}18` }]}>
-                        <Ionicons name={item.icon} size={24} color={item.color} />
-                      </View>
-                      {item.isPremium ? (
-                        <View style={styles.productPremiumTag}>
-                          <Ionicons name="diamond" size={9} color={Colors.accent} />
-                        </View>
-                      ) : null}
-                    </View>
-
-                    <AppText variant="label" numberOfLines={1} style={styles.productTitle}>
-                      {item.title}
-                    </AppText>
-                    <AppText variant="small" numberOfLines={2} style={styles.productDesc}>
-                      {item.description}
-                    </AppText>
-
-                    <View style={styles.productFooter}>
-                      <View style={styles.productRating}>
-                        <Ionicons name="star" size={11} color={Colors.accent} />
-                        <AppText variant="small" style={{ color: Colors.accent, fontWeight: '600', fontSize: 11 }}>
-                          {item.rating}
-                        </AppText>
-                      </View>
-                      <AppText variant="label" style={styles.productPrice}>
-                        {item.price}
-                      </AppText>
-                    </View>
-
-                    <View style={styles.productCategoryTag}>
-                      <AppText variant="small" style={{ color: Colors.textFaint, fontSize: 10, textTransform: 'uppercase' }}>
-                        {item.category}
-                      </AppText>
-                    </View>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </View>
+          )}
         </View>
       </ScrollView>
+
+      <Modal visible={selectedItem !== null} transparent animationType="slide" onRequestClose={closeItem}>
+        <View style={styles.backdrop}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={closeItem} accessibilityLabel={t('common.close')} />
+          {selectedItem && (
+            <View style={styles.sheet}>
+              <View style={styles.sheetHandle} />
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.sheetHeader}>
+                  <View
+                    style={[
+                      styles.iconTile,
+                      styles.iconTileXl,
+                      { backgroundColor: `${selectedItem.color ?? CATEGORY_ACCENT[selectedItem.category]}1F` },
+                    ]}
+                  >
+                    <Ionicons
+                      name={selectedItem.icon}
+                      size={32}
+                      color={selectedItem.color ?? CATEGORY_ACCENT[selectedItem.category]}
+                    />
+                  </View>
+                  <View style={styles.flex}>
+                    <AppText variant="h1" numberOfLines={2}>{selectedItem.title}</AppText>
+                    <View style={styles.badgeRow}>
+                      <View style={styles.categoryChip}>
+                        <Ionicons
+                          name={CATEGORY_ICON[selectedItem.category]}
+                          size={10}
+                          color={selectedItem.color ?? CATEGORY_ACCENT[selectedItem.category]}
+                        />
+                        <AppText
+                          variant="small"
+                          style={{ color: selectedItem.color ?? CATEGORY_ACCENT[selectedItem.category], fontWeight: '700' }}
+                        >
+                          {t(CATEGORIES.find((c) => c.key === selectedItem.category)!.labelKey)}
+                        </AppText>
+                      </View>
+                      {selectedItem.isPremium ? (
+                        <View style={styles.proBadge}>
+                          <Ionicons name="diamond" size={9} color={Colors.accent} />
+                          <AppText variant="small" style={styles.proBadgeText}>PRO</AppText>
+                        </View>
+                      ) : (
+                        <View style={styles.freeBadge}>
+                          <AppText variant="small" style={styles.freeBadgeText}>{t('store.free')}</AppText>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.sheetMeta}>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="star" size={13} color={Colors.accent} />
+                    <AppText variant="small" style={styles.ratingText}>{selectedItem.rating ?? 0}</AppText>
+                  </View>
+                  <View style={styles.metaDot} />
+                  <View style={styles.metaRow}>
+                    <Ionicons name="people" size={13} color={Colors.textMuted} />
+                    <AppText variant="small" style={styles.usersText}>{selectedItem.users ?? 0}</AppText>
+                  </View>
+                  <View style={styles.flex} />
+                  {renderPrice(selectedItem, isLocked(selectedItem))}
+                </View>
+
+                <AppText variant="body" style={styles.sheetDesc}>
+                  {selectedItem.description}
+                </AppText>
+
+                <AppText variant="label" style={styles.includedTitle}>{t('store.included')}</AppText>
+                {INCLUDED_KEYS[selectedItem.category].map((key) => (
+                  <View key={key} style={styles.includedRow}>
+                    <View style={styles.includedCheck}>
+                      <Ionicons name="checkmark" size={11} color={Colors.primary} />
+                    </View>
+                    <AppText variant="small" style={styles.includedText}>{t(key)}</AppText>
+                  </View>
+                ))}
+              </ScrollView>
+
+              <AppButton
+                title={isLocked(selectedItem) ? t('store.upgradeCta') : t('store.requestCta')}
+                onPress={handleCta}
+                variant={isLocked(selectedItem) ? 'gold' : 'primary'}
+                style={styles.cta}
+              />
+            </View>
+          )}
+        </View>
+      </Modal>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  flex: { flex: 1 },
+  hero: {
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    padding: Spacing.md,
+    gap: Spacing.md,
   },
-  heroBanner: {
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    overflow: 'hidden',
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(22,164,58,0.06)',
-  },
-  heroContent: {
-    padding: Spacing.lg,
+  heroHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  heroIconRow: {
-    marginBottom: Spacing.md,
+    gap: Spacing.md,
   },
   heroIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
     backgroundColor: Colors.accentDim,
+    borderWidth: 1,
+    borderColor: 'rgba(255,159,10,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,159,10,0.2)',
-  },
-  heroTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: Colors.text,
-    marginBottom: Spacing.xs,
   },
   heroSubtitle: {
     color: Colors.textMuted,
-    textAlign: 'center',
-    marginBottom: Spacing.lg,
-    paddingHorizontal: Spacing.md,
+    marginTop: 2,
   },
   heroStats: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.bg,
     borderRadius: Radius.lg,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
+    paddingVertical: Spacing.sm,
   },
   heroStat: {
     flex: 1,
     alignItems: 'center',
+    gap: 2,
   },
   heroStatValue: {
-    fontSize: 20,
-    fontWeight: '800',
     color: Colors.text,
+  },
+  heroRatingValue: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   heroStatLabel: {
     color: Colors.textMuted,
-    marginTop: 2,
   },
-  heroStatDivider: {
+  heroDivider: {
     width: 1,
-    height: 28,
+    height: 24,
     backgroundColor: Colors.border,
   },
   section: {
     paddingHorizontal: Spacing.md,
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   sectionTitle: {
     color: Colors.text,
     flex: 1,
   },
+  itemsCount: {
+    color: Colors.textFaint,
+  },
   featuredCard: {
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,159,10,0.35)',
+    padding: Spacing.md,
+    gap: Spacing.sm,
+  },
+  featuredRibbon: {
+    position: 'absolute',
+    top: 0,
+    right: Spacing.md,
+    backgroundColor: Colors.accent,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.md,
-  },
-  featuredIconBg: {
-    width: 56,
-    height: 56,
-    borderRadius: Radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featuredInfo: {
-    flex: 1,
     gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderBottomLeftRadius: Radius.sm,
+    borderBottomRightRadius: Radius.sm,
+  },
+  featuredRibbonText: {
+    color: '#1A1A2E',
+    fontWeight: '800',
+    fontSize: 10,
+    textTransform: 'uppercase',
   },
   featuredTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: Spacing.md,
+    marginTop: Spacing.md,
   },
-  featuredPremiumBadge: {
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginTop: 4,
+  },
+  proBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     backgroundColor: Colors.accentDim,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: Radius.sm,
   },
-  featuredFreeBadge: {
+  proBadgeText: {
+    color: Colors.accent,
+    fontWeight: '800',
+    fontSize: 10,
+  },
+  freeBadge: {
     backgroundColor: Colors.primaryDim,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: Radius.sm,
   },
-  featuredBottomRow: {
-    flexDirection: 'row',
+  freeBadgeText: {
+    color: Colors.primary,
+    fontWeight: '800',
+    fontSize: 10,
+  },
+  lockBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: Colors.surfaceElevated,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 4,
+    justifyContent: 'center',
   },
-  featuredRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  categoryTabs: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    flexWrap: 'wrap',
-  },
-  categoryTab: {
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 9,
     borderRadius: 999,
     borderWidth: 1,
   },
-  categoryCount: {
+  chipActive: {
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
+  },
+  chipInactive: {
+    backgroundColor: Colors.surface,
+    borderColor: Colors.border,
+  },
+  chipLabel: {
+    color: Colors.textMuted,
+    fontWeight: '600',
+  },
+  chipLabelActive: {
+    color: '#1A1A2E',
+    fontWeight: '700',
+  },
+  chipCount: {
     backgroundColor: Colors.surfaceElevated,
+    minWidth: 18,
     paddingHorizontal: 5,
     paddingVertical: 1,
-    borderRadius: 8,
-    minWidth: 18,
+    borderRadius: 999,
     alignItems: 'center',
   },
-  categoryCountActive: {
-    backgroundColor: 'rgba(26,26,46,0.3)',
+  chipCountActive: {
+    backgroundColor: 'rgba(26,26,46,0.25)',
   },
-  productGrid: {
+  chipCountLabel: {
+    color: Colors.textFaint,
+    fontSize: 10,
+  },
+  chipCountLabelActive: {
+    color: '#1A1A2E',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
   },
-  productCard: {
-    width: '47%',
-    flexGrow: 1,
+  card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
     padding: Spacing.md,
-    gap: Spacing.sm,
+    gap: Spacing.xs,
   },
-  productCardTop: {
+  cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    marginBottom: Spacing.xs,
   },
-  productIcon: {
-    width: 44,
-    height: 44,
+  iconTile: {
+    width: 40,
+    height: 40,
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  productPremiumTag: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: Colors.accentDim,
-    alignItems: 'center',
-    justifyContent: 'center',
+  iconTileLg: {
+    width: 52,
+    height: 52,
   },
-  productTitle: {
+  iconTileXl: {
+    width: 64,
+    height: 64,
+  },
+  cardTitle: {
     color: Colors.text,
+    marginTop: 2,
   },
-  productDesc: {
+  cardDesc: {
     color: Colors.textMuted,
     lineHeight: 17,
     minHeight: 34,
   },
-  productFooter: {
+  cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -443,22 +683,121 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: Colors.border,
   },
-  productRating: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
-  productPrice: {
-    color: Colors.text,
+  metaDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: Colors.textFaint,
+  },
+  ratingText: {
+    color: Colors.accent,
     fontWeight: '700',
+    fontSize: 11,
   },
-  productCategoryTag: {
-    position: 'absolute',
-    bottom: Spacing.md,
-    right: Spacing.md,
+  usersText: {
+    color: Colors.textFaint,
+    fontSize: 11,
+  },
+  pricePaid: {
+    color: Colors.text,
+    fontWeight: '800',
+  },
+  priceFree: {
+    color: Colors.primary,
+    fontWeight: '800',
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: Colors.border,
+    maxHeight: '85%',
+    paddingBottom: Spacing.lg,
+  },
+  sheetHandle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: Colors.surfaceElevated,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  sheetMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.bg,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  sheetDesc: {
+    color: Colors.textBody,
+    lineHeight: 21,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.bg,
+    borderWidth: 1,
+    borderColor: Colors.border,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: Radius.sm,
+  },
+  includedTitle: {
+    color: Colors.text,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  includedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  includedCheck: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.primaryDim,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  includedText: {
+    color: Colors.textBody,
+    flex: 1,
+  },
+  cta: {
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
   },
 });

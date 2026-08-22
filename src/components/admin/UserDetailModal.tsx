@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Modal, Pressable, Alert, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Modal, Pressable, Alert, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, AppButton, Divider } from '@/components/ui';
+import { AppText, AppButton } from '@/components/ui';
 import { Colors, Spacing, Radius } from '@/core/theme';
 import { UserWithSubscription } from '@/core/types';
 
@@ -27,6 +27,11 @@ const EXPIRY_PRESETS = [
   { label: '90 dias', days: 90 },
   { label: '1 ano', days: 365 },
 ];
+
+// Time-dependent by design; kept outside the component so render stays pure
+function computeDaysUntilExpiry(isoDate: string): number {
+  return Math.ceil((new Date(isoDate).getTime() - Date.now()) / 86400000);
+}
 
 export function UserDetailModal({ visible, user, onClose, onBan, onRoleChange, onExpiryChange }: UserDetailModalProps) {
   const { t } = useTranslation();
@@ -58,11 +63,10 @@ export function UserDetailModal({ visible, user, onClose, onBan, onRoleChange, o
     : 'Nunca';
 
   const daysUntilExpiry = user.subscription_expires
-    ? Math.ceil((new Date(user.subscription_expires).getTime() - Date.now()) / 86400000)
+    ? computeDaysUntilExpiry(user.subscription_expires)
     : null;
 
   const handleBan = async () => {
-    const action = isBanned ? 'desbanir' : 'banir';
     Alert.alert(
       isBanned ? 'Desbanir utilizador?' : 'Banir utilizador?',
       isBanned
@@ -123,7 +127,7 @@ export function UserDetailModal({ visible, user, onClose, onBan, onRoleChange, o
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
-          <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
+          <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn} accessibilityRole="button" accessibilityLabel="Close">
             <Ionicons name="close" size={22} color={Colors.text} />
           </Pressable>
           <AppText variant="label" style={{ color: Colors.textMuted }}>{t('admin.userDetails')}</AppText>

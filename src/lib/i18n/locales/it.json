@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "Prodotti",
+    "statsFree": "Gratuito",
+    "statsRating": "Valutazione",
+    "featuredSection": "In evidenza",
+    "allProducts": "Tutti i prodotti",
+    "items": "{{count}} articoli",
+    "included": "Cosa include",
+    "upgradeCta": "Diventa Premium",
+    "requestCta": "Richiedi ora",
+    "incBot1": "Accesso a vita",
+    "incBot2": "Aggiornamenti automatici",
+    "incBot3": "Supporto prioritario",
+    "incMentor1": "Sessioni dal vivo",
+    "incMentor2": "Comunità esclusiva",
+    "incMentor3": "Supporto diretto",
+    "incEbook1": "Accesso immediato",
+    "incEbook2": "Esempi pratici",
+    "incEbook3": "Aggiornamenti gratuiti"
   }
 }

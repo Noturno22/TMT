@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "상품",
+    "statsFree": "무료",
+    "statsRating": "평점",
+    "featuredSection": "추천",
+    "allProducts": "모든 상품",
+    "items": "{{count}}개 상품",
+    "included": "포함 내용",
+    "upgradeCta": "프리미엄 되기",
+    "requestCta": "지금 요청",
+    "incBot1": "평생 액세스",
+    "incBot2": "자동 업데이트",
+    "incBot3": "우선 지원",
+    "incMentor1": "라이브 세션",
+    "incMentor2": "전용 커뮤니티",
+    "incMentor3": "직접 지원",
+    "incEbook1": "즉시 액세스",
+    "incEbook2": "실용적인 예시",
+    "incEbook3": "무료 업데이트"
   }
 }

@@ -44,234 +44,136 @@ describe('UserDetailModal', () => {
   const onRoleChange = jest.fn().mockResolvedValue(undefined);
   const onExpiryChange = jest.fn().mockResolvedValue(undefined);
 
+  const renderModal = (user: UserWithSubscription | null) =>
+    render(
+      <UserDetailModal
+        visible={true}
+        user={user}
+        onClose={onClose}
+        onBan={onBan}
+        onRoleChange={onRoleChange}
+        onExpiryChange={onExpiryChange}
+      />
+    );
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('returns null when user is null', () => {
-    const { toJSON } = render(
-      <UserDetailModal
-        visible={true}
-        user={null}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
+    const { toJSON } = renderModal(null);
     expect(toJSON()).toBeNull();
   });
 
   it('renders user email', () => {
     const user = makeUser({ email: 'alice@example.com' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
+    renderModal(user);
     expect(screen.getByText('alice@example.com')).toBeTruthy();
   });
 
   it('renders title', () => {
     const user = makeUser();
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    expect(screen.getByText('User Details')).toBeTruthy();
+    renderModal(user);
+    expect(screen.getAllByText('User Details').length).toBeGreaterThan(0);
   });
 
   it('shows free role badge for free user', () => {
     const user = makeUser({ role: 'free' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    expect(screen.getByText('free')).toBeTruthy();
+    renderModal(user);
+    expect(screen.getByText('FREE')).toBeTruthy();
   });
 
   it('shows premium role badge for premium user', () => {
     const user = makeUser({ role: 'premium' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    expect(screen.getByText('premium')).toBeTruthy();
+    renderModal(user);
+    expect(screen.getByText('PREMIUM')).toBeTruthy();
   });
 
-  it('shows Make Premium button for free user', () => {
-    const user = makeUser({ role: 'free' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    expect(screen.getByText('Make Premium')).toBeTruthy();
-  });
-
-  it('shows Remove Premium button for premium user', () => {
-    const user = makeUser({ role: 'premium' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    expect(screen.getByText('Remove Premium')).toBeTruthy();
-  });
-
-  it('shows Ban User button', () => {
+  it('shows plan options Free and Premium', () => {
     const user = makeUser();
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    expect(screen.getByText('Ban User')).toBeTruthy();
+    renderModal(user);
+    expect(screen.getByText('Free')).toBeTruthy();
+    expect(screen.getByText('Premium')).toBeTruthy();
+  });
+
+  it('shows ban action', () => {
+    const user = makeUser();
+    renderModal(user);
+    expect(screen.getByText('Banir Utilizador')).toBeTruthy();
   });
 
   it('shows Never when no subscription expiry', () => {
     const user = makeUser({ subscription_expires: undefined });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
+    renderModal(user);
     expect(screen.getByText('Never')).toBeTruthy();
   });
 
   it('shows formatted expiry date when subscription has expiry', () => {
     const user = makeUser({ subscription_expires: '2026-12-31T00:00:00Z' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    // Should show a date string (localized)
-    expect(screen.getByText('12/31/2026')).toBeTruthy();
+    renderModal(user);
+    // Component formats with pt-PT locale; nested Text appends remaining days
+    expect(screen.getByText(/31\/12\/2026/)).toBeTruthy();
   });
 
-  it('calls onRoleChange with "premium" when Make Premium is pressed for free user', async () => {
+  it('asks for confirmation and calls onRoleChange when Premium plan is pressed', async () => {
     const user = makeUser({ role: 'free' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
+    renderModal(user);
+
     await act(async () => {
-      fireEvent.press(screen.getByText('Make Premium'));
+      fireEvent.press(screen.getByText('Premium'));
+    });
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Alterar para premium?',
+      expect.any(String),
+      expect.any(Array),
+    );
+
+    // Simulate confirming the alert
+    const buttons = (Alert.alert as jest.Mock).mock.calls[0][2];
+    const confirmBtn = buttons.find((b: any) => b.text === 'Confirmar');
+    await act(async () => {
+      confirmBtn.onPress();
     });
     expect(onRoleChange).toHaveBeenCalledWith('user-1', 'premium');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onRoleChange with "free" when Remove Premium is pressed', async () => {
+  it('calls onRoleChange with "free" when Free plan is confirmed', async () => {
     const user = makeUser({ role: 'premium' });
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
+    renderModal(user);
+
     await act(async () => {
-      fireEvent.press(screen.getByText('Remove Premium'));
+      fireEvent.press(screen.getByText('Free'));
+    });
+
+    const buttons = (Alert.alert as jest.Mock).mock.calls[0][2];
+    const confirmBtn = buttons.find((b: any) => b.text === 'Confirmar');
+    await act(async () => {
+      confirmBtn.onPress();
     });
     expect(onRoleChange).toHaveBeenCalledWith('user-1', 'free');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('shows Alert when Ban User is pressed', () => {
+  it('shows Alert when ban action is pressed', async () => {
     const user = makeUser();
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    fireEvent.press(screen.getByText('Ban User'));
+    renderModal(user);
+    await act(async () => {
+      fireEvent.press(screen.getByText('Banir Utilizador'));
+    });
     expect(Alert.alert).toHaveBeenCalled();
   });
 
-  it('calls onBan when Alert confirm is pressed', async () => {
+  it('calls onBan when ban alert is confirmed', async () => {
     const user = makeUser();
     (Alert.alert as jest.Mock).mockImplementation((_title, _msg, buttons) => {
-      // Find the destructive/confirm button and call its onPress
-      const confirmBtn = buttons.find((b: any) => b.style === 'destructive' || b.text === 'Confirm');
+      const confirmBtn = buttons.find((b: any) => b.style === 'destructive');
       if (confirmBtn?.onPress) confirmBtn.onPress();
     });
 
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
+    renderModal(user);
     await act(async () => {
-      fireEvent.press(screen.getByText('Ban User'));
+      fireEvent.press(screen.getByText('Banir Utilizador'));
     });
     expect(onBan).toHaveBeenCalledWith('user-1');
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -279,21 +181,9 @@ describe('UserDetailModal', () => {
 
   it('calls onClose when close button is pressed', () => {
     const user = makeUser();
-    render(
-      <UserDetailModal
-        visible={true}
-        user={user}
-        onClose={onClose}
-        onBan={onBan}
-        onRoleChange={onRoleChange}
-        onExpiryChange={onExpiryChange}
-      />
-    );
-    // The close button is a Pressable with Ionicons "close" icon
-    // Find all buttons and pick the close one
-    const buttons = screen.getAllByRole('button');
-    // Close button is typically the last accessible button in the header
-    fireEvent.press(buttons[buttons.length - 1]);
-    expect(onClose).toHaveBeenCalled();
+    renderModal(user);
+    const closeButton = screen.getByLabelText('Close');
+    fireEvent.press(closeButton);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

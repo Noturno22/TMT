@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { useFonts } from 'expo-font';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -93,6 +95,10 @@ function ShareIntentHandler() {
 export default function RootLayout() {
   const { t } = useTranslation();
   useNotificationNavigation();
+
+  const [fontsLoaded] = useFonts({
+    ...Ionicons.font,
+  });
 
   useEffect(() => {
     ensureChannel().catch(() => {});

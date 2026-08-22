@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "Bilamba",
+    "statsFree": "Ya libanda",
+    "statsRating": "Nota",
+    "featuredSection": "Bipale ya lokutu",
+    "allProducts": "Bilamba nyonso",
+    "items": "bilamba {{count}}",
+    "included": "Oyo ezali kati",
+    "upgradeCta": "Koma Premium",
+    "requestCta": "Senga sikoyo",
+    "incBot1": "Kokota se na bomoyi mobimba",
+    "incBot2": "Misalisu ya mokolo na mokolo",
+    "incBot3": "Lisalisi ya liboso",
+    "incMentor1": "Ba session na direct",
+    "incMentor2": "Kominiti ya boye",
+    "incMentor3": "Lisalisi ya directe",
+    "incEbook1": "Kokota mbala moko",
+    "incEbook2": "Bandakisa ya concret",
+    "incEbook3": "Misalisu ya libanda"
   }
 }

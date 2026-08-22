@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "产品",
+    "statsFree": "免费",
+    "statsRating": "评分",
+    "featuredSection": "精选",
+    "allProducts": "所有产品",
+    "items": "{{count}} 个商品",
+    "included": "包含内容",
+    "upgradeCta": "升级高级版",
+    "requestCta": "立即获取",
+    "incBot1": "终身访问",
+    "incBot2": "自动更新",
+    "incBot3": "优先支持",
+    "incMentor1": "直播课程",
+    "incMentor2": "专属社区",
+    "incMentor3": "直接支持",
+    "incEbook1": "即时访问",
+    "incEbook2": "实用示例",
+    "incEbook3": "免费更新"
   }
 }

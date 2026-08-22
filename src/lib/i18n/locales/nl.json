@@ -886,5 +886,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "Producten",
+    "statsFree": "Gratis",
+    "statsRating": "Beoordeling",
+    "featuredSection": "Uitgelicht",
+    "allProducts": "Alle producten",
+    "items": "{{count}} artikelen",
+    "included": "Wat is inbegrepen",
+    "upgradeCta": "Word Premium",
+    "requestCta": "Nu aanvragen",
+    "incBot1": "Levenslang toegang",
+    "incBot2": "Automatische updates",
+    "incBot3": "Prioritaire ondersteuning",
+    "incMentor1": "Livesessies",
+    "incMentor2": "Exclusieve community",
+    "incMentor3": "Directe ondersteuning",
+    "incEbook1": "Directe toegang",
+    "incEbook2": "Praktische voorbeelden",
+    "incEbook3": "Gratis updates"
   }
 }

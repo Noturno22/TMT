@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "Продукты",
+    "statsFree": "Бесплатно",
+    "statsRating": "Рейтинг",
+    "featuredSection": "Избранное",
+    "allProducts": "Все продукты",
+    "items": "{{count}} товаров",
+    "included": "Что входит",
+    "upgradeCta": "Стать Премиум",
+    "requestCta": "Запросить сейчас",
+    "incBot1": "Пожизненный доступ",
+    "incBot2": "Автоматические обновления",
+    "incBot3": "Приоритетная поддержка",
+    "incMentor1": "Живые сессии",
+    "incMentor2": "Эксклюзивное сообщество",
+    "incMentor3": "Прямая поддержка",
+    "incEbook1": "Мгновенный доступ",
+    "incEbook2": "Практические примеры",
+    "incEbook3": "Бесплатные обновления"
   }
 }

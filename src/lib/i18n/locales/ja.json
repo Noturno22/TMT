@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "商品",
+    "statsFree": "無料",
+    "statsRating": "評価",
+    "featuredSection": "人気",
+    "allProducts": "すべての商品",
+    "items": "{{count}} 点",
+    "included": "含まれるもの",
+    "upgradeCta": "プレミアムになる",
+    "requestCta": "今すぐリクエスト",
+    "incBot1": "永久アクセス",
+    "incBot2": "自動アップデート",
+    "incBot3": "優先サポート",
+    "incMentor1": "ライブセッション",
+    "incMentor2": "専用コミュニティ",
+    "incMentor3": "直接サポート",
+    "incEbook1": "すぐにアクセス",
+    "incEbook2": "実践的な例",
+    "incEbook3": "無料アップデート"
   }
 }

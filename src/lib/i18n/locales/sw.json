@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "Bidhaa",
+    "statsFree": "Bure",
+    "statsRating": "Kadirio",
+    "featuredSection": "Zilizoteuliwa",
+    "allProducts": "Bidhaa zote",
+    "items": "bidhaa {{count}}",
+    "included": "Kinachojumlishwa",
+    "upgradeCta": "Kuwa Premium",
+    "requestCta": "Omba sasa",
+    "incBot1": "Ufikiaji wa maisha yote",
+    "incBot2": "Sasisho otomatiki",
+    "incBot3": "Msaada wa kipaumbele",
+    "incMentor1": "Vikao vya moja kwa moja",
+    "incMentor2": "Jumuiya maalum",
+    "incMentor3": "Msaada wa moja kwa moja",
+    "incEbook1": "Ufikiaji wa papo hapo",
+    "incEbook2": "Mifano ya vitendo",
+    "incEbook3": "Sasisho za bure"
   }
 }

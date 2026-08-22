@@ -887,5 +887,24 @@
     "empty": "Nenhum item disponível",
     "premiumRequired": "Premium Necessário",
     "premiumMessage": "Este item é exclusivo para membros Premium. Deseja fazer upgrade?"
+  ,
+    "statsProducts": "المنتجات",
+    "statsFree": "مجاني",
+    "statsRating": "التقييم",
+    "featuredSection": "مميز",
+    "allProducts": "جميع المنتجات",
+    "items": "{{count}} عنصر",
+    "included": "ما يتضمنه",
+    "upgradeCta": "كن عضواً بريميوم",
+    "requestCta": "اطلب الآن",
+    "incBot1": "وصول مدى الحياة",
+    "incBot2": "تحديثات تلقائية",
+    "incBot3": "دعم ذو أولوية",
+    "incMentor1": "جلسات مباشرة",
+    "incMentor2": "مجتمع حصري",
+    "incMentor3": "دعم مباشر",
+    "incEbook1": "وصول فوري",
+    "incEbook2": "أمثلة عملية",
+    "incEbook3": "تحديثات مجانية"
   }
 }

@@ -40,11 +40,11 @@ export function NotificationListModal({ visible, notifications, onClose, onMarkR
           <AppText variant="h2">{t('admin.notifications')}</AppText>
           <View style={styles.headerActions}>
             {unreadCount > 0 && (
-              <Pressable onPress={onMarkAllRead} style={styles.markAllBtn}>
+              <Pressable onPress={onMarkAllRead} style={styles.markAllBtn} accessibilityRole="button">
                 <AppText variant="small" style={styles.markAllText}>{t('admin.markAllRead')}</AppText>
               </Pressable>
             )}
-            <Pressable onPress={onClose} style={styles.closeBtn}>
+            <Pressable onPress={onClose} style={styles.closeBtn} accessibilityRole="button" accessibilityLabel="Close">
               <Ionicons name="close" size={24} color={Colors.text} />
             </Pressable>
           </View>
@@ -54,7 +54,7 @@ export function NotificationListModal({ visible, notifications, onClose, onMarkR
           data={notifications}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <Pressable onPress={() => onMarkRead(item.id)} style={[styles.item, !item.read && styles.itemUnread]}>
+            <Pressable onPress={() => onMarkRead(item.id)} style={[styles.item, !item.read && styles.itemUnread]} accessibilityRole="button">
               <Ionicons name={TYPE_ICONS[item.type] ?? 'notifications-outline'} size={20} color={!item.read ? Colors.primary : Colors.textMuted} />
               <View style={styles.itemContent}>
                 <AppText variant="label" style={[!item.read && styles.itemTitleUnread]}>{item.title}</AppText>

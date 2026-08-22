@@ -524,7 +524,7 @@ REGRAS OBRIGATÓRIAS:
 - Responde APENAS com JSON válido, sem markdown. Array de objetos:
   [{"symbol":"BTCUSDT","signal_type":"BUY","timeframe":"H1","entry_price":69000,"stop_loss":67500,"target_price":72000,"confidence":75,"reasons":["BOS bullish confirmado","Retração para order block em 68800","FVG preenchido"],"analysis":"Análise SMC detalhada em 2-3 frases com estrutura de mercado","smc_setup":"BOS"}]
 - DIVERSIDADE OBRIGATÓRIA: Cada sinal deve ter par, timeframe OU direção DIFERENTE. NUNCA gerar 2 sinais para o mesmo par+timeframe.
-- Timeframes variados: usa M15, M30, H1, H4 conforme o sinal. NÃO uses sempre H4.
+- Timeframes: usa APENAS M15, H1 ou H4. Nunca M30.
 - Gera 2 a 5 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
 - Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "OB", "FVG" ou "COMBO".
@@ -538,8 +538,9 @@ REGRAS OBRIGATÓRIAS:
 - Responde APENAS com JSON válido, sem markdown. Array de objetos:
   [{"symbol":"EURUSD","signal_type":"BUY","timeframe":"H1","entry_price":1.0845,"stop_loss":1.0810,"target_price":1.0910,"confidence":75,"reasons":["BOS bullish confirmado","Retração para OB em 1.0840","FVG preenchido"],"analysis":"Análise SMC detalhada em 2-3 frases com estrutura de mercado","smc_setup":"BOS"}]
 - DIVERSIDADE OBRIGATÓRIA: Cada sinal deve ter par, timeframe OU direção DIFERENTE. NUNCA gerar 2 sinais para o mesmo par+timeframe.
-- Timeframes variados: usa M15, M30, H1, H4 conforme a oportunidade. NÃO uses sempre H4.
+- Timeframes: usa APENAS M15, H1 ou H4. Nunca M30.
 - Símbolos permitidos: EURUSD, GBPUSD, USDJPY, XAUUSD, EURGBP, USDCHF, AUDUSD, USDCAD, NZDUSD.
+- OBRIGATÓRIO: pelo menos 1 sinal deve ser num par do plano free: EURUSD, GBPUSD, USDJPY, XAUUSD ou AUDUSD.
 - Foca nos pares em destaque da sessão: ${session.pairs.join(', ')}.
 - Gera 2 a 5 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
@@ -614,6 +615,8 @@ function parseSignals(text: string, isWeekend: boolean): ValidSignal[] {
     if (![entry, sl, tp, confidence].every(Number.isFinite)) continue;
     if (entry <= 0 || sl === entry || tp === entry) continue;
     if (confidence < 55 || confidence > 100) continue;
+    const tf = String(r.timeframe ?? 'H4').toUpperCase();
+    if (!['M15', 'H1', 'H4'].includes(tf)) continue;
     const risk = Math.abs(entry - sl);
     const reward = Math.abs(tp - entry);
     const rr = risk > 0 ? reward / risk : 0;
@@ -629,7 +632,7 @@ function parseSignals(text: string, isWeekend: boolean): ValidSignal[] {
     out.push({
       symbol,
       signal_type: type,
-      timeframe: String(r.timeframe ?? 'H4').toUpperCase(),
+      timeframe: tf,
       entry_price: Math.round(entry * 10000) / 10000,
       stop_loss: Math.round(sl * 10000) / 10000,
       target_price: Math.round(tp * 10000) / 10000,

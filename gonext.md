@@ -130,9 +130,10 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 - **Lint:** `eslint-plugin-react-hooks@7.1.1` (via eslint-config-expo@56.0.4) activa regras React Compiler — **42 erros pré-existentes no HEAD** (refs-during-render em worklets reanimated, purity `Date.now()`, setState-in-effect nos painéis admin). Working tree não introduz nenhum erro novo. Limpeza é dívida técnica separada.
 - **Revalidação global (2026-08-21, working tree combinado de 2 sessões):** `tsc --noEmit` → 0; eslint nos 22 ficheiros TS alterados → 3 erros = linhas 733/992/1265 de `admin.tsx` (`Date.now()` during render), **byte-idênticas ao HEAD** (pré-existentes); 16 warnings (`import/first`, `no-unused-vars`) também pré-existentes. Ficheiros do Bloco C (#12): 0 problemas.
 
-### Pendente (actualizado 2026-08-21)
+### Pendente (actualizado 2026-08-22)
 1. ~~Aplicar migrations no Supabase~~ ✅ **FEITO** — `20260822000000_admin_access_code_rpc.sql` (aplicada pela sessão paralela) + `20260822010000_store_products.sql` (aplicada nesta sessão via `supabase db push`, token configurado com `supabase login`). `migration list` = local e remoto sincronizados.
 2. ~~Wiring loja.tsx → useStoreProducts~~ ✅ **FEITO** — ver Bloco C #13. Único cuidado pendente: conflito de merge em `loja.tsx` se a sessão paralela fizer pop do stash `19179d5`.
+3. ~~Fix: aprovação de comprovativos não ativava o plano~~ ✅ **FEITO (2026-08-22)** — causa raiz: CHECK constraint `subscriptions_plan_check` só aceitava `('FREE','PREMIUM')` e o fluxo escreve `free|basic|pro|premium` (minúsculas) → upsert falhava. Migration `20260822060000_fix_subscriptions_plan_check.sql` **APLICADA** (constraint case-insensitive com os 4 tiers + normalização de linhas existentes). Edge function `admin-manage` actualizada e **DEPLOYADA**: `update_subscription_expiry` agora preserva o `plan` existente (não cria linha sem plan) e escreve `current_period_end`; `expiring_count` conta `expires_at` OU `current_period_end`. `tsc --noEmit` = 0 erros. Pendente: commit.
 
 ### Pitfalls Fase 5
 - Migrations: aplicar em ordem cronológica; Fase 1 primeiro (funda as tabelas base).

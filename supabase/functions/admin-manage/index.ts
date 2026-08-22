@@ -753,13 +753,25 @@ serve(async (req) => {
     case 'update_subscription_expiry': {
       const { user_id, expires_at } = body;
       if (!user_id) return errorJson('user_id em falta.');
+
+      // Ler o registo existente para não perder plan ao criar linha nova
+      const { data: existing } = await supabase
+        .from('subscriptions')
+        .select('plan')
+        .eq('user_id', user_id)
+        .maybeSingle();
+
+      const active = Boolean(expires_at) && new Date(expires_at as string) > new Date();
       const { error } = await supabase
         .from('subscriptions')
         .upsert(
           {
             user_id,
+            plan: existing?.plan ?? (active ? 'premium' : 'free'),
+            status: active ? 'active' : 'expired',
             expires_at,
-            status: expires_at && new Date(expires_at) > new Date() ? 'active' : 'expired',
+            current_period_end: expires_at,
+            updated_at: new Date().toISOString(),
           },
           { onConflict: 'user_id' },
         );
@@ -769,12 +781,15 @@ serve(async (req) => {
     case 'expiring_count': {
       const sevenDaysFromNow = new Date();
       sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+      // Aprovações escrevem current_period_end; concessões manuais só expires_at.
       const { count, error } = await supabase
         .from('subscriptions')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'active')
-        .lte('expires_at', sevenDaysFromNow.toISOString())
-        .gte('expires_at', new Date().toISOString());
+        .or(
+          `and(expires_at.gte.${new Date().toISOString()},expires_at.lte.${sevenDaysFromNow.toISOString()}),` +
+            `and(current_period_end.gte.${new Date().toISOString()},current_period_end.lte.${sevenDaysFromNow.toISOString()})`,
+        );
       if (error) return errorJson(error.message, 500);
       return json({ count: count ?? 0 });
     }

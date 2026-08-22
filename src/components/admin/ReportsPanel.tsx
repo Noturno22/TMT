@@ -12,6 +12,9 @@ const REASON_LABELS: Record<string, string> = {
   spam: '🚫 Spam', harassment: '⚠️ Assédio', inappropriate: '🔞 Inadequado', other: '❓ Outro',
 };
 
+let toastSeq = 0;
+const nextToastId = () => `${++toastSeq}`;
+
 export function ReportsPanel() {
   const [reports, setReports] = useState<MessageReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,13 +34,16 @@ export function ReportsPanel() {
 
   const load = useCallback(async () => {
     try { setReports(await listReports()); }
-    catch (e: any) { setToast({ id: Date.now().toString(), type: 'error', message: e.message }); }
+    catch (e: any) { setToast({ id: nextToastId(), type: 'error', message: e.message }); }
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const timer = setTimeout(load, 0);
+    return () => clearTimeout(timer);
+  }, [load]);
   const onRefresh = () => { setRefreshing(true); load(); };
-  const show = (type: 'success' | 'error', message: string) => setToast({ id: Date.now().toString(), type, message });
+  const show = (type: 'success' | 'error', message: string) => setToast({ id: nextToastId(), type, message });
 
   const pending = filteredData.filter(r => r.status === 'pending');
 
@@ -94,7 +100,7 @@ export function ReportsPanel() {
             </View>
             {r.messages && (
               <Card style={{ marginTop: Spacing.sm, padding: Spacing.sm }}>
-                <AppText variant="small" style={{ color: Colors.textMuted, fontStyle: 'italic' }} numberOfLines={3}>"{r.messages.text}"</AppText>
+                <AppText variant="small" style={{ color: Colors.textMuted, fontStyle: 'italic' }} numberOfLines={3}>“{r.messages.text}”</AppText>
               </Card>
             )}
             <AppText variant="small" style={styles.label}>Reportado por: {r.reporter?.email || 'desconhecido'}</AppText>

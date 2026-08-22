@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { supabase } from '@/lib/supabase';
@@ -111,13 +111,13 @@ export function useMovements() {
     return () => { cancelled = true; };
   }, [user?.id]);
 
-  const persist = useCallback(async (updated: WalletMovement[]) => {
+  const persist = async (updated: WalletMovement[]) => {
     listRef.current = updated;
     setMovements(updated);
     await AsyncStorage.setItem(MOVEMENTS_STORAGE_KEY, JSON.stringify(updated));
-  }, []);
+  };
 
-  const addMovement = useCallback(async (movement: Omit<WalletMovement, 'id' | 'createdAt'>) => {
+  const addMovement = async (movement: Omit<WalletMovement, 'id' | 'createdAt'>) => {
     const record: WalletMovement = {
       ...movement,
       id: Crypto.randomUUID(),
@@ -134,9 +134,9 @@ export function useMovements() {
         await supabase.from('wallet_movements').insert(toRow(record, user.id));
       } catch { /* local-first: ignore server errors */ }
     }
-  }, [user?.id, persist]);
+  };
 
-  const refresh = useCallback(async () => {
+  const refresh = async () => {
     if (!user?.id) return;
     const { data, error } = await supabase
       .from('wallet_movements')
@@ -151,7 +151,7 @@ export function useMovements() {
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
     await persist(merged);
-  }, [user?.id, persist]);
+  };
 
   return { movements, loading, addMovement, refresh };
 }

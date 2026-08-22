@@ -52,6 +52,36 @@ interface PostRow {
   created_at: string;
 }
 
+const formatTime = (mins: number) => {
+  const d = new Date(Date.now() + mins * 60_000);
+  return d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+};
+
+const lastSeenAgo = (dateStr: string | null) => {
+  if (!dateStr) return 'Nunca';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Agora';
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d`;
+  return new Date(dateStr).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
+};
+
+const receiptTimeAgo = (dateStr: string | null) => {
+  if (!dateStr) return '—';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Agora';
+  if (mins < 60) return `${mins}m atrás`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h atrás`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d atrás`;
+};
+
 export default function AdminScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -729,11 +759,6 @@ function BoomTimesPanel({ times, onRefresh, refreshing, onPullRefresh }: { times
     }
   };
 
-  const formatTime = (mins: number) => {
-    const d = new Date(Date.now() + mins * 60_000);
-    return d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-  };
-
   const RESULT_FILTERS = [
     { key: 'buy', label: 'BUY', value: 'BUY' },
     { key: 'sell', label: 'SELL', value: 'SELL' },
@@ -987,19 +1012,6 @@ function UsersPanel({
     { label: 'Banidos', value: bannedCount, color: Colors.destructive, bg: 'rgba(255,69,58,0.12)', icon: 'ban' as const },
   ];
 
-  const getTimeAgo = (dateStr: string | null) => {
-    if (!dateStr) return 'Nunca';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Agora';
-    if (mins < 60) return `${mins}m`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h`;
-    const days = Math.floor(hrs / 24);
-    if (days < 7) return `${days}d`;
-    return new Date(dateStr).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' });
-  };
-
   const handleQuickBan = async (u: typeof users[0], e: any) => {
     e.stopPropagation();
     const isBanned = (u as any).banned;
@@ -1095,7 +1107,7 @@ function UsersPanel({
         roleFiltered.map((u) => {
           const role = u.role ?? 'free';
           const isBanned = (u as any).banned === true;
-          const lastSeen = getTimeAgo(u.last_sign_in_at);
+          const lastSeen = lastSeenAgo(u.last_sign_in_at);
           const initials = u.email?.charAt(0).toUpperCase() ?? '?';
           const avatarColor = isBanned ? Colors.destructive : role === 'premium' ? Colors.accent : Colors.primary;
 
@@ -1260,18 +1272,6 @@ function ReceiptsPanel({
     { label: 'Volume', value: `${totalVolume.toLocaleString('pt-PT')}`, color: Colors.accent, bg: Colors.accentDim, icon: 'wallet-outline' as const, isCurrency: true },
   ];
 
-  const getTimeAgo = (dateStr: string | null) => {
-    if (!dateStr) return '—';
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Agora';
-    if (mins < 60) return `${mins}m atrás`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h atrás`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d atrás`;
-  };
-
   const statusConfig = (s: string) => {
     if (s === 'approved') return { color: Colors.success, bg: 'rgba(52,199,89,0.12)', border: 'rgba(52,199,89,0.3)', icon: 'checkmark-circle' as const, label: 'Aprovado' };
     if (s === 'rejected') return { color: Colors.destructive, bg: 'rgba(255,69,58,0.12)', border: 'rgba(255,69,58,0.3)', icon: 'close-circle' as const, label: 'Rejeitado' };
@@ -1350,7 +1350,7 @@ function ReceiptsPanel({
                       {r.user_email || r.user_id.slice(0, 12)}
                     </AppText>
                     <AppText variant="small" style={{ color: Colors.textFaint }}>
-                      {createdAt ? getTimeAgo(r.created_at) : '—'}
+                      {createdAt ? receiptTimeAgo(r.created_at) : '—'}
                       {createdAt && (
                         <AppText variant="small" style={{ color: Colors.textFaint }}>
                           {' · '}{createdAt.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' })}

@@ -8,6 +8,9 @@ import { listChannels, updateChannel, deleteChannel, toggleChannelPremium, type 
 import { useAdminSearch } from '@/hooks/useAdminSearch';
 import { Colors, Spacing, Radius } from '@/core/theme';
 
+let toastSeq = 0;
+const nextToastId = () => `${++toastSeq}`;
+
 export function ChannelsPanel() {
   const [channels, setChannels] = useState<AdminChannel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,13 +27,16 @@ export function ChannelsPanel() {
 
   const load = useCallback(async () => {
     try { setChannels(await listChannels()); }
-    catch (e: any) { setToast({ id: Date.now().toString(), type: 'error', message: e.message }); }
+    catch (e: any) { setToast({ id: nextToastId(), type: 'error', message: e.message }); }
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const timer = setTimeout(load, 0);
+    return () => clearTimeout(timer);
+  }, [load]);
   const onRefresh = () => { setRefreshing(true); load(); };
-  const show = (type: 'success' | 'error', message: string) => setToast({ id: Date.now().toString(), type, message });
+  const show = (type: 'success' | 'error', message: string) => setToast({ id: nextToastId(), type, message });
 
   const regular = filteredData.filter(ch => ch.type === 'regular');
   const pairRooms = filteredData.filter(ch => ch.type === 'pair');

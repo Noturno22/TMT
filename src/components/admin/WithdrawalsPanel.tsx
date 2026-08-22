@@ -39,7 +39,10 @@ export function WithdrawalsPanel() {
     finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const timer = setTimeout(load, 0);
+    return () => clearTimeout(timer);
+  }, [load]);
   const onRefresh = () => { setRefreshing(true); load(); };
 
   const pending = withdrawals.filter(w => w.status === 'pending');

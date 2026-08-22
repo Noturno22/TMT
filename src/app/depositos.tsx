@@ -43,14 +43,19 @@ export default function DepositosScreen() {
   );
   const [currency, setCurrency] = useState<Currency>(params.currency === 'aoa' ? 'aoa' : 'usd');
 
-  useEffect(() => {
+  const [syncedParams, setSyncedParams] = useState<{ plan?: string; currency?: string }>({
+    plan: params.plan,
+    currency: params.currency,
+  });
+  if (syncedParams.plan !== params.plan || syncedParams.currency !== params.currency) {
+    setSyncedParams({ plan: params.plan, currency: params.currency });
     if (params.plan && PLANS.some((p) => p.id === params.plan)) {
       setPlan(params.plan as Exclude<PlanId, 'free'>);
     }
     if (params.currency === 'aoa' || params.currency === 'usd') {
       setCurrency(params.currency as Currency);
     }
-  }, [params.plan, params.currency]);
+  }
   const [depositModal, setDepositModal] = useState<{ method?: PaymentMethod; initialProof?: ReceiptFile | null } | null>(null);
   const [sending, setSending] = useState(false);
   const [showReceiptSuccess, setShowReceiptSuccess] = useState(false);

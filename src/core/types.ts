@@ -159,6 +159,20 @@ export interface TradeStats {
   totalPips: number;
 }
 
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string | null;
+  image_url: string | null;
+  link: string | null;
+  link_label: string | null;
+  is_active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
 export type ChannelType = 'regular' | 'pair';
 export type PairRoomState = 'active' | 'closed';
 
@@ -223,6 +237,7 @@ export interface Message {
 
 export type NotificationType =
   | 'receipt_pending' | 'receipt_approved' | 'receipt_rejected'
+  | 'withdrawal_pending'
   | 'signal_closed' | 'signal_tp' | 'signal_sl'
   | 'new_user' | 'subscription_expired' | 'subscription_expiring'
   | 'system_error';

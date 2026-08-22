@@ -16,6 +16,7 @@ import { useProfiles } from '@/hooks/useProfiles';
 import { useQuickCamera } from '@/hooks/useQuickCamera';
 import { useSubscription } from '@/hooks/useSubscription';
 import { isAdminEmail } from '@/lib/supabase';
+import { useTourTarget } from '@/components/tour/registry';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import type { Channel } from '@/core/types';
 
@@ -32,6 +33,7 @@ export default function ComunidadeScreen() {
   const camera = useQuickCamera();
 
   const canCreateChannel = isAdminEmail(user?.email) || isPremium;
+  const searchRef = useTourTarget('tour:comunidade-search');
 
   const openChannel = (channel: Channel) => {
     if (channel.is_premium && !isPremium) return;
@@ -53,8 +55,8 @@ export default function ComunidadeScreen() {
   };
 
   return (
-    <Screen>
-      <View style={styles.headerRow}>
+    <Screen safeTop>
+      <View ref={searchRef} collapsable={false} style={styles.headerRow}>
         <Pressable onPress={() => router.push('/comunidade/pesquisa')} style={styles.searchBar}>
           <Ionicons name="search" size={18} color={Colors.textMuted} />
           <AppText variant="muted" style={styles.searchText}>{t('workspace.searchPlaceholder')}</AppText>

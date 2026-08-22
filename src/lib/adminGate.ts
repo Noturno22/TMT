@@ -1,9 +1,20 @@
-export const ACCESS_CODE = '239898';
+import { supabase } from '@/lib/supabase';
 
 let unlocked = false;
 
 export function isAdminUnlocked(): boolean {
   return unlocked;
+}
+
+export async function verifyAdminCode(code: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('verify_admin_access_code', {
+    p_code: code,
+  });
+  if (error) {
+    console.warn('[verifyAdminCode] rpc error:', error.message);
+    return false;
+  }
+  return data === true;
 }
 
 export function unlockAdmin(): void {

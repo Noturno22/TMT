@@ -26,7 +26,7 @@ export default function IdiomaScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['bottom']}>
       <View style={styles.header}>
         <Pressable
           onPress={() => router.back()}

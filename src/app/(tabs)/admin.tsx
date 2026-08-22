@@ -141,7 +141,7 @@ export default function AdminScreen() {
   if (!user) return <Spinner label={t('admin.checkingAccess')} />;
   if (!isAdminEmail(user.email)) {
     return (
-      <Screen>
+      <Screen safeTop>
         <View style={styles.restricted}>
           <Ionicons name="lock-closed" size={44} color={Colors.textMuted} />
           <AppText variant="h1" style={{ textAlign: 'center' }}>{t('admin.restrictedTitle')}</AppText>
@@ -169,7 +169,7 @@ export default function AdminScreen() {
   };
 
   return (
-    <Screen>
+    <Screen safeTop>
       {alerts.toasts.map((toast) => (
         <Toast key={toast.id} toast={toast} onDismiss={alerts.dismiss} />
       ))}
@@ -1217,8 +1217,8 @@ function ReceiptsPanel({
     try {
       await adminApi.approveReceipt(r.id);
       onRefresh();
-    } catch {
-      Alert.alert('Erro', 'Falha ao aprovar comprovativo.');
+    } catch (e: any) {
+      Alert.alert('Erro', e?.message || 'Falha ao aprovar comprovativo.');
     } finally {
       setBusyId(null);
     }
@@ -1228,8 +1228,8 @@ function ReceiptsPanel({
     try {
       await adminApi.rejectReceipt(r.id);
       onRefresh();
-    } catch {
-      Alert.alert('Erro', 'Falha ao rejeitar comprovativo.');
+    } catch (e: any) {
+      Alert.alert('Erro', e?.message || 'Falha ao rejeitar comprovativo.');
     } finally {
       setBusyId(null);
     }
@@ -1239,8 +1239,8 @@ function ReceiptsPanel({
     try {
       await adminApi.deleteReceipt(r.id);
       onRefresh();
-    } catch {
-      Alert.alert('Erro', 'Falha ao eliminar comprovativo.');
+    } catch (e: any) {
+      Alert.alert('Erro', e?.message || 'Falha ao eliminar comprovativo.');
     } finally {
       setBusyId(null);
     }

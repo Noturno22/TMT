@@ -1,10 +1,34 @@
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { Colors } from '@/core/theme';
+import { AppHeader } from '@/components/AppHeader';
 
 export default function ComunidadeLayout() {
   const { t } = useTranslation();
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: Colors.bg },
+        headerTintColor: Colors.text,
+        headerShadowVisible: false,
+        contentStyle: { backgroundColor: Colors.bg },
+        header: (props) => (
+          <AppHeader
+            back={props.back != null}
+            onBack={() => props.navigation.goBack()}
+            title={
+              typeof props.options.headerTitle === 'string'
+                ? props.options.headerTitle
+                : props.options.title
+            }
+            headerRight={
+              props.options.headerRight
+                ? props.options.headerRight({ tintColor: Colors.text, canGoBack: props.back != null })
+                : undefined
+            }
+          />
+        ),
+      }}>
       <Stack.Screen name="index" options={{ title: t('tabs.comunidade'), headerShown: false }} />
       <Stack.Screen
         name="canais/[channelId]"

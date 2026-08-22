@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
 import { Card, AppButton, AppText } from '@/components/ui';
-import { SearchBar, Toast, type ToastData } from '@/components/admin';
+import { SearchBar } from './SearchBar';
+import { Toast, type ToastData } from './Toast';
 import { listUsers, sendDm, sendPush } from '@/lib/adminApi';
 import { useAdminSearch } from '@/hooks/useAdminSearch';
 import { Colors, Spacing, Radius } from '@/core/theme';

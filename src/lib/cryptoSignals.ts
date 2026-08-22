@@ -10,6 +10,7 @@ export interface GenerateSignalsResult {
   ok: boolean;
   count: number;
   error?: string;
+  transient?: boolean;
 }
 
 let lastResult: GenerateSignalsResult | null = null;
@@ -74,9 +75,19 @@ export async function generateSignalsNow(): Promise<GenerateSignalsResult> {
     notify();
     return r;
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Erro desconhecido';
-    console.error('[generateSignalsNow]', msg);
-    const r = { ok: false, count: 0, error: msg };
+    const raw = e instanceof Error ? e.message : 'Erro desconhecido';
+    const name = e instanceof Error ? e.name : '';
+    const transient =
+      name === 'TimeoutError' ||
+      name === 'AbortError' ||
+      /cancel|abort|network/i.test(raw);
+    const msg = transient ? 'Ligação interrompida ou timeout. Tenta novamente.' : raw;
+    if (transient) {
+      console.warn('[generateSignalsNow] (transitório)', raw);
+    } else {
+      console.error('[generateSignalsNow]', raw);
+    }
+    const r: GenerateSignalsResult = { ok: false, count: 0, error: msg, transient };
     lastResult = r;
     notify();
     return r;
@@ -89,5 +100,8 @@ export async function generateSignalsNow(): Promise<GenerateSignalsResult> {
 export async function ensureWeekendCryptoSignals(): Promise<void> {
   if (attempted || inFlight) return;
   attempted = true;
-  await generateSignalsNow();
+  const r = await generateSignalsNow();
+  if (!r.ok && r.transient) {
+    attempted = false;
+  }
 }

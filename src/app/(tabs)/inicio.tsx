@@ -1,12 +1,18 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { AppText, EmptyState, Screen, Spinner } from '@/components/ui';
+import { AnnouncementCard } from '@/components/AnnouncementCard';
+import { ChannelSignals } from '@/components/ChannelSignals';
 import { DashboardHeader } from '@/components/DashboardHeader';
+import { NewsCard } from '@/components/NewsCard';
 import { NextBoomCard } from '@/components/NextBoomCard';
 import { PerformanceCard } from '@/components/PerformanceCard';
 import { PriceTicker } from '@/components/PriceTicker';
 import { SectionHeader } from '@/components/SectionHeader';
+import { TopSignalCard, bestSignalOf } from '@/components/TopSignalCard';
 import { useBoomHours } from '@/hooks/useBoomHours';
+import { useChannels } from '@/hooks/useChannels';
 import { useHistory } from '@/hooks/useHistory';
 import { useLivePrices } from '@/hooks/useLivePrices';
 import { useSignals } from '@/hooks/useSignals';
@@ -25,10 +31,25 @@ export default function InicioScreen() {
   const { t } = useTranslation();
   const { isPremium } = useSubscription();
   const { prices, loading: pricesLoading } = useLivePrices(TICKER_PAIRS);
-  const { stats, loading: historyLoading } = useHistory();
-  const { signals } = useSignals();
-  const { hours, loading: hoursLoading } = useBoomHours();
+  const { stats, loading: historyLoading, refetch: refetchHistory } = useHistory();
+  const { signals, refetch: refetchSignals } = useSignals();
+  const { hours, loading: hoursLoading, refetch: refetchHours } = useBoomHours();
+  const { channels } = useChannels();
   const performanceRef = useTourTarget('tour:inicio-performance');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        refetchHistory(),
+        refetchSignals(),
+        refetchHours(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchHistory, refetchSignals, refetchHours]);
 
   const now = new Date();
   const nextHour = getNextBoomHour(hours, now);
@@ -44,12 +65,20 @@ export default function InicioScreen() {
     .sort((a, b) => a.epoch - b.epoch)
     .slice(0, PREVIEW_COUNT);
 
-  const activeCount = signals.filter((s) => s.status === 'active').length;
+  const activeCount = signals.filter((s) => s.status === 'active' || s.status === 'pending').length;
+  const topSignal = bestSignalOf(signals);
 
   return (
-    <Screen scroll={false} style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <Screen scroll={false} safeTop style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+        }>
         <DashboardHeader isPremium={isPremium} />
+
+        <AnnouncementCard />
 
         <View style={styles.ticker}>
           <PriceTicker pairs={TICKER_PAIRS} prices={prices} loading={pricesLoading} />
@@ -64,7 +93,17 @@ export default function InicioScreen() {
           />
         </View>
 
+        <NewsCard />
+
+        <TopSignalCard
+          signal={topSignal}
+          price={topSignal ? prices[topSignal.pair] : undefined}
+          onPress={topSignal ? () => router.push(`/sinal/${topSignal.id}`) : undefined}
+        />
+
         <NextBoomCard nextEpochMs={nextEpochMs} />
+
+        <ChannelSignals channels={channels} signals={signals} />
 
         <SectionHeader
           title={t('inicio.nextHours')}

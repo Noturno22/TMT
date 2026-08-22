@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Alert, TextInput, Modal } from 'react-native';
 import { Card, AppButton, AppText } from '@/components/ui';
-import { SearchBar, Toast, type ToastData } from '@/components/admin';
+import { SearchBar } from './SearchBar';
+import { Toast, type ToastData } from './Toast';
 import { timeAgo } from '@/core/format';
 import { listChannels, updateChannel, deleteChannel, toggleChannelPremium, type AdminChannel } from '@/lib/adminApi';
 import { useAdminSearch } from '@/hooks/useAdminSearch';

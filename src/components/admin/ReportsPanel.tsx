@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import { Card, AppButton, AppText } from '@/components/ui';
-import { FilterChips, Toast, type ToastData } from '@/components/admin';
+import { FilterChips } from './FilterChips';
+import { Toast, type ToastData } from './Toast';
 import { timeAgo } from '@/core/format';
 import { listReports, dismissReport, actOnReport, type MessageReport } from '@/lib/adminApi';
 import { useAdminSearch } from '@/hooks/useAdminSearch';

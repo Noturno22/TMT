@@ -365,3 +365,114 @@ export async function scheduleUpgradePrompt(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+// ---------- Lembretes de expiração da subscrição ----------
+
+const EXPIRY_KEY_PREFIX = 'premium_expiry_alarms';
+const EXPIRY_DAY_MS = 24 * 60 * 60 * 1000;
+
+interface ExpiryEntry {
+  periodEnd: string;
+  id3?: string;
+  id1?: string;
+}
+
+async function loadExpiryEntry(userId: string): Promise<ExpiryEntry | null> {
+  const raw = await AsyncStorage.getItem(`${EXPIRY_KEY_PREFIX}:${userId}`);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as ExpiryEntry;
+    if (parsed && typeof parsed.periodEnd === 'string') return parsed;
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+async function saveExpiryEntry(userId: string, entry: ExpiryEntry | null): Promise<void> {
+  if (entry) await AsyncStorage.setItem(`${EXPIRY_KEY_PREFIX}:${userId}`, JSON.stringify(entry));
+  else await AsyncStorage.removeItem(`${EXPIRY_KEY_PREFIX}:${userId}`);
+}
+
+async function cancelExpiryIds(ids: (string | undefined)[]): Promise<void> {
+  for (const id of ids) {
+    if (!id) continue;
+    try {
+      await Notifications.cancelScheduledNotificationAsync(id);
+    } catch {
+      // ignore
+    }
+  }
+}
+
+/**
+ * Garante lembretes agendados para 3 dias e 1 dia antes do fim da subscrição
+ * actual. Idempotente por periodEnd — uma renovação (periodEnd novo) cancela
+ * os lembretes antigos e agenda os novos.
+ */
+export async function syncPremiumExpiryNotifications(userId: string, currentPeriodEnd: string): Promise<void> {
+  if (Platform.OS === 'web') return;
+
+  const existing = await loadExpiryEntry(userId);
+  if (existing && existing.periodEnd === currentPeriodEnd) return;
+
+  await cancelExpiryIds(existing ? [existing.id3, existing.id1] : []);
+  await saveExpiryEntry(userId, null);
+
+  const end = new Date(currentPeriodEnd);
+  if (isNaN(end.getTime()) || end.getTime() <= Date.now()) return;
+
+  await ensureUpgradeChannel();
+  const granted = await requestNotificationPermission();
+  if (!granted) return;
+
+  const entry: ExpiryEntry = { periodEnd: currentPeriodEnd };
+  try {
+    const at3 = new Date(end.getTime() - 3 * EXPIRY_DAY_MS);
+    if (at3.getTime() > Date.now()) {
+      entry.id3 = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: i18n.t('notifications.expiry3Title'),
+          body: i18n.t('notifications.expiry3Body', { days: 3 }),
+          data: { url: '/planos' },
+          sound: Platform.OS === 'ios' ? 'default' : undefined,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: at3,
+          channelId: Platform.OS === 'android' ? UPGRADE_CHANNEL_ID : undefined,
+        },
+      });
+    }
+
+    const at1 = new Date(end.getTime() - 1 * EXPIRY_DAY_MS);
+    if (at1.getTime() > Date.now()) {
+      entry.id1 = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: i18n.t('notifications.expiry1Title'),
+          body: i18n.t('notifications.expiry1Body'),
+          data: { url: '/planos' },
+          sound: Platform.OS === 'ios' ? 'default' : undefined,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: at1,
+          channelId: Platform.OS === 'android' ? UPGRADE_CHANNEL_ID : undefined,
+        },
+      });
+    }
+
+    await saveExpiryEntry(userId, entry);
+  } catch {
+    // best effort — não bloquear o arranque
+  }
+}
+
+/** Cancela lembretes de expiração pendentes (ex.: subscrição deixou de estar activa). */
+export async function cancelPremiumExpiryNotifications(userId: string): Promise<void> {
+  if (Platform.OS === 'web') return;
+  const existing = await loadExpiryEntry(userId);
+  if (!existing) return;
+  await cancelExpiryIds([existing.id3, existing.id1]);
+  await saveExpiryEntry(userId, null);
+}

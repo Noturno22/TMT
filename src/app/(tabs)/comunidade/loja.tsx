@@ -1,127 +1,13 @@
-import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, View, ScrollView } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Alert, Pressable, RefreshControl, StyleSheet, View, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { AppText, EmptyState, Screen } from '@/components/ui';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useStoreProducts, type StoreProduct } from '@/hooks/useStoreProducts';
 import { Colors, Radius, Spacing } from '@/core/theme';
 
 type Category = 'all' | 'bots' | 'mentorias' | 'ebooks';
-
-interface StoreItem {
-  id: string;
-  title: string;
-  description: string;
-  category: 'bots' | 'mentorias' | 'ebooks';
-  isPremium: boolean;
-  price: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  featured?: boolean;
-  color: string;
-  rating?: number;
-  users?: number;
-}
-
-const STORE_ITEMS: StoreItem[] = [
-  {
-    id: '1',
-    title: 'Bot Scalper Pro',
-    description: 'Bot automatizado para operações de scalping em boom com gestão de risco avançada.',
-    category: 'bots',
-    isPremium: true,
-    price: '5.000 Kz',
-    icon: 'rocket-outline',
-    featured: true,
-    color: '#FF6B6B',
-    rating: 4.8,
-    users: 342,
-  },
-  {
-    id: '2',
-    title: 'Bot Swing Trader',
-    description: 'Bot para operações de swing com trailing stop e filtros de volatilidade.',
-    category: 'bots',
-    isPremium: true,
-    price: '3.500 Kz',
-    icon: 'trending-up-outline',
-    color: '#4ECDC4',
-    rating: 4.6,
-    users: 218,
-  },
-  {
-    id: '3',
-    title: 'Bot Sinalizador',
-    description: 'Bot que envia sinais em tempo real para seu canal de trading.',
-    category: 'bots',
-    isPremium: false,
-    price: 'Grátis',
-    icon: 'notifications-outline',
-    color: '#45B7D1',
-    rating: 4.3,
-    users: 891,
-  },
-  {
-    id: '4',
-    title: 'Mentoria Individual',
-    description: 'Acompanhamento personalizado com trader profissional. Sessões ao vivo e análise de portfolio.',
-    category: 'mentorias',
-    isPremium: true,
-    price: '15.000 Kz',
-    icon: 'school-outline',
-    featured: true,
-    color: '#96CEB4',
-    rating: 4.9,
-    users: 56,
-  },
-  {
-    id: '5',
-    title: 'Mentoria em Grupo',
-    description: 'Aprenda em grupo com sessões semanais ao vivo e comunidade exclusiva.',
-    category: 'mentorias',
-    isPremium: false,
-    price: '5.000 Kz',
-    icon: 'people-outline',
-    color: '#FFEAA7',
-    rating: 4.5,
-    users: 234,
-  },
-  {
-    id: '6',
-    title: 'Ebook: Fundamentos',
-    description: 'Guia completo de análise fundamentalista para boom. Do básico ao avançado.',
-    category: 'ebooks',
-    isPremium: false,
-    price: 'Grátis',
-    icon: 'book-outline',
-    color: '#DDA0DD',
-    rating: 4.2,
-    users: 1203,
-  },
-  {
-    id: '7',
-    title: 'Ebook: Estratégias Avançadas',
-    description: 'Estratégias profissionais de trading com exemplos reais e backtests.',
-    category: 'ebooks',
-    isPremium: true,
-    price: '2.500 Kz',
-    icon: 'library-outline',
-    color: '#FF9FF3',
-    rating: 4.7,
-    users: 445,
-  },
-  {
-    id: '8',
-    title: 'Ebook: Gestão de Risco',
-    description: 'Aprenda a proteger seu capital e maximizar lucros com gestão profissional.',
-    category: 'ebooks',
-    isPremium: false,
-    price: '1.500 Kz',
-    icon: 'shield-checkmark-outline',
-    color: '#54A0FF',
-    rating: 4.4,
-    users: 678,
-  },
-];
 
 const CATEGORIES = [
   { key: 'all' as Category, labelKey: 'store.categoryAll' as const, icon: 'grid-outline' as const },
@@ -133,18 +19,30 @@ const CATEGORIES = [
 export default function LojaScreen() {
   const { t } = useTranslation();
   const { isPremium } = useSubscription();
+  const { products, refresh } = useStoreProducts();
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
+  const [refreshing, setRefreshing] = useState(false);
 
   const filteredItems =
     selectedCategory === 'all'
-      ? STORE_ITEMS
-      : STORE_ITEMS.filter((item) => item.category === selectedCategory);
+      ? products
+      : products.filter((item) => item.category === selectedCategory);
 
-  const featuredItem = STORE_ITEMS.find((item) => item.featured);
-  const totalProducts = STORE_ITEMS.length;
-  const freeCount = STORE_ITEMS.filter((i) => !i.isPremium).length;
+  const featuredItem = products.find((item) => item.featured);
+  const totalProducts = products.length;
+  const freeCount = products.filter((i) => !i.isPremium).length;
+  const avgRating =
+    totalProducts > 0
+      ? (Math.round((products.reduce((acc, i) => acc + (i.rating ?? 0), 0) / totalProducts) * 10) / 10).toFixed(1)
+      : '0.0';
 
-  const handlePress = (item: StoreItem) => {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  }, [refresh]);
+
+  const handlePress = (item: StoreProduct) => {
     if (item.isPremium && !isPremium) {
       Alert.alert(t('store.premiumRequired'), t('store.premiumMessage'), [
         { text: t('common.close') },
@@ -162,6 +60,9 @@ export default function LojaScreen() {
       <ScrollView
         contentContainerStyle={{ paddingBottom: Spacing.xl * 3 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+        }
       >
         <View style={styles.container}>
           <View style={styles.heroBanner}>
@@ -186,7 +87,7 @@ export default function LojaScreen() {
                 </View>
                 <View style={styles.heroStatDivider} />
                 <View style={styles.heroStat}>
-                  <AppText variant="h1" style={styles.heroStatValue}>4.6</AppText>
+                  <AppText variant="h1" style={styles.heroStatValue}>{avgRating}</AppText>
                   <AppText variant="small" style={styles.heroStatLabel}>Avaliação</AppText>
                 </View>
               </View>
@@ -238,7 +139,7 @@ export default function LojaScreen() {
             <View style={styles.categoryTabs}>
               {CATEGORIES.map((cat) => {
                 const isActive = selectedCategory === cat.key;
-                const count = cat.key === 'all' ? STORE_ITEMS.length : STORE_ITEMS.filter((i) => i.category === cat.key).length;
+                const count = cat.key === 'all' ? products.length : products.filter((i) => i.category === cat.key).length;
                 return (
                   <Pressable
                     key={cat.key}

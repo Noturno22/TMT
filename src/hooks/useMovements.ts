@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import type { Currency, PaymentMethod } from '@/lib/plans';
@@ -119,7 +120,7 @@ export function useMovements() {
   const addMovement = useCallback(async (movement: Omit<WalletMovement, 'id' | 'createdAt'>) => {
     const record: WalletMovement = {
       ...movement,
-      id: crypto.randomUUID(),
+      id: Crypto.randomUUID(),
       createdAt: new Date().toISOString(),
     };
 

@@ -4,7 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { AppButton, AppText, Badge, Card, Divider, Screen, SectionTitle } from '@/components/ui';
 import { AddTradeModal } from '@/components/AddTradeModal';
+import { ExportButton } from '@/components/admin/ExportButton';
 import { useTradeJournal } from '@/hooks/useTradeJournal';
+import { useTourTarget } from '@/components/tour/registry';
 import { formatMoney } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import type { TradeEntry } from '@/core/types';
@@ -121,6 +123,32 @@ export default function DiarioTraderScreen() {
   const [month, setMonth] = useState(now.getMonth());
   const [selectedDay, setSelectedDay] = useState(now.getDate());
   const [showAdd, setShowAdd] = useState(false);
+  const titleRef = useTourTarget('tour:diario-title');
+
+  const exportColumns = [
+    { key: 'date', label: 'Data' },
+    { key: 'pair', label: 'Par' },
+    { key: 'dir', label: 'Direção' },
+    { key: 'entry', label: 'Entrada' },
+    { key: 'exit', label: 'Saída' },
+    { key: 'lots', label: 'Lotes' },
+    { key: 'result', label: 'Resultado' },
+    { key: 'pnl', label: 'PnL (USD)' },
+    { key: 'pips', label: 'Pips' },
+    { key: 'notes', label: 'Notas' },
+  ];
+  const exportData = trades.map((t) => ({
+    date: t.createdAt.slice(0, 10),
+    pair: t.pair,
+    dir: t.direction,
+    entry: t.entryPrice,
+    exit: t.exitPrice ?? '',
+    lots: t.lotSize,
+    result: t.result,
+    pnl: t.profitUsd,
+    pips: t.pips,
+    notes: t.notes,
+  }));
 
   const todayKey = localDateKey(now);
   const monthDays = useMemo(() => getMonthDays(year, month), [year, month]);
@@ -171,7 +199,19 @@ export default function DiarioTraderScreen() {
 
   return (
     <Screen>
-      <SectionTitle>{t('diario.title')}</SectionTitle>
+      <View ref={titleRef} collapsable={false}>
+        <SectionTitle
+          right={
+            <ExportButton
+              data={exportData}
+              filename="tmt-diario"
+              columns={exportColumns}
+              label={t('diario.exportCsv')}
+            />
+          }>
+          {t('diario.title')}
+        </SectionTitle>
+      </View>
       <AppText variant="muted" style={{ marginBottom: Spacing.lg }}>
         {t('diario.subtitle')}
       </AppText>

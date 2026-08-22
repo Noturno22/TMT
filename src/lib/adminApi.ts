@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/env';
 import { i18n } from '@/lib/i18n';
+import type { AdminNotification } from '@/core/types';
 
 const ADMIN_FN = `${SUPABASE_URL}/functions/v1/admin-manage`;
 
@@ -158,7 +159,7 @@ export async function deleteReceipt(id: string): Promise<void> {
 }
 
 export async function saveReceipt(receipt: {
-  user_id: string;
+  user_id?: string;
   user_email?: string;
   proof_url: string;
   plan: string;
@@ -166,14 +167,27 @@ export async function saveReceipt(receipt: {
   amount: number;
   currency: string;
 }): Promise<void> {
-  await callAdminFn('save_receipt', receipt);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error(i18n.t('adminErrors.notAuthenticated'));
+  // Inserção direta (RLS permite apenas a própria linha) — não passa pela
+  // função admin, que rejeitaria utilizadores normais.
+  const { error } = await supabase.from('payment_receipts').insert({
+    user_id: user.id,
+    user_email: user.email ?? receipt.user_email ?? null,
+    proof_url: receipt.proof_url,
+    plan: receipt.plan,
+    method: receipt.method,
+    amount: receipt.amount,
+    currency: receipt.currency,
+  });
+  if (error) throw error;
 }
 
 // ── Notifications ──────────────────────────────────────────────────────
 
-export async function getNotifications(limit = 50) {
-  const data = await callAdminFn('list_notifications', { limit });
-  return data;
+export async function getNotifications(limit = 50): Promise<AdminNotification[]> {
+  const data = await callAdminFn<{ data?: AdminNotification[] }>('list_notifications', { limit });
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
 export async function markNotificationRead(id: string) {

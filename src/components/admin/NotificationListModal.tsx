@@ -2,6 +2,7 @@ import React from 'react';
 import { View, FlatList, Pressable, Modal, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText } from '@/components/ui';
 import { Colors, Spacing, Radius } from '@/core/theme';
 import { AdminNotification } from '@/core/types';
@@ -18,6 +19,7 @@ const TYPE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   receipt_pending: 'receipt-outline',
   receipt_approved: 'checkmark-circle-outline',
   receipt_rejected: 'close-circle-outline',
+  withdrawal_pending: 'cash-outline',
   signal_closed: 'trending-down',
   signal_tp: 'checkmark-done-outline',
   signal_sl: 'close-outline',
@@ -33,7 +35,7 @@ export function NotificationListModal({ visible, notifications, onClose, onMarkR
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
           <AppText variant="h2">{t('admin.notifications')}</AppText>
           <View style={styles.headerActions}>
@@ -69,7 +71,7 @@ export function NotificationListModal({ visible, notifications, onClose, onMarkR
             </View>
           }
         />
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }

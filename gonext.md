@@ -85,8 +85,8 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 - `ACCESS_CODE='239898'` (`src/lib/adminGate.ts`).
 - `EXPO_PUBLIC_ADMIN_EMAILS=jeronimo.samaina239898@gmail.com` (`isAdminEmail` case-insensitive).
 - Payment/depositos + share-intent de comprovativos já implementados (não reverter).
-- Migrations existentes: `20260814*` (whatsapp otp, repair subscriptions, pgcrypto wrappers), `20260815000000_comunidade_workspace.sql` (Fase 1: user_profiles, channels, conversations, messages, reactions, RLS, triggers, bot "TMT Bot" `11111111-1111-1111-1111-111111111111`, seed de canais, backfills), `20260816*` (weekend crypto + **`20260816010000_community_search.sql` Fase 2** + **`20260816020000_push_mentions.sql` Fase 3** + **`20260816030000_share_signal.sql` Fase 4 — todas PENDENTES de aplicar**), `20260820*` (**`20260820000000_wallet_movements.sql`** + **`20260820010000_withdrawal_requests.sql`** — Fase 5, PENDENTES de aplicar).
-- Edge functions: `generate-crypto-signals`, `whatsapp-auth`, `ai-support`, `send-notification` (Fase 3 — **não deployada ainda**).
+- Migrations existentes: `20260814*` (whatsapp otp, repair subscriptions, pgcrypto wrappers), `20260815000000_comunidade_workspace.sql` (Fase 1: user_profiles, channels, conversations, messages, reactions, RLS, triggers, bot "TMT Bot" `11111111-1111-1111-1111-111111111111`, seed de canais, backfills), `20260816*` (weekend crypto + Fases 2–4), `20260819*` a `20260821*` (trade journal, cron pipeline fix, admin notifications, wallet_movements, withdrawal_requests, expand free plan, message_reports, channel_management) — **TODAS APLICADAS em produção a 2026-08-21**.
+- Edge functions: `generate-crypto-signals`, `whatsapp-auth`, `ai-support`, `send-notification` (**deployada 2026-08-21**; secret opcional `EXPO_PUSH_ACCESS_TOKEN` ainda não definida).
 
 ## Estado de git
 - Commit `484fae0`: "feat(fase5): server-side wallet/withdrawals, analytics toggle, trade journal prices, SMC filter" (24 ficheiros, +558/-61). Branch `feature/fase5-production-readiness`.
@@ -96,14 +96,18 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 
 ## Fase 5 — Production Readiness + Feature Completion (PLANEADA, 2026-08-20)
 
-### Bloco A — Deploy pendente (OBRIGATÓRIO)
-1. **Aplicar migrations pendentes no Supabase:**
-   - `20260815000000_comunidade_workspace.sql` (Fase 1)
-   - `20260816010000_community_search.sql` (Fase 2)
-   - `20260816020000_push_mentions.sql` (Fase 3)
-   - `20260816030000_share_signal.sql` (Fase 4)
-2. **Deploy edge function:** `supabase functions deploy send-notification`
-3. **Validar cron pipeline:** verificar `service_role_key` em `app_config`, sinais a gerar e auto-close a funcionar em produção.
+### Bloco A — Deploy ✅ CONCLUÍDO (2026-08-21)
+1. **Migrations aplicadas no Supabase** ✅ (8 aplicadas: `20260819030000` → `20260821000001`)
+   - Correcções prévias ao push:
+     - `20260819_admin_notifications.sql` renomeado → `20260819050000_admin_notifications.sql` (timestamp inválido; entrada fantasma `20260819` reparada com `supabase migration repair --status reverted 20260819`)
+     - Duplicado `20260820000000` resolvido: `expand_free_plan.sql` renomeado → `20260820020000_expand_free_plan.sql`
+     - `20260819040000_fix_cron_pipeline.sql` estava TRUNCADO e com `cron.unschedule('gerar-sinais-hora')` não-defensivo — reescrito: unschedule defensivo, garante os 17 crons + close-signals idempotentemente, e WARNING se `app_config.service_role_key` faltar (não disparou → secret presente)
+2. **Edge function `send-notification` deployada** ✅ (`supabase functions deploy send-notification`)
+3. **Pipeline validado:** `generate-crypto-signals` responde HTTP 401 em ~1s sem auth (correcto); cron jobs garantidos pela migration. Teste end-to-end pendente: gerar sinais na app logada.
+
+### Bugs corrigidos a 2026-08-21
+- **Require cycles** (`admin/index.ts` ↔ painéis): `WithdrawalsPanel`, `MessagingPanel`, `ReportsPanel`, `ChannelsPanel` agora importam `SearchBar`/`FilterChips`/`Toast` directamente (`./X`) em vez do barrel.
+- **Crash `notifications.filter is not a function`**: edge function devolve `{ data: [...] }`; `getNotifications()` agora normaliza para array tipado (`AdminNotification[]`).
 
 ### Bloco B — Funcionalidades incompletas ✅ CONCLUÍDO
 4. **Wallet server-side:** ✅ Tabela `wallet_movements` + RLS + migration `20260820000000`, hook `useMovements` migrado para local-first (Supabase + AsyncStorage cache). UI actualizada em `depositos.tsx`.
@@ -113,12 +117,22 @@ Comportamento aprovado: **DM → notifica sempre o outro membro; Canal → só @
 8. **Filtro SMC setup:** ✅ Chips de filtro (BOS, CHoCH, OB, FVG, COMBO) no ecrã Analises, com `analises.filterSmc` i18n em 14 locales.
 
 ### Bloco C — UX Polish
-9. **Estender Onboarding Tour:** adicionar passos para Comunidade e Diário Trader.
-10. **Pull-to-refresh:** Início, Análises, Horários.
-11. **Remover/replace admin access code hardcoded** (`adminGate.ts`) — usar Supabase RPC ou env var.
-12. **Notificação de expiração premium:** avisar 3 dias e 1 dia antes do fim da subscription.
-13. **Store real:** substituir `STORE_ITEMS` hardcoded por tabela Supabase `store_products`, ou marcar como "coming soon" explicitamente.
-14. **Exportar Diário Trader:** CSV/PDF do histórico de trades.
+9. **Estender Onboarding Tour:** ✅ CONCLUÍDO — passos 5 (Comunidade, target `tour:comunidade-search`) e 6 (Diário Trader, target `tour:diario-title`) em `OnboardingTour.tsx`. Secção `tour` (skip/next/finish + steps 1–6) adicionada aos **14 locales** (só o pt tinha; fallbackLng: 'pt' cobria o resto).
+10. **Pull-to-refresh:** ✅ CONCLUÍDO — Início (`Promise.all` de history+signals+hours), Análises (`refetch` de sinais), Horários (`useBoomHours.refetch` novo em useHistory/useSignals).
+11. **Remover admin access code hardcoded:** ✅ CONCLUÍDO — `adminGate.ts` usa RPC `verify_admin_access_code(p_code)` (security definer, sha256 em `app_config.admin_access_code`, email tem de constar em `app_config.admin_emails`). Migration `20260822000000_admin_access_code_rpc.sql` **APLICADA em produção** (2026-08-21).
+12. **Notificação de expiração premium:** ✅ CONCLUÍDO — `syncPremiumExpiryNotifications(userId, periodEnd)` em `notifications.ts`: agenda lembretes locais datados a T−3d e T−1d do `current_period_end` (canal `planos`), dedup por periodEnd via AsyncStorage (`premium_expiry_alarms:<uid>`) — renovação re-agenda; `cancelPremiumExpiryNotifications` limpa se deixar de ser premium. Hook `usePremiumExpiryNotification()` em `useNotifications.ts`, montado no `NotificationInit` (`_layout.tsx`). i18n `notifications.expiry3Title/Body`, `expiry1Title/Body` nos 14 locales.
+13. **Store real:** ✅ CONCLUÍDO — migration **`20260822010000_store_products.sql` APLICADA em produção** (tabela + RLS + seed 8 itens + trigger updated_at) + hook **`useStoreProducts.ts`** (local-first: AsyncStorage → Supabase `active=true` por `sort_order` → fallback `DEFAULT_STORE_PRODUCTS`; devolve shape `StoreProduct` = antigo `StoreItem`) + **`loja.tsx` wired**: `STORE_ITEMS`/interface removidos, consome `useStoreProducts()`, estatísticas do hero agora calculadas dos dados reais (`avgRating` em vez de "4.6" hardcoded) e **pull-to-refresh adicionado** (padrão `RefreshControl` do inicio.tsx). **Nota:** se a sessão paralela fizer pop do stash `19179d5` (redesign da loja), este ficheiro vai conflituar — resolver mantendo o wiring (`useStoreProducts`) e reaplicando o redesign visual.
+14. **Exportar Diário Trader:** ✅ CONCLUÍDO — `ExportButton` (CSV via Share) no header do `diario-trader.tsx` com colunas data/par/direção/entrada/saída/lotes/resultado/pnl/pips/notas; i18n `diario.exportCsv` nos 14 locales.
+
+### Outros (2026-08-21, working tree)
+- **Gating plano free expandido** (`core/gating.ts`): FREE ganha XAU/USD + AUD/USD + H1 (alinhado com migration `20260820020000_expand_free_plan.sql` já aplicada); fix `pairLocked` nas Análises (par 'Todos' nunca bloqueia).
+- **Weekend crypto resiliente** (`cryptoSignals.ts`): erros transitórios (timeout/abort/network) marcados `transient` → `ensureWeekendCryptoSignals()` permite retry na próxima tentativa.
+- **Lint:** `eslint-plugin-react-hooks@7.1.1` (via eslint-config-expo@56.0.4) activa regras React Compiler — **42 erros pré-existentes no HEAD** (refs-during-render em worklets reanimated, purity `Date.now()`, setState-in-effect nos painéis admin). Working tree não introduz nenhum erro novo. Limpeza é dívida técnica separada.
+- **Revalidação global (2026-08-21, working tree combinado de 2 sessões):** `tsc --noEmit` → 0; eslint nos 22 ficheiros TS alterados → 3 erros = linhas 733/992/1265 de `admin.tsx` (`Date.now()` during render), **byte-idênticas ao HEAD** (pré-existentes); 16 warnings (`import/first`, `no-unused-vars`) também pré-existentes. Ficheiros do Bloco C (#12): 0 problemas.
+
+### Pendente (actualizado 2026-08-21)
+1. ~~Aplicar migrations no Supabase~~ ✅ **FEITO** — `20260822000000_admin_access_code_rpc.sql` (aplicada pela sessão paralela) + `20260822010000_store_products.sql` (aplicada nesta sessão via `supabase db push`, token configurado com `supabase login`). `migration list` = local e remoto sincronizados.
+2. ~~Wiring loja.tsx → useStoreProducts~~ ✅ **FEITO** — ver Bloco C #13. Único cuidado pendente: conflito de merge em `loja.tsx` se a sessão paralela fizer pop do stash `19179d5`.
 
 ### Pitfalls Fase 5
 - Migrations: aplicar em ordem cronológica; Fase 1 primeiro (funda as tabelas base).

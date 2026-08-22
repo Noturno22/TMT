@@ -9,6 +9,7 @@ interface ExportButtonProps {
   data: Record<string, unknown>[];
   filename: string;
   columns: { key: string; label: string }[];
+  label?: string;
 }
 
 function convertToCSV(data: Record<string, unknown>[], columns: { key: string; label: string }[]): string {
@@ -27,7 +28,7 @@ function convertToCSV(data: Record<string, unknown>[], columns: { key: string; l
   return [headers, ...rows].join('\n');
 }
 
-export function ExportButton({ data, filename, columns }: ExportButtonProps) {
+export function ExportButton({ data, filename, columns, label }: ExportButtonProps) {
   const { t } = useTranslation();
   const [exporting, setExporting] = useState(false);
 
@@ -57,7 +58,7 @@ export function ExportButton({ data, filename, columns }: ExportButtonProps) {
         <Ionicons name="download-outline" size={18} color={Colors.primary} />
       )}
       <AppText variant="small" style={styles.label}>
-        {exporting ? t('admin.exporting') : t('admin.exportSignals')}
+        {exporting ? t('admin.exporting') : (label ?? t('admin.exportSignals'))}
       </AppText>
     </Pressable>
   );

@@ -89,6 +89,18 @@ export function OnboardingTour() {
         title: t('tour.step4Title'),
         desc: t('tour.step4Desc'),
       },
+      {
+        route: '/(tabs)/comunidade',
+        targetId: 'tour:comunidade-search',
+        title: t('tour.step5Title'),
+        desc: t('tour.step5Desc'),
+      },
+      {
+        route: '/diario-trader',
+        targetId: 'tour:diario-title',
+        title: t('tour.step6Title'),
+        desc: t('tour.step6Desc'),
+      },
     ],
     [t],
   );

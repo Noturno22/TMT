@@ -48,7 +48,7 @@ export default function AnalisesScreen() {
 
   const limits = PLAN_LIMITS[planTier as PlanTier] ?? PLAN_LIMITS.free;
   const visiblePairs = limits.pairs;
-  const pairLocked = !canAccessPair(pair, planTier as PlanTier);
+  const pairLocked = pair !== 'Todos' && !canAccessPair(pair, planTier as PlanTier);
   const tfLocked = timeframe !== 'Todos' && !canAccessTimeframe(timeframe, planTier as PlanTier);
   const locked = pairLocked || tfLocked;
 

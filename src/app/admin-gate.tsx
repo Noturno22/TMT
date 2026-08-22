@@ -8,7 +8,7 @@ import { AppButton, AppInput, AppText } from '@/components/ui';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { isAdminEmail } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
-import { ACCESS_CODE, unlockAdmin } from '@/lib/adminGate';
+import { unlockAdmin, verifyAdminCode } from '@/lib/adminGate';
 import { useTranslation } from 'react-i18next';
 
 export default function AdminGateScreen() {
@@ -43,13 +43,21 @@ export default function AdminGateScreen() {
     );
   }
 
-  const submit = () => {
+  const submit = async () => {
+    if (busy) return;
     setError(null);
-    if (code.trim() === ACCESS_CODE) {
-      setBusy(true);
-      unlockAdmin();
-      router.replace('/admin');
-      return;
+    setBusy(true);
+    try {
+      const ok = await verifyAdminCode(code.trim());
+      if (ok) {
+        unlockAdmin();
+        router.replace('/admin');
+        return;
+      }
+    } catch {
+      // fallthrough to error below
+    } finally {
+      setBusy(false);
     }
     setCode('');
     setError(t('admin.gateWrong'));

@@ -53,7 +53,7 @@ async function fetchHistory(): Promise<{ signals: HistorySignal[]; stats: Histor
 export function useHistory() {
   const queryClient = useQueryClient();
 
-  const { data, isLoading: loading } = useQuery({
+  const { data, isLoading: loading, refetch } = useQuery({
     queryKey: ['history'],
     queryFn: () => fetchHistory(),
     staleTime: 10_000,
@@ -84,5 +84,6 @@ export function useHistory() {
     signals: data?.signals ?? [],
     stats: data?.stats ?? { total: 0, tp: 0, sl: 0, winRate: 0, totalPips: 0 },
     loading,
+    refetch,
   };
 }

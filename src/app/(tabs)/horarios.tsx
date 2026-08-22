@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { AppButton, AppText, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
@@ -112,11 +112,21 @@ export default function HorariosScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { planTier } = useSubscription();
-  const { hours, loading, error } = useBoomHours();
+  const { hours, loading, error, refetch } = useBoomHours();
   const { newsForBoom } = useEconomicCalendar();
   const [now, setNow] = useState(new Date());
   const [prefs, setPrefs] = useState<BoomPrefs>(DEFAULT_BOOM_PREFS);
+  const [refreshing, setRefreshing] = useState(false);
   const titleRef = useTourTarget('tour:horarios-title');
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   useFocusEffect(
     useCallback(() => {
@@ -144,7 +154,10 @@ export default function HorariosScreen() {
   const expired = filteredHours.filter((h) => boomHourStatus(h, now) === 'expired');
 
   return (
-    <Screen>
+    <Screen
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+      }>
       <View ref={titleRef} collapsable={false}>
         <SectionTitle
           right={

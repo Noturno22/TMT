@@ -11,11 +11,11 @@ export const ALL_PAIRS = [
   'BTC/USD',
 ];
 
-export const FREE_PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY'];
-export const BASIC_PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'EUR/GBP', 'XAU/USD'];
+export const FREE_PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAU/USD', 'AUD/USD'];
+export const BASIC_PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'XAU/USD', 'AUD/USD', 'EUR/GBP'];
 
 export const TIMEFRAMES = ['Todos', 'M15', 'H1', 'H4'];
-export const FREE_TIMEFRAMES = ['M15'];
+export const FREE_TIMEFRAMES = ['M15', 'H1'];
 export const BASIC_TIMEFRAMES = ['M15', 'H1'];
 export const PRO_TIMEFRAMES = ['M15', 'H1', 'H4'];
 
@@ -115,8 +115,7 @@ export function getPairGating(pair: string, tier: PlanTier): 'free' | 'basic' | 
 }
 
 export function getTimeframeGating(tf: string, tier: PlanTier): 'free' | 'basic' | 'pro' | 'premium' {
-  if (tf === 'M15') return 'free';
-  if (tf === 'H1') return 'basic';
+  if (tf === 'M15' || tf === 'H1') return 'free';
   return 'pro';
 }
 

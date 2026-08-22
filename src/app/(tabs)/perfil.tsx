@@ -101,7 +101,7 @@ export default function PerfilScreen() {
   };
 
   return (
-    <Screen scroll={false}>
+    <Screen scroll={false} safeTop>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <GradientCard
           colors={[Colors.primaryDim, 'rgba(255,159,10,0.07)']}

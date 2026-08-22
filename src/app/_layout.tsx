@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AiFab } from '@/components/AiFab';
 import { OnboardingTour } from '@/components/OnboardingTour';
-import { useNotificationNavigation, useUpgradeNotification } from '@/hooks/useNotifications';
+import { useNotificationNavigation, usePremiumExpiryNotification, useUpgradeNotification } from '@/hooks/useNotifications';
 import { ensureChannel } from '@/lib/notifications';
 import { AppHeader } from '@/components/AppHeader';
 import { Presence } from '@/hooks/usePresence';
@@ -29,6 +29,7 @@ const queryClient = new QueryClient({
 
 function NotificationInit() {
   useUpgradeNotification();
+  usePremiumExpiryNotification();
   return null;
 }
 

@@ -10,7 +10,7 @@ import {
   type TextInputProps,
   type TextProps,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useTranslation } from 'react-i18next';
 import { Colors, Fonts, Radius, Spacing } from '@/core/theme';
@@ -22,16 +22,19 @@ export function Screen({
   scroll = true,
   style,
   refreshControl,
+  safeTop = false,
 }: {
   children: ReactNode;
   scroll?: boolean;
   style?: object;
   refreshControl?: React.ReactElement<RefreshControlProps>;
+  safeTop?: boolean;
 }) {
   const bg = <View style={[styles.screen, style]}>{children}</View>;
-  if (!scroll) return <SafeAreaView style={styles.safe}>{bg}</SafeAreaView>;
+  const edges: Edge[] = safeTop ? ['top', 'left', 'right', 'bottom'] : ['left', 'right', 'bottom'];
+  if (!scroll) return <SafeAreaView style={styles.safe} edges={edges}>{bg}</SafeAreaView>;
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={edges}>
       <KeyboardAwareScrollView
         refreshControl={refreshControl}
         contentContainerStyle={{ paddingBottom: Spacing.xl * 2 }}

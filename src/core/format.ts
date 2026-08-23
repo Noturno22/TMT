@@ -147,3 +147,10 @@ export function formatMoney(n: number): string {
   if (!isFinite(n)) return '—';
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+/** Formata valores da gestão de capital respeitando a moeda (USD/Kz). */
+export function formatBancaMoney(n: number, currency: 'usd' | 'aoa' = 'usd'): string {
+  if (!isFinite(n)) return '—';
+  if (currency === 'aoa') return `${Math.round(n).toLocaleString('pt-PT')} Kz`;
+  return `$${formatMoney(n)}`;
+}

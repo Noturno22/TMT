@@ -18,3 +18,4 @@ export { WithdrawalsPanel } from './WithdrawalsPanel';
 export { MessagingPanel } from './MessagingPanel';
 export { ReportsPanel } from './ReportsPanel';
 export { ChannelsPanel } from './ChannelsPanel';
+export { AnnouncementsPanel } from './AnnouncementsPanel';

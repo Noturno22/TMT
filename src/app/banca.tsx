@@ -6,7 +6,7 @@ import { AppButton, AppText, Badge, Card, Divider, EmptyState, Screen, SectionTi
 import { GradientCard } from '@/components/GradientCard';
 import { PremiumLock } from '@/components/PremiumLock';
 import { GrowthPlanSection } from '@/components/GrowthPlanSection';
-import { formatMoney, formatShortDate } from '@/core/format';
+import { formatBancaMoney, formatShortDate } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -40,6 +40,7 @@ export default function BancaScreen() {
 
   const capital = config.capital;
   const current = config.achieved;
+  const cur = config.currency ?? 'usd';
   const profit = current - capital;
   const profitPct = capital > 0 ? (profit / capital) * 100 : 0;
   const isProfit = profit >= 0;
@@ -64,14 +65,14 @@ export default function BancaScreen() {
           <StatusPill label={t('capital.active')} color={Colors.success} />
         </View>
         <AppText variant="mono" style={[styles.heroValue, { color: isProfit ? Colors.text : Colors.destructive }]}>
-          ${formatMoney(current)}
+          {formatBancaMoney(current, cur)}
         </AppText>
         <View style={styles.heroFooter}>
           <AppText variant="small" style={{ color: 'rgba(255,255,255,0.6)' }}>
-            {t('capital.deposited')}${formatMoney(capital)}
+            {t('capital.deposited')}{formatBancaMoney(capital, cur)}
           </AppText>
           <AppText variant="small" style={{ color: isProfit ? '#34C759' : '#FF453A' }}>
-            {isProfit ? '+' : ''}{formatMoney(profit)} USD ({profitPct > 0 ? '+' : ''}{profitPct.toFixed(1)}%)
+            {isProfit ? '+' : ''}{formatBancaMoney(profit, cur)} ({profitPct > 0 ? '+' : ''}{profitPct.toFixed(1)}%)
           </AppText>
         </View>
       </GradientCard>
@@ -80,7 +81,7 @@ export default function BancaScreen() {
         <Card style={styles.statCard}>
           <Ionicons name="trending-up" size={18} color={Colors.success} />
           <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.profit')}</AppText>
-          <AppText variant="label" style={{ color: Colors.success }}>+{formatMoney(profit)} USD</AppText>
+          <AppText variant="label" style={{ color: Colors.success }}>+{formatBancaMoney(profit, cur)}</AppText>
         </Card>
         <Card style={styles.statCard}>
           <Ionicons name="flag" size={18} color={Colors.accent} />
@@ -90,7 +91,7 @@ export default function BancaScreen() {
         <Card style={styles.statCard}>
           <Ionicons name="cash" size={18} color={Colors.warning} />
           <AppText variant="small" style={{ color: Colors.textMuted }}>{t('capital.withdrawn')}</AppText>
-          <AppText variant="label" style={{ color: Colors.warning }}>${formatMoney(config.totalWithdrawn)}</AppText>
+          <AppText variant="label" style={{ color: Colors.warning }}>{formatBancaMoney(config.totalWithdrawn, cur)}</AppText>
         </Card>
       </View>
 
@@ -104,10 +105,10 @@ export default function BancaScreen() {
         </View>
         <View style={styles.progressLabels}>
           <AppText variant="small" style={{ color: Colors.textMuted }}>
-            +{formatMoney(profit)} USD
+            +{formatBancaMoney(profit, cur)}
           </AppText>
           <AppText variant="small" style={{ color: Colors.accent }}>
-            Meta: +{formatMoney(targetValue)} USD
+            Meta: +{formatBancaMoney(targetValue, cur)}
           </AppText>
         </View>
       </Card>
@@ -173,7 +174,7 @@ export default function BancaScreen() {
         ))}
       </Card>
 
-      <GrowthPlanSection capital={config.capital} />
+      <GrowthPlanSection capital={config.capital} currency={config.currency ?? 'usd'} />
     </Screen>
   );
 }

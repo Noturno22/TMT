@@ -12,8 +12,12 @@ import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AiFab } from '@/components/AiFab';
 import { OnboardingTour } from '@/components/OnboardingTour';
+import { PremiumCapitalCredit } from '@/components/PremiumCapitalCredit';
+import { PremiumWelcomeModal } from '@/components/PremiumWelcomeModal';
+import { UserNotificationWatcher } from '@/components/UserNotificationWatcher';
 import { useNotificationNavigation, usePremiumExpiryNotification, useUpgradeNotification } from '@/hooks/useNotifications';
 import { ensureChannel } from '@/lib/notifications';
+import { initReferralCapture } from '@/lib/referral';
 import { AppHeader } from '@/components/AppHeader';
 import { Presence } from '@/hooks/usePresence';
 import { PushTokenInit } from '@/hooks/usePushToken';
@@ -104,6 +108,8 @@ export default function RootLayout() {
     ensureChannel().catch(() => {});
   }, []);
 
+  useEffect(() => initReferralCapture(), []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <KeyboardProvider>
@@ -115,6 +121,9 @@ export default function RootLayout() {
           <NotificationInit />
           <Presence />
           <PushTokenInit />
+          <UserNotificationWatcher />
+          <PremiumCapitalCredit />
+          <PremiumWelcomeModal />
           <StatusBar style="light" />
           <Stack
             screenOptions={{

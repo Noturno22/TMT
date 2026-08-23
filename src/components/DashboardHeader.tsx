@@ -22,6 +22,7 @@ import { AppText, Badge } from '@/components/ui';
 import { avatarLetter, displayName } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnreadUserNotifications } from '@/hooks/useUnreadUserNotifications';
 import { analyzeImage } from '@/lib/aiSupport';
 import { prepareImageForAnalysis } from '@/lib/imageResize';
 
@@ -32,6 +33,7 @@ export function DashboardHeader({ isPremium }: { isPremium: boolean }) {
   const router = useRouter();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { unread } = useUnreadUserNotifications();
   const firstName = (displayName(user) || t('common.trader')).split(' ')[0];
   const hour = new Date().getHours();
   const greeting =
@@ -160,6 +162,7 @@ export function DashboardHeader({ isPremium }: { isPremium: boolean }) {
           </Pressable>
           <Pressable hitSlop={8} onPress={() => router.push('/notificacoes')}>
             <Ionicons name="notifications" size={20} color={Colors.text} />
+            {unread > 0 ? <View style={styles.bellDot} /> : null}
           </Pressable>
         </View>
       </View>
@@ -368,6 +371,17 @@ const styles = StyleSheet.create({
   textWrap: { gap: 1 },
   greeting: { color: Colors.textMuted },
   right: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  bellDot: {
+    position: 'absolute',
+    top: -2,
+    right: -3,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: Colors.destructive,
+    borderWidth: 1.5,
+    borderColor: Colors.bg,
+  },
 
   // Modal
   modalBg: { flex: 1 },

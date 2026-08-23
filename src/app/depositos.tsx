@@ -13,6 +13,7 @@ import { uploadReceipt, type ReceiptFile } from '@/lib/payments';
 import { clearReceiptInbox, getReceiptInbox } from '@/lib/receiptInbox';
 import { saveReceipt, submitWithdrawalRequest } from '@/lib/adminApi';
 import { notifyPlanRequestSubmitted } from '@/lib/planRequests';
+import { savePendingPlanPayment } from '@/lib/referral';
 import { ReceiptSuccessModal } from '@/components/ReceiptSuccessModal';
 import {
   PAYMENT_METHODS,
@@ -24,7 +25,7 @@ import {
   type PaymentMethod,
   type PlanId,
 } from '@/lib/plans';
-import { formatMoney, formatShortDate } from '@/core/format';
+import { formatBancaMoney, formatMoney, formatShortDate } from '@/core/format';
 import { Colors, Radius, Spacing } from '@/core/theme';
 
 type TabId = 'deposit' | 'withdraw';
@@ -145,6 +146,9 @@ export default function DepositosScreen() {
           amount: planPrice,
           currency,
         });
+        // Regista o valor pago — ao ativar o premium passa a ser o saldo da
+        // gestão de capital (para utilizadores vindos de link de afiliado).
+        void savePendingPlanPayment({ plan, amount: planPrice, currency });
       } catch (err: any) {
         console.warn('[confirmDeposit] saveReceipt failed:', err?.message);
         Alert.alert(
@@ -276,7 +280,7 @@ export default function DepositosScreen() {
             <AppText style={styles.heroUsdText}>{currencySymbol}</AppText>
           </View>
         </View>
-        <AppText style={styles.heroValue}>{`$${formatMoney(banca.achieved)}`}</AppText>
+        <AppText style={styles.heroValue}>{formatBancaMoney(banca.achieved, banca.currency ?? 'usd')}</AppText>
         <View style={styles.heroFooter}>
           <Ionicons name="lock-closed" size={13} color="rgba(255,255,255,0.65)" />
           <AppText style={styles.heroSub}>{t('depositos.balanceSub')}</AppText>
@@ -359,7 +363,7 @@ export default function DepositosScreen() {
                   {t('depositos.withdrawAvailable')}
                 </AppText>
                 <AppText variant="label" style={{ color: Colors.success }}>
-                  {`$${formatMoney(banca.achieved)}`}
+                  {formatBancaMoney(banca.achieved, banca.currency ?? 'usd')}
                 </AppText>
               </View>
 

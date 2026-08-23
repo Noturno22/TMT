@@ -491,41 +491,40 @@
     "taglinePro": "Voor serieuze traders",
     "taglinePremium": "Complete ervaring",
     "featureFree": [
-      "3 Forex-paren (EUR/USD, GBP/USD, USD/JPY)",
-      "M15-signalen",
-      "RSI, EMA en basis-MACD",
+      "5 belangrijkste paren (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "1 signaal per dag (M15 & H1)",
+      "Basisindicatoren (RSI, SMA)",
       "24-uurs historie",
-      "Toegang tot de community",
-      "Realtime alerts",
-      "Bankrollbeheer"
+      "Toegang tot de community"
     ],
     "featureBasic": [
       "6 Forex-paren",
-      "M15- en H1-signalen",
-      "RSI, EMA, MACD, Bollinger",
-      "Push-alerts (2 per dag)",
-      "7-dagen historie",
-      "Support per e-mail",
-      "Geavanceerd bankrollbeheer"
+      "5 signalen per dag (M15 & H1)",
+      "Alle indicatoren (RSI, MACD, Bollinger, ATR)",
+      "Technische analyse bij elk signaal",
+      "Slimme push-alerts (5/dag)",
+      "7-daagse historie met win rate",
+      "Ondersteuning via e-mail"
     ],
     "featurePro": [
-      "Alle Forex-paren (10+)",
-      "M15-, H1- en H4-signalen",
-      "Alle technische indicatoren",
-      "Realtime alerts",
-      "Volledige historie met pips",
-      "Dagelijkse marktanalyses",
-      "Prioritaire support",
-      "Geavanceerd bankrollbeheer + 1:1-analyse"
+      "Alle paren — Forex + Crypto",
+      "15 signalen per dag (M15, H1 & H4)",
+      "Volledige AI-analyse bij elk signaal",
+      "Onbeperkte realtime push-alerts",
+      "30-daagse historie met pips en win rate",
+      "Automatische signalen elk uur",
+      "Prioritaire ondersteuning"
     ],
     "featurePremium": [
       "Alles uit het Pro-abonnement",
-      "Vroegtijdige signalen (early access)",
-      "Alerts via WhatsApp en Telegram",
-      "Maandelijkse livesessies",
-      "Geavanceerd bankrollbeheer",
-      "Persoonlijke bankrollanalyse (1:1)",
-      "Dedicated 1:1-support"
+      "Volledig onbeperkte signalen",
+      "Bankroll met doelen en samengestelde rente",
+      "Professioneel kapitaalbeheer inbegrepen",
+      "Exclusieve kanalen + maak je eigen kanaal",
+      "Leden-exclusieve winkel",
+      "Booms met geavanceerde instellingen",
+      "AI-ondersteuning met ruimere limieten",
+      "Copy Trading, API & weekrapporten — binnenkort"
     ],
     "capitalSpotTitle": "Professioneel Kapitaalbeheer",
     "capitalSpotDesc": "Met Premium beheert ons team je kapitaal op de markt terwijl je elk resultaat in de app volgt.",

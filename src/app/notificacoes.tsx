@@ -18,6 +18,7 @@ import {
   clearUserNotifications,
   deleteUserNotification,
   fetchUserNotifications,
+  markAllUserNotificationsRead,
 } from '@/lib/userNotifications';
 import { formatShortDate } from '@/core/format';
 
@@ -113,6 +114,8 @@ export default function NotificacoesScreen() {
 
   useEffect(() => {
     load().then(setItems).catch(() => setItems([]));
+    // Ao abrir a caixa de entrada, tudo conta como lido (limpa o sino).
+    markAllUserNotificationsRead().catch(() => {});
   }, [load]);
 
   const remove = async (identifier: string) => {

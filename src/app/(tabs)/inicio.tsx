@@ -8,6 +8,7 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { NewsCard } from '@/components/NewsCard';
 import { NextBoomCard } from '@/components/NextBoomCard';
 import { PerformanceCard } from '@/components/PerformanceCard';
+import { PremiumStatusBanner } from '@/components/PremiumStatusBanner';
 import { PriceTicker } from '@/components/PriceTicker';
 import { SectionHeader } from '@/components/SectionHeader';
 import { TopSignalCard, bestSignalOf } from '@/components/TopSignalCard';
@@ -91,6 +92,8 @@ export default function InicioScreen() {
         </View>
 
         <AnnouncementCard />
+
+        <PremiumStatusBanner />
 
         <View ref={performanceRef} collapsable={false}>
           <PerformanceCard

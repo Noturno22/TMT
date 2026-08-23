@@ -10,7 +10,7 @@ import {
   SearchBar, FilterChips, BulkActionsBar, SkeletonList, Toast, ExportButton,
   NotificationBadge, NotificationListModal, UserDetailModal,
 } from '@/components/admin';
-import { WithdrawalsPanel, MessagingPanel, ReportsPanel, ChannelsPanel } from '@/components/admin';
+import { WithdrawalsPanel, MessagingPanel, ReportsPanel, ChannelsPanel, AnnouncementsPanel } from '@/components/admin';
 import { Colors, Spacing, Radius } from '@/core/theme';
 import { supabase, isAdminEmail } from '@/lib/supabase';
 import { isAdminUnlocked } from '@/lib/adminGate';
@@ -25,7 +25,7 @@ import type { TFunction } from 'i18next';
 import { useAdminSearch } from '@/hooks/useAdminSearch';
 import { useAdminAlerts } from '@/hooks/useAdminAlerts';
 
-type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users' | 'receipts' | 'withdrawals' | 'messaging' | 'reports' | 'channels';
+type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users' | 'receipts' | 'withdrawals' | 'messaging' | 'reports' | 'channels' | 'announcements';
 
 const TABS = [
   { key: 'dashboard' as const, labelKey: 'admin.tabDashboard' as const },
@@ -39,6 +39,7 @@ const TABS = [
   { key: 'messaging' as const, labelKey: 'admin.tabMessaging' as const },
   { key: 'reports' as const, labelKey: 'admin.tabReports' as const },
   { key: 'channels' as const, labelKey: 'admin.tabChannels' as const },
+  { key: 'announcements' as const, labelKey: 'admin.tabAnnouncements' as const },
 ];
 
 interface PostRow {
@@ -245,6 +246,8 @@ export default function AdminScreen() {
         <ReportsPanel />
       ) : tab === 'channels' ? (
         <ChannelsPanel />
+      ) : tab === 'announcements' ? (
+        <AnnouncementsPanel />
       ) : (
         <UsersPanel users={users} premium={stats.premium} refreshing={refreshing} onPullRefresh={onRefresh} onSelectUser={(u) => { setSelectedUser(u as UserWithSubscription); setShowUserModal(true); }} />
       )}
@@ -323,7 +326,9 @@ function DashboardPanel({
             <Card style={styles.statCard}>
               <AppText variant="small" style={styles.statLabel}>Receita (Mês)</AppText>
               <AppText variant="h1">${(revStats.thisMonthRevenue.usd ?? 0).toFixed(2)}</AppText>
-              {revStats.thisMonthRevenue.aoa ? <AppText variant="small" style={styles.statLabel}>{revStats.thisMonthRevenue.aoa.toLocaleString()} Kz</AppText> : null}
+              <AppText variant="small" style={styles.statLabel}>
+                {(revStats.thisMonthRevenue.aoa ?? 0).toLocaleString('pt-PT')} Kz
+              </AppText>
             </Card>
             <Card style={styles.statCard}>
               <AppText variant="small" style={styles.statLabel}>Pagamentos</AppText>
@@ -332,6 +337,9 @@ function DashboardPanel({
             <Card style={styles.statCard}>
               <AppText variant="small" style={styles.statLabel}>Levantamentos Pendentes</AppText>
               <AppText variant="h1" style={{ color: Colors.warning }}>${(revStats.pendingWithdrawalsAmount.usd ?? 0).toFixed(2)}</AppText>
+              <AppText variant="small" style={styles.statLabel}>
+                {(revStats.pendingWithdrawalsAmount.aoa ?? 0).toLocaleString('pt-PT')} Kz
+              </AppText>
             </Card>
           </>
         )}

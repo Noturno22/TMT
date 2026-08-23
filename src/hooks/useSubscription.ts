@@ -14,23 +14,38 @@ export interface CheckoutResult {
 
 export type PlanTier = 'free' | 'basic' | 'pro' | 'premium';
 
+// Espelha get_user_plan() no servidor: status ativo E dentro do período.
+const withinPeriod = (s: Subscription | null): boolean => {
+  if (!s) return false;
+  const end = s.current_period_end ?? null;
+  if (!end) return true;
+  return new Date(end).getTime() > Date.now();
+};
+
 export function useSubscription() {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [periodActive, setPeriodActive] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     if (!user) {
       setSubscription(null);
+      setPeriodActive(false);
       setLoading(false);
       return;
     }
+    // .limit(1) em vez de .maybeSingle(): linhas duplicadas devolvem null e
+    // bloqueariam um utilizador premium que pagou. A mais recente é a válida.
     const { data } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .maybeSingle();
-    setSubscription((data as Subscription | null) ?? null);
+      .order('updated_at', { ascending: false, nullsFirst: false })
+      .limit(1);
+    const latest = ((data as Subscription[] | null) ?? [])[0] ?? null;
+    setSubscription(latest);
+    setPeriodActive(withinPeriod(latest));
     setLoading(false);
   }, [user]);
 
@@ -54,7 +69,7 @@ export function useSubscription() {
     };
   }, [user, fetchData]);
 
-  const isPremium = subscription?.status === 'active';
+  const isPremium = subscription?.status === 'active' && periodActive;
 
   const planName = (subscription?.plan ?? '').toLowerCase();
   const planTier: PlanTier = isPremium

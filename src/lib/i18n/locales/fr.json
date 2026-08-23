@@ -461,41 +461,40 @@
     "taglinePro": "Pour les traders sérieux",
     "taglinePremium": "Expérience complète",
     "featureFree": [
-      "3 paires Forex (EUR/USD, GBP/USD, USD/JPY)",
-      "Signaux M15",
-      "RSI, EMA et MACD de base",
-      "Historique de 24h",
-      "Accès à la communauté",
-      "Alertes en temps réel",
-      "Gestion de banca"
+      "5 paires principales (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "1 signal par jour (M15 et H1)",
+      "Indicateurs de base (RSI, SMA)",
+      "Historique de 24 heures",
+      "Accès à la communauté"
     ],
     "featureBasic": [
       "6 paires Forex",
-      "Signaux M15 et H1",
-      "RSI, EMA, MACD, Bollinger",
-      "Alertes push (2 par jour)",
-      "Historique de 7 jours",
-      "Support par email",
-      "Gestion de banca avancée"
+      "5 signaux par jour (M15 et H1)",
+      "Tous les indicateurs (RSI, MACD, Bollinger, ATR)",
+      "Analyse technique sur chaque signal",
+      "Alertes push intelligentes (5/jour)",
+      "Historique de 7 jours avec taux de réussite",
+      "Support par email"
     ],
     "featurePro": [
-      "Toutes les paires Forex (10+)",
-      "Signaux M15, H1 et H4",
-      "Tous les indicateurs techniques",
-      "Alertes en temps réel",
-      "Historique complet avec pips",
-      "Analyses de marché quotidiennes",
-      "Support prioritaire",
-      "Gestion de banca avancée + analyse 1:1"
+      "Toutes les paires — Forex + Crypto",
+      "15 signaux par jour (M15, H1 et H4)",
+      "Analyse IA complète sur chaque signal",
+      "Alertes push illimitées en temps réel",
+      "Historique de 30 jours avec pips et taux de réussite",
+      "Signaux automatiques chaque heure",
+      "Support prioritaire"
     ],
     "featurePremium": [
       "Tout le plan Pro",
-      "Signaux anticipés (early access)",
-      "Alertes via WhatsApp et Telegram",
-      "Sessions en direct mensuelles",
-      "Gestion de banca avancée",
-      "Analyse personnalisée de banca (1:1)",
-      "Support 1:1 dédié"
+      "Signaux totalement illimités",
+      "Banca avec objectifs et intérêts composés",
+      "Gestion de capital professionnelle incluse",
+      "Canaux exclusifs + crée ton propre canal",
+      "Boutique exclusive pour membres",
+      "Booms avec réglages avancés",
+      "Support IA aux limites étendues",
+      "Copy Trading, API et rapports hebdomadaires — bientôt disponible"
     ],
     "capitalSpotTitle": "Gestion de Capital Professionnelle",
     "capitalSpotDesc": "Avec Premium, notre équipe gère votre capital sur le marché pendant que vous suivez chaque résultat dans l'app.",

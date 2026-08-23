@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AppText, Divider } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { MetricGrid } from '@/components/MetricGrid';
-import { formatMoney, formatShortDate } from '@/core/format';
+import { formatBancaMoney, formatMoney, formatShortDate } from '@/core/format';
 import { Colors, Spacing } from '@/core/theme';
 import type { BancaConfig } from '@/core/types';
 import { useMovements, type WalletMovement } from '@/hooks/useMovements';
@@ -38,6 +38,7 @@ function MovementRow({ m, index }: { m: WalletMovement; index: number }) {
 export function WalletCard({ config }: { config: BancaConfig }) {
   const { t } = useTranslation();
   const { movements, loading } = useMovements();
+  const cur = config.currency ?? 'usd';
   const metaValue = config.capital * (config.metaPercent / 100);
   const progress = config.achieved - config.capital;
   const progressPct = metaValue > 0 ? Math.min(100, Math.max(0, (progress / metaValue) * 100)) : 0;
@@ -55,27 +56,27 @@ export function WalletCard({ config }: { config: BancaConfig }) {
           </View>
         </View>
         <AppText variant="mono" style={[styles.balanceValue, { color: aboveCapital ? Colors.text : Colors.destructive }]}>
-          ${formatMoney(config.achieved)}
+          {formatBancaMoney(config.achieved, cur)}
         </AppText>
         <View style={styles.balanceFooter}>
           <AppText variant="small" style={{ color: Colors.textMuted }}>
-            {t('components.walletCard.capitalBase')}${formatMoney(config.capital)}
+            {t('components.walletCard.capitalBase')}{formatBancaMoney(config.capital, cur)}
           </AppText>
           <AppText variant="small" style={{ color: aboveCapital ? Colors.success : Colors.destructive }}>
-            {aboveCapital ? '+' : ''}{formatMoney(progress)} USD
+            {aboveCapital ? '+' : ''}{formatBancaMoney(progress, cur === 'aoa' ? 'aoa' : 'usd')}
           </AppText>
         </View>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${progressPct}%`, backgroundColor: aboveCapital ? Colors.success : Colors.destructive }]} />
         </View>
         <AppText variant="small" style={styles.metaCaption}>
-          {t('components.walletCard.targetReturn')}+{formatMoney(metaValue)} USD ({config.metaPercent}%)
+          {t('components.walletCard.targetReturn')}+{formatBancaMoney(metaValue, cur)} ({config.metaPercent}%)
         </AppText>
       </GradientCard>
 
       <MetricGrid
         items={[
-          { label: t('components.walletCard.capital'), value: `$${formatMoney(config.capital)}`, accent: Colors.text },
+          { label: t('components.walletCard.capital'), value: formatBancaMoney(config.capital, cur), accent: Colors.text },
           { label: t('components.walletCard.target'), value: `${config.metaPercent}%`, accent: Colors.accent },
           { label: t('components.walletCard.riskPerOp'), value: `${config.riskPercent}%`, accent: Colors.secondary },
         ]}

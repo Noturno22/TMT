@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText, Badge, Card } from '@/components/ui';
 import { Colors, Spacing } from '@/core/theme';
+import { formatBancaMoney } from '@/core/format';
 import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'growth_plan';
@@ -24,11 +25,7 @@ const PLANS: GrowthPlan[] = [
   { id: 'agressivo', nameKey: 'planoCrescimento.aggressive', descKey: 'planoCrescimento.aggressiveDesc', returnPct: 50, months: 3, icon: 'rocket', color: Colors.destructive },
 ];
 
-function formatMoney(n: number): string {
-  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-export function GrowthPlanSection({ capital }: { capital: number }) {
+export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: number; currency?: 'usd' | 'aoa' }) {
   const { t } = useTranslation();
   const [selectedId, setSelectedId] = useState('conservador');
   const [activated, setActivated] = useState(false);
@@ -103,11 +100,11 @@ export function GrowthPlanSection({ capital }: { capital: number }) {
         <AppText variant="label" style={styles.projTitle}>{t('planoCrescimento.projection')}</AppText>
         <View style={styles.projRow}>
           <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.investment')}</AppText>
-          <AppText variant="label">{formatMoney(capital)} USD</AppText>
+          <AppText variant="label">{formatBancaMoney(capital, currency)}</AppText>
         </View>
         <View style={styles.projRow}>
           <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.estimatedReturn')}</AppText>
-          <AppText variant="label" style={{ color: Colors.success }}>{formatMoney(projectedReturn)} USD</AppText>
+          <AppText variant="label" style={{ color: Colors.success }}>{formatBancaMoney(projectedReturn, currency)}</AppText>
         </View>
         <View style={styles.projRow}>
           <AppText style={{ color: Colors.textBody }}>{t('planoCrescimento.period')}</AppText>
@@ -115,7 +112,7 @@ export function GrowthPlanSection({ capital }: { capital: number }) {
         </View>
         <View style={styles.profitBadge}>
           <AppText variant="small" style={{ color: Colors.success, fontWeight: '700' }}>
-            {t('planoCrescimento.estimatedProfit', { value: formatMoney(profit) })}
+            {t('planoCrescimento.estimatedProfit', { value: formatBancaMoney(profit, currency) })}
           </AppText>
         </View>
       </Card>

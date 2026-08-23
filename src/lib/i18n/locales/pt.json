@@ -1,4 +1,22 @@
 {
+  "premiumWelcome": {
+    "title": "Bem-vindo ao Premium!",
+    "body": "O teu plano está ativo. Agora tens o TMT completo nas tuas mãos.",
+    "perkBank": "Banca com metas e juros compostos",
+    "perkSignals": "Sinais totalmente ilimitados",
+    "perkChannels": "Canais exclusivos da comunidade",
+    "perkStore": "Loja exclusiva para membros",
+    "ctaBank": "Ativar a minha Banca",
+    "ctaExplore": "Explorar sinais"
+  },
+  "premiumBanner": {
+    "expiringTitle_one": "{{count}} dia restante no teu plano",
+    "expiringTitle_other": "{{count}} dias restantes no teu plano",
+    "expiringSub": "Renova agora para não perder os teus benefícios.",
+    "expiredTitle": "O teu plano Premium expirou",
+    "expiredSub": "Expirou a {{date}}. Renova para recuperar o acesso total.",
+    "renew": "Renovar"
+  },
   "common": {
     "loading": "A carregar…",
     "cancel": "Cancelar",
@@ -273,6 +291,7 @@
     "tabMessaging": "Mensagens",
     "tabReports": "Reports",
     "tabChannels": "Canais",
+    "tabAnnouncements": "Anúncios",
     "checkingAccess": "A verificar acesso…",
     "loadingAdmin": "A carregar admin…",
     "restrictedTitle": "Acesso restrito",
@@ -520,46 +539,40 @@
     "taglinePro": "A arma secreta do trader",
     "taglinePremium": "Experiência institucional",
     "featureFree": [
-      "5 pares (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
-      "Sinais M15 e H1 — ilimitados",
+      "5 pares principais (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "1 sinal por dia (M15 e H1)",
       "Indicadores básicos (RSI, SMA)",
-      "Histórico de 24h",
-      "Acesso à comunidade",
-      "Gestão de banca simples"
+      "Histórico de 24 horas",
+      "Acesso à comunidade"
     ],
     "featureBasic": [
-      "6 pares Forex (inclui XAU/USD)",
-      "Sinais M15 e H1 — ilimitados",
+      "6 pares Forex",
+      "5 sinais por dia (M15 e H1)",
       "Todos os indicadores (RSI, MACD, Bollinger, ATR)",
       "Análise técnica em cada sinal",
       "Alertas push inteligentes (5/dia)",
       "Histórico de 7 dias com win rate",
-      "Gestão de banca avançada",
       "Suporte por email"
     ],
     "featurePro": [
-      "Todos os pares — Forex + Crypto (10+)",
-      "Sinais M15, H1 e H4 — ilimitados",
-      "IA分析 completa em cada sinal",
-      "Indicadores avançados + Bollinger + MACD",
+      "Todos os pares — Forex + Crypto",
+      "15 sinais por dia (M15, H1 e H4)",
+      "Análise IA completa em cada sinal",
       "Alertas push ilimitados em tempo real",
-      "Histórico completo com pips e win rate",
+      "Histórico de 30 dias com pips e win rate",
       "Sinais automáticos a cada hora",
-      "Sessões ao vivo semanais de mercado",
-      "Gestão de banca + análise 1:1 mensal",
       "Suporte prioritário"
     ],
     "featurePremium": [
       "Tudo do plano Pro",
-      "Sinais antecipados (5 min antes de todos)",
-      "Alertas via WhatsApp + Telegram + Email",
-      "Sessões ao vivo DIÁRIAS com o analista",
-      "Copy Trading — copia os sinais do analista automaticamente",
-      "Análise personalizada de banca 1:1 (semanal)",
-      "Relatórios semanais de performance",
-      "API de sinais para bots próprios",
-      "Suporte 1:1 dedicado via WhatsApp",
-      "Meta de banca automática com compound"
+      "Sinais totalmente ilimitados",
+      "Banca com metas e juros compostos",
+      "Gestão de capital profissional incluída",
+      "Canais exclusivos + cria o teu próprio canal",
+      "Loja exclusiva para membros",
+      "Booms com configurações avançadas",
+      "Suporte IA com limites alargados",
+      "Copy Trading, API e relatórios semanais — em breve"
     ],
     "capitalSpotTitle": "Gestão de Capital Profissional",
     "capitalSpotDesc": "No Premium, a nossa equipa gere o teu capital no mercado e tu acompanhas cada resultado na app.",

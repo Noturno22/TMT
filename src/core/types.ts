@@ -123,6 +123,7 @@ export interface BancaConfig {
   nextWithdrawal: string;
   totalWithdrawn: number;
   profitEarned: number;
+  currency?: 'usd' | 'aoa';
 }
 
 export type TradeDirection = 'BUY' | 'SELL';

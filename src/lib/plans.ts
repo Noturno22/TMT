@@ -71,13 +71,13 @@ export const PLANS: PaidPlanInfo[] = [
 ];
 
 export const PRICES: Record<Currency, Record<PlanId, string>> = {
-  usd: { free: '$0', basic: '$14.99', pro: '$29.99', premium: '$49.99' },
-  aoa: { free: '0 Kz', basic: '10.000 Kz', pro: '20.000 Kz', premium: '35.000 Kz' },
+  usd: { free: '$0', basic: '$10', pro: '$20', premium: '$35' },
+  aoa: { free: '0 Kz', basic: '14.990 Kz', pro: '29.990 Kz', premium: '49.990 Kz' },
 };
 
 export const PLAN_PRICES: Record<Currency, Record<Exclude<PlanId, 'free'>, number>> = {
-  usd: { basic: 14.99, pro: 29.99, premium: 49.99 },
-  aoa: { basic: 10000, pro: 20000, premium: 35000 },
+  usd: { basic: 10, pro: 20, premium: 35 },
+  aoa: { basic: 14990, pro: 29990, premium: 49990 },
 };
 
 export const planLabel = (plan: Exclude<PlanId, 'free'>): string =>

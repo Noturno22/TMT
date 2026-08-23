@@ -5,13 +5,20 @@ import { usePathname, useRouter } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 const HIDDEN_PREFIXES = ['/(auth)', '/login', '/whatsapp', '/suporte-ia'];
 const STORAGE_KEY = 'tmt_ai_fab_y';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const FAB_SIZE = 40;
 const FAB_MARGIN = 12;
+const IDLE_OPACITY = 0.55;
 
 export function AiFab() {
   const router = useRouter();
@@ -19,8 +26,21 @@ export function AiFab() {
   const { user } = useAuth();
   const pathname = usePathname();
 
-  const y = useSharedValue(SCREEN_HEIGHT - 160);
+  const y = useSharedValue(SCREEN_HEIGHT - 110);
+  const float = useSharedValue(0);
   const [ready, setReady] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  useEffect(() => {
+    float.value = withRepeat(
+      withSequence(
+        withTiming(-5, { duration: 1300 }),
+        withTiming(5, { duration: 1300 }),
+      ),
+      -1,
+      true,
+    );
+  }, [float]);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((v) => {
@@ -51,7 +71,8 @@ export function AiFab() {
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: y.value }],
+    transform: [{ translateY: y.value + float.value }],
+    opacity: pressed ? 1 : IDLE_OPACITY,
   }));
 
   if (!user) return null;
@@ -66,6 +87,8 @@ export function AiFab() {
         <Animated.View style={[styles.wrap, animatedStyle]}>
           <Pressable
             onPress={() => router.push('/suporte-ia')}
+            onPressIn={() => setPressed(true)}
+            onPressOut={() => setPressed(false)}
             style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
             accessibilityRole="button"
             accessibilityLabel={t('components.aiFab.label')}>

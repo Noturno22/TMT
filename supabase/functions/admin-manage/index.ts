@@ -732,6 +732,44 @@ serve(async (req) => {
       if (error) return errorJson(error.message, 500);
       return json({ count: count ?? 0 });
     }
+    // ── Announcements ───────────────────────────────────────────────────
+    case 'list_announcements': {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+      if (error) return errorJson(error.message, 500);
+      return json({ announcements: data });
+    }
+    case 'upsert_announcement': {
+      const { id, title, body: aBody, image_url, link, link_label, is_active, sort_order } = body;
+      if (!title) return errorJson('título em falta.');
+      const row: Record<string, unknown> = {
+        title: String(title),
+        body: aBody != null ? String(aBody) : null,
+        image_url: image_url ? String(image_url) : null,
+        link: link ? String(link) : null,
+        link_label: link_label ? String(link_label) : null,
+        is_active: is_active !== false,
+        sort_order: Number(sort_order) || 0,
+      };
+      if (id) row.id = String(id);
+      const { data, error } = await supabase
+        .from('announcements')
+        .upsert(row)
+        .select()
+        .single();
+      if (error) return errorJson(error.message, 500);
+      return json({ announcement: data });
+    }
+    case 'delete_announcement': {
+      const { id } = body;
+      if (!id) return errorJson('id em falta.');
+      const { error } = await supabase.from('announcements').delete().eq('id', id);
+      if (error) return errorJson(error.message, 500);
+      return json({ deleted: true });
+    }
     case 'ban_user': {
       const { user_id } = body;
       if (!user_id) return errorJson('user_id em falta.');

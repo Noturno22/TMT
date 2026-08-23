@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,7 +29,7 @@ export default function AdminGateScreen() {
           <Image
             source={require('@/assets/images/bg-login.png')}
             style={styles.bgLogo}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View pointerEvents="none" style={styles.aura} />
           <SafeAreaView style={styles.safe}>
@@ -71,12 +72,12 @@ export default function AdminGateScreen() {
         <Image
           source={require('@/assets/images/bg-login.png')}
           style={styles.bgLogo}
-          resizeMode="contain"
+          resizeMode="cover"
         />
         <View pointerEvents="none" style={styles.aura} />
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          behavior="padding">
           <SafeAreaView style={styles.safe}>
             <View style={styles.wrap}>
               <View style={styles.iconWrap}>
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: 24,
-    paddingBottom: 120,
+    paddingBottom: 48,
     gap: Spacing.md,
   },
   iconWrap: {

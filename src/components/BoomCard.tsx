@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
   Image,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { File } from 'expo-file-system';
@@ -234,7 +233,7 @@ export function BoomCard({
       </Pressable>
 
       {expanded ? (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView behavior="padding">
           {comments.length > 0 ? (
             <View style={styles.commentsList}>
               {comments.map((c) => (

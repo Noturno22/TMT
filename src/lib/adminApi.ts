@@ -290,6 +290,45 @@ export async function toggleChannelPremium(id: string): Promise<{ is_premium: bo
   return callAdminFn('toggle_channel_premium', { id });
 }
 
+// ── Announcements ──────────────────────────────────────────────────────
+
+export interface AdminAnnouncement {
+  id: string;
+  title: string;
+  body: string | null;
+  image_url: string | null;
+  link: string | null;
+  link_label: string | null;
+  is_active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export async function listAnnouncements(): Promise<AdminAnnouncement[]> {
+  const { announcements } = await callAdminFn<{ announcements: AdminAnnouncement[] }>('list_announcements', {});
+  return announcements ?? [];
+}
+
+export async function upsertAnnouncement(data: {
+  id?: string;
+  title: string;
+  body?: string | null;
+  image_url?: string | null;
+  link?: string | null;
+  link_label?: string | null;
+  is_active?: boolean;
+  sort_order?: number;
+}): Promise<AdminAnnouncement> {
+  const { announcement } = await callAdminFn<{ announcement: AdminAnnouncement }>('upsert_announcement', data);
+  return announcement;
+}
+
+export async function deleteAnnouncement(id: string): Promise<void> {
+  await callAdminFn('delete_announcement', { id });
+}
+
 // ── Bulk Delete ────────────────────────────────────────────────────────
 
 export async function bulkDeleteSignals(ids: string[]) {

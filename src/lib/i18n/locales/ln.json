@@ -492,41 +492,40 @@
     "taglinePro": "Mpo na ba traders ya solo",
     "taglinePremium": "Expérience ya mobimba",
     "featureFree": [
-      "Bapaires Forex 3 (EUR/USD, GBP/USD, USD/JPY)",
-      "Ba signaux M15",
-      "RSI, EMA mpe MACD ya mobandelo",
-      "Lisapo ya 24h",
-      "Accès na lisanga",
-      "Ba alertes na temps réel",
-      "Gestion ya capital"
+      "Bapaires 5 ya monene (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "Signal 1 na mokolo (M15 mpe H1)",
+      "Ba indicateurs ya mobandelo (RSI, SMA)",
+      "Lisapo ya heures 24",
+      "Accès na lisanga"
     ],
     "featureBasic": [
       "Bapaires Forex 6",
-      "Ba signaux M15 mpe H1",
-      "RSI, EMA, MACD, Bollinger",
-      "Ba alertes push (2 na mokolo)",
-      "Lisapo ya mikolo 7",
-      "Support na email",
-      "Gestion ya capital ya likoló"
+      "Ba signaux 5 na mokolo (M15 mpe H1)",
+      "Ba indicateurs nyonso (RSI, MACD, Bollinger, ATR)",
+      "Analyse technique ya signal nionso",
+      "Ba alertes push malamu (5/mokolo)",
+      "Lisapo ya mikolo 7 na win rate",
+      "Support na email"
     ],
     "featurePro": [
-      "Bapaires Forex nyonso (10+)",
-      "Ba signaux M15, H1 mpe H4",
-      "Ba indicateurs technique nyonso",
-      "Ba alertes na temps réel",
-      "Lisapo ya mobimba na ba pips",
-      "Ba analyse ya marché mokolo nyonso",
-      "Support ya liboso",
-      "Gestion ya capital ya likoló + analyse 1:1"
+      "Bapaires nyonso — Forex mpe Crypto",
+      "Ba signaux 15 na mokolo (M15, H1 mpe H4)",
+      "Analyse IA ya mobimba ya signal nionso",
+      "Ba alertes push sans limite na temps réel",
+      "Lisapo ya mikolo 30 na ba pips mpe win rate",
+      "Ba signaux automatiques heure na heure",
+      "Support ya liboso"
     ],
     "featurePremium": [
       "Nyonso ya plan Pro",
-      "Ba signaux ya liboso (early access)",
-      "Ba alertes na WhatsApp mpe Telegram",
-      "Ba sessions ya sika sanza na sanza",
-      "Gestion ya capital ya likoló",
-      "Analyse ya capital ya yo (1:1)",
-      "Support 1:1 mpo na yo"
+      "Ba signaux sans limite ya solo",
+      "Capital na ba objectifs mpe intérêts composés",
+      "Gestion professionnelle ya capital ezali",
+      "Bacanaux exclusifs + sala canal na yo moko",
+      "Botolo ya ba membres seulement",
+      "Boom na ba réglages ya likoló",
+      "Support AI na ba limites ya monene",
+      "Copy Trading, API mpe ba rapports ya semaine — ekomela"
     ],
     "capitalSpotTitle": "Gestion professionnelle ya capital",
     "capitalSpotDesc": "Na Premium, équipe na biso gestionaka capital na yo na marché, mpe ozali kolanda ba résultats nyonso na app.",

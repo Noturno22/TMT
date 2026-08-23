@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import {
   Animated,
   Easing,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -97,7 +96,7 @@ export default function WhatsappScreen() {
       <View pointerEvents="none" style={styles.aura} />
       <SafeAreaView style={styles.safe}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior="padding"
           style={styles.container}>
           <Animated.View style={[styles.header, fadeSlide]}>
             <Pressable

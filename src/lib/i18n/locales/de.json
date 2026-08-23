@@ -461,41 +461,40 @@
     "taglinePro": "Für ernsthafte Trader",
     "taglinePremium": "Das komplette Erlebnis",
     "featureFree": [
-      "3 Forex-Paare (EUR/USD, GBP/USD, USD/JPY)",
-      "M15-Signale",
-      "Basis-RSI, EMA und MACD",
+      "5 Haupt-Paare (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "1 Signal pro Tag (M15 & H1)",
+      "Basis-Indikatoren (RSI, SMA)",
       "24-Stunden-Verlauf",
-      "Zugang zur Community",
-      "Echtzeit-Alarme",
-      "Bankroll-Verwaltung"
+      "Community-Zugang"
     ],
     "featureBasic": [
       "6 Forex-Paare",
-      "M15- und H1-Signale",
-      "RSI, EMA, MACD, Bollinger",
-      "Push-Alarme (2 pro Tag)",
-      "7-Tage-Verlauf",
-      "Support per E-Mail",
-      "Erweiterte Bankroll-Verwaltung"
+      "5 Signale pro Tag (M15 & H1)",
+      "Alle Indikatoren (RSI, MACD, Bollinger, ATR)",
+      "Technische Analyse bei jedem Signal",
+      "Intelligente Push-Alarme (5/Tag)",
+      "7-Tage-Verlauf mit Win-Rate",
+      "E-Mail-Support"
     ],
     "featurePro": [
-      "Alle Forex-Paare (10+)",
-      "M15-, H1- und H4-Signale",
-      "Alle technischen Indikatoren",
-      "Echtzeit-Alarme",
-      "Vollständiger Verlauf mit Pips",
-      "Tägliche Marktanalysen",
-      "Priorisierter Support",
-      "Erweiterte Bankroll-Verwaltung + 1:1-Analyse"
+      "Alle Paare — Forex + Krypto",
+      "15 Signale pro Tag (M15, H1 & H4)",
+      "Vollständige KI-Analyse bei jedem Signal",
+      "Unbegrenzte Echtzeit-Push-Alarme",
+      "30-Tage-Verlauf mit Pips und Win-Rate",
+      "Automatische Stundensignale",
+      "Priorisierter Support"
     ],
     "featurePremium": [
       "Alles aus dem Pro-Plan",
-      "Vorab-Signale (Early Access)",
-      "Alarme über WhatsApp und Telegram",
-      "Monatliche Live-Sessions",
-      "Erweiterte Bankroll-Verwaltung",
-      "Personalisierte Bankroll-Analyse (1:1)",
-      "Dedizierter 1:1-Support"
+      "Völlig unbegrenzte Signale",
+      "Banca mit Zielen und Zinseszins",
+      "Professionelles Kapitalmanagement inklusive",
+      "Exklusive Kanäle + erstelle deinen eigenen Kanal",
+      "Mitglieder-exklusiver Shop",
+      "Booms mit erweiterten Einstellungen",
+      "KI-Support mit erweiterten Limits",
+      "Copy Trading, API & Wochenberichte — demnächst"
     ],
     "capitalSpotTitle": "Professionelles Kapitalmanagement",
     "capitalSpotDesc": "Mit Premium verwaltet unser Team dein Kapital am Markt, während du jedes Ergebnis in der App verfolgst.",

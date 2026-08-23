@@ -1,4 +1,22 @@
 {
+  "premiumWelcome": {
+    "title": "Welcome to Premium!",
+    "body": "Your plan is active. The full TMT experience is now in your hands.",
+    "perkBank": "Banca with goals and compound interest",
+    "perkSignals": "Fully unlimited signals",
+    "perkChannels": "Exclusive community channels",
+    "perkStore": "Members-only store",
+    "ctaBank": "Activate my Banca",
+    "ctaExplore": "Explore signals"
+  },
+  "premiumBanner": {
+    "expiringTitle_one": "{{count}} day left on your plan",
+    "expiringTitle_other": "{{count}} days left on your plan",
+    "expiringSub": "Renew now so you don't lose your benefits.",
+    "expiredTitle": "Your Premium plan has expired",
+    "expiredSub": "Expired on {{date}}. Renew to regain full access.",
+    "renew": "Renew"
+  },
   "common": {
     "loading": "Loading…",
     "cancel": "Cancel",
@@ -276,6 +294,7 @@
     "tabMessaging": "Messaging",
     "tabReports": "Reports",
     "tabChannels": "Channels",
+    "tabAnnouncements": "Announcements",
     "checkingAccess": "Checking access…",
     "loadingAdmin": "Loading admin…",
     "restrictedTitle": "Restricted access",
@@ -516,41 +535,40 @@
     "taglinePro": "For serious traders",
     "taglinePremium": "Complete experience",
     "featureFree": [
-      "5 pairs (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
-      "M15 & H1 signals — unlimited",
-      "Basic RSI, EMA and MACD",
-      "24h history",
-      "Community access",
-      "Real-time alerts",
-      "Bankroll management"
+      "5 main pairs (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "1 signal per day (M15 & H1)",
+      "Basic indicators (RSI, SMA)",
+      "24-hour history",
+      "Community access"
     ],
     "featureBasic": [
       "6 Forex pairs",
-      "M15 & H1 signals — unlimited",
-      "RSI, EMA, MACD, Bollinger",
-      "Push alerts (2 per day)",
-      "7-day history",
-      "Email support",
-      "Advanced bankroll management"
+      "5 signals per day (M15 & H1)",
+      "All indicators (RSI, MACD, Bollinger, ATR)",
+      "Technical analysis on every signal",
+      "Smart push alerts (5/day)",
+      "7-day history with win rate",
+      "Email support"
     ],
     "featurePro": [
-      "All Forex pairs (10+)",
-      "M15, H1 & H4 signals — unlimited",
-      "All technical indicators",
-      "Real-time alerts",
-      "Full history with pips",
-      "Daily market analysis",
-      "Priority support",
-      "Advanced bankroll management + 1:1 analysis"
+      "All pairs — Forex + Crypto",
+      "15 signals per day (M15, H1 & H4)",
+      "Full AI analysis on every signal",
+      "Unlimited real-time push alerts",
+      "30-day history with pips and win rate",
+      "Automatic hourly signals",
+      "Priority support"
     ],
     "featurePremium": [
-      "Everything in the Pro plan",
-      "Early access signals",
-      "Alerts via WhatsApp and Telegram",
-      "Monthly live sessions",
-      "Advanced bankroll management",
-      "Personalized bankroll analysis (1:1)",
-      "Dedicated 1:1 support"
+      "Everything in Pro",
+      "Fully unlimited signals",
+      "Banca with goals and compound interest",
+      "Professional capital management included",
+      "Exclusive channels + create your own channel",
+      "Members-only store",
+      "Advanced Boom settings",
+      "Extended AI support limits",
+      "Copy Trading, API & weekly reports — coming soon"
     ],
     "capitalSpotTitle": "Professional Capital Management",
     "capitalSpotDesc": "With Premium, our team manages your capital in the market while you track every result in the app.",

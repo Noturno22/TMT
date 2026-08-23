@@ -461,41 +461,40 @@
     "taglinePro": "Kwa traders wa kweli",
     "taglinePremium": "Uzoefu kamili",
     "featureFree": [
-      "Jozi 3 za Forex (EUR/USD, GBP/USD, USD/JPY)",
-      "Ishara za M15",
-      "RSI, EMA na MACD msingi",
+      "Jozi 5 kuu (EUR/USD, GBP/USD, USD/JPY, XAU/USD, AUD/USD)",
+      "Ishara 1 kwa siku (M15 na H1)",
+      "Viashiria vya msingi (RSI, SMA)",
       "Historia ya saa 24",
-      "Ufikiaji wa jamii",
-      "Tahadhari za wakati halisi",
-      "Usimamizi wa mtaji"
+      "Ufikiaji wa jamii"
     ],
     "featureBasic": [
       "Jozi 6 za Forex",
-      "Ishara za M15 na H1",
-      "RSI, EMA, MACD, Bollinger",
-      "Tahadhari za push (2 kwa siku)",
-      "Historia ya siku 7",
-      "Msaada kwa email",
-      "Usimamizi wa mtaji wa hali ya juu"
+      "Ishara 5 kwa siku (M15 na H1)",
+      "Viashiria vyote (RSI, MACD, Bollinger, ATR)",
+      "Uchambuzi wa kiufundi wa kila ishara",
+      "Arifa za mahiri za push (5/siku)",
+      "Historia ya siku 7 yenye win rate",
+      "Msaada wa barua pepe"
     ],
     "featurePro": [
-      "Jozi zote za Forex (10+)",
-      "Ishara za M15, H1 na H4",
-      "Viashiria vyote vya kiufundi",
-      "Tahadhari za wakati halisi",
-      "Historia kamili yenye pips",
-      "Uchambuzi wa soko wa kila siku",
-      "Msaada wa kipaumbele",
-      "Usimamizi wa mtaji wa hali ya juu + uchambuzi 1:1"
+      "Jozi zote — Forex na Crypto",
+      "Ishara 15 kwa siku (M15, H1 na H4)",
+      "Uchambuzi kamili wa AI wa kila ishara",
+      "Arifa zisizo na kikomo za papo hapo",
+      "Historia ya siku 30 yenye pips na win rate",
+      "Ishara za kiotomatiki kila saa",
+      "Msaada wa kipaumbele"
     ],
     "featurePremium": [
       "Kila kitu cha mpango wa Pro",
-      "Ishara za mapema (early access)",
-      "Tahadhari kupitia WhatsApp na Telegram",
-      "Vipindi vya moja kwa moja kila mwezi",
-      "Usimamizi wa mtaji wa hali ya juu",
-      "Uchambuzi maalum wa mtaji (1:1)",
-      "Msaada maalum 1:1"
+      "Ishara zisizo na kikomo kabisa",
+      "Mtaji wenye malengo na riba inayokua",
+      "Usimamizi wa kitaalamu wa mtaji umeshirikishwa",
+      "Chaneli za kipekee + unda chaneli yako",
+      "Duka la kipekee kwa wanachama",
+      "Boom zenye mipangilio ya hali ya juu",
+      "Msaada wa AI na mipaka pana",
+      "Copy Trading, API na taarifa za wiki — inakuja hivi karibuni"
     ],
     "capitalSpotTitle": "Usimamizi wa Kitaalamu wa Mtaji",
     "capitalSpotDesc": "Kwa Premium, timu yetu inasimamia mtaji wako sokoni nayo unafuatilia kila matokeo kwenye programu.",

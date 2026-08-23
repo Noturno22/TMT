@@ -1,4 +1,5 @@
-import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppText, Screen } from '@/components/ui';
@@ -31,7 +32,7 @@ export default function DmScreen() {
       <Stack.Screen options={{ title: otherName || '…' }} />
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        behavior="padding">
         <MessageList
           messages={messages.messages}
           reactions={messages.reactions}

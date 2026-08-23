@@ -697,7 +697,9 @@
     "suggestion1": "Wie funktionieren die Pläne?",
     "suggestion2": "Was ist die Boom-Zeit?",
     "suggestion3": "Wie aktiviere ich die Alarme?",
-    "suggestion4": "Wie verwalte ich meine Bankroll?"
+    "suggestion4": "Wie verwalte ich meine Bankroll?",
+    "remainingChat": "Nachrichten heute übrig: {{count}}",
+    "remainingImage": "Analysen heute übrig: {{count}}"
   },
   "planoCrescimento": {
     "title": "Wachstumsplan",
@@ -720,7 +722,11 @@
   "aiErrors": {
     "contact": "Fehler beim Kontaktieren des Supports. Versuche es erneut.",
     "noResponse": "Die KI hat keine Antwort geliefert.",
-    "connection": "Verbindungsfehler. Prüfe deine Internetverbindung und versuche es erneut."
+    "connection": "Verbindungsfehler. Prüfe deine Internetverbindung und versuche es erneut.",
+    "auth": "Melde dich an, um den KI-Assistenten zu nutzen.",
+    "quotaChat": "Du hast dein tägliches Limit erreicht. Mach ein Upgrade, um weiterzuschreiben.",
+    "quotaImage": "Die Bildanalyse erfordert einen bezahlten Plan. Upgrade im Tab Pläne.",
+    "quotaBurst": "Zu viele Anfragen hintereinander. Warte ein paar Minuten und versuche es erneut."
   },
   "legal": {
     "termos": "Allgemeine Geschäftsbedingungen",

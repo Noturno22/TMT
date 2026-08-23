@@ -126,6 +126,31 @@ export interface BancaConfig {
   currency?: 'usd' | 'aoa';
 }
 
+/** Saldo autoritativo da Gestão de Capital (publicado pela equipa, via servidor). */
+export interface CapitalAccount {
+  user_id: string;
+  currency: 'usd' | 'aoa';
+  capital: number;
+  achieved: number;
+  total_withdrawn: number;
+  status: string;
+  updated_at?: string;
+}
+
+/** Relatório periódico de performance publicado pela equipa. */
+export interface CapitalReport {
+  id: string;
+  user_id: string;
+  period_start: string;
+  period_end: string;
+  starting_balance: number;
+  ending_balance: number;
+  profit: number;
+  profit_pct: number;
+  note: string | null;
+  created_at: string;
+}
+
 export type TradeDirection = 'BUY' | 'SELL';
 export type TradeResult = 'WIN' | 'LOSS' | 'BREAKEVEN';
 

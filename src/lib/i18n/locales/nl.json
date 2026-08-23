@@ -696,7 +696,9 @@
     "suggestion1": "Hoe werken de abonnementen?",
     "suggestion2": "Wat is de Boom-tijd?",
     "suggestion3": "Hoe activeer ik de alarmen?",
-    "suggestion4": "Hoe beheer ik mijn bankroll?"
+    "suggestion4": "Hoe beheer ik mijn bankroll?",
+    "remainingChat": "Berichten vandaag over: {{count}}",
+    "remainingImage": "Analyses vandaag over: {{count}}"
   },
   "planoCrescimento": {
     "title": "Groeiplan",
@@ -719,7 +721,11 @@
   "aiErrors": {
     "contact": "Fout bij het contact opnemen met support. Probeer opnieuw.",
     "noResponse": "De AI gaf geen antwoord.",
-    "connection": "Verbindingsfout. Controleer je internetverbinding en probeer opnieuw."
+    "connection": "Verbindingsfout. Controleer je internetverbinding en probeer opnieuw.",
+    "auth": "Meld je aan om de AI-assistent te gebruiken.",
+    "quotaChat": "Je hebt je dagelijkse limiet bereikt. Upgrade om door te gaan met chatten.",
+    "quotaImage": "Beeldanalyse vereist een betaald abonnement. Upgrade in het tabblad Abonnementen.",
+    "quotaBurst": "Te veel verzoeken achter elkaar. Wacht een paar minuten en probeer het opnieuw."
   },
   "legal": {
     "termos": "Algemene voorwaarden",

@@ -697,7 +697,9 @@
     "suggestion1": "套餐如何运作？",
     "suggestion2": "什么是 Boom 时间？",
     "suggestion3": "如何启用闹钟？",
-    "suggestion4": "如何管理我的资金？"
+    "suggestion4": "如何管理我的资金？",
+    "remainingChat": "今日剩余消息数：{{count}}",
+    "remainingImage": "今日剩余分析次数：{{count}}"
   },
   "planoCrescimento": {
     "title": "增长计划",
@@ -720,7 +722,11 @@
   "aiErrors": {
     "contact": "联系支持时出错。请重试。",
     "noResponse": "AI 未返回回答。",
-    "connection": "连接错误。请检查你的网络并重试。"
+    "connection": "连接错误。请检查你的网络并重试。",
+    "auth": "登录后即可使用AI助手。",
+    "quotaChat": "你已达到套餐的每日上限。升级后可继续对话。",
+    "quotaImage": "图像分析需要付费套餐。请在“套餐”标签页中升级。",
+    "quotaBurst": "请求过于频繁。请等待几分钟后再试。"
   },
   "legal": {
     "termos": "条款与条件",

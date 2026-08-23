@@ -697,7 +697,9 @@
     "suggestion1": "Mipango inafanyaje kazi?",
     "suggestion2": "Saa ya Boom ni nini?",
     "suggestion3": "Nawasha kengeleje?",
-    "suggestion4": "Ninaisimamiaje mtaji wangu?"
+    "suggestion4": "Ninaisimamiaje mtaji wangu?",
+    "remainingChat": "Ujumbe uliobaki leo: {{count}}",
+    "remainingImage": "Uchambuzi uliobaki leo: {{count}}"
   },
   "planoCrescimento": {
     "title": "Mpango wa Ukuaji",
@@ -720,7 +722,11 @@
   "aiErrors": {
     "contact": "Hitilafu wakati wa kuwasiliana na msaada. Jaribu tena.",
     "noResponse": "AI haikurudisha jibu.",
-    "connection": "Hitilafu ya muunganisho. Angalia intaneti yako na ujaribu tena."
+    "connection": "Hitilafu ya muunganisho. Angalia intaneti yako na ujaribu tena.",
+    "auth": "Ingia ili kutumia msaidizi wa AI.",
+    "quotaChat": "Umefikia kikomo cha kila siku cha mpango wako. Pandisha gredi ili uendelee kuwasiliana.",
+    "quotaImage": "Uchambuzi wa picha unahitaji mpango uliolipwa. Pandisha gredi katika kichupo cha Mapango.",
+    "quotaBurst": "Maombi mengi mfululizo. Subiri dakika chache kisha ujaribu tena."
   },
   "legal": {
     "termos": "Sheria na Masharti",

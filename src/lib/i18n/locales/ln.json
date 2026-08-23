@@ -697,7 +697,9 @@
     "suggestion1": "Baplan esalaka ndenge nini?",
     "suggestion2": "Ngonga ya Boom ezali nini?",
     "suggestion3": "Nafungolaka ba alarmes ndenge nini?",
-    "suggestion4": "Nakambaka capital na ngai ndenge nini?"
+    "suggestion4": "Nakambaka capital na ngai ndenge nini?",
+    "remainingChat": "Ba messages oyo ezali lelo: {{count}}",
+    "remainingImage": "Ba analyses oyo ezali lelo: {{count}}"
   },
   "planoCrescimento": {
     "title": "Plan ya bokoli",
@@ -720,7 +722,11 @@
   "aiErrors": {
     "contact": "Libunga ya kozwa support. Meka lisusu.",
     "noResponse": "IA ezwisaki eyano te.",
-    "connection": "Libunga ya connexion. Tala internet na yo mpe meka lisusu."
+    "connection": "Libunga ya connexion. Tala internet na yo mpe meka lisusu.",
+    "auth": "Kota na kompte po osalela mosungi ya IA.",
+    "quotaChat": "Osi na ndelo ya mokolo ya plan na yo. Salá upgrade mpo na kokoba kosolola.",
+    "quotaImage": "Analize ya bilili esengi plan ya kobenga mbongo. Salá upgrade na tab Plan.",
+    "quotaBurst": "Bamisolo mingi malamu te. Zela dakika moke mpe meka lisusu."
   },
   "legal": {
     "termos": "Ba Termes na Conditions",

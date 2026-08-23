@@ -770,6 +770,115 @@ serve(async (req) => {
       if (error) return errorJson(error.message, 500);
       return json({ deleted: true });
     }
+    // ── Capital Management ──────────────────────────────────────────────
+    case 'list_capital_accounts': {
+      const { data: accounts, error } = await supabase
+        .from('capital_accounts')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      if (error) return errorJson(error.message, 500);
+
+      const ids = (accounts ?? []).map((a) => a.user_id);
+      let emailMap = new Map<string, string>();
+      if (ids.length > 0) {
+        const { data: usersData } = await supabase.auth.admin.listUsers();
+        emailMap = new Map(
+          (usersData?.users ?? [])
+            .filter((u) => ids.includes(u.id))
+            .map((u) => [u.id, u.email ?? '']),
+        );
+      }
+
+      return json({
+        accounts: (accounts ?? []).map((a) => ({ ...a, email: emailMap.get(a.user_id) ?? '' })),
+      });
+    }
+    case 'upsert_capital_account': {
+      const { user_id, capital, achieved, currency, total_withdrawn } = body;
+      if (!user_id) return errorJson('user_id em falta.');
+      const row: Record<string, unknown> = { user_id: String(user_id), updated_at: new Date().toISOString() };
+      if (capital != null) row.capital = Number(capital);
+      if (achieved != null) row.achieved = Number(achieved);
+      if (total_withdrawn != null) row.total_withdrawn = Number(total_withdrawn);
+      if (currency === 'usd' || currency === 'aoa') row.currency = currency;
+
+      const { data, error } = await supabase
+        .from('capital_accounts')
+        .upsert(row, { onConflict: 'user_id' })
+        .select()
+        .single();
+      if (error) return errorJson(error.message, 500);
+      return json({ account: data });
+    }
+    case 'post_capital_report': {
+      const { user_id, period_start, period_end, starting_balance, ending_balance, note, currency } = body;
+      if (!user_id || !period_start || !period_end) return errorJson('user_id, period_start e period_end são obrigatórios.');
+
+      const start = Number(starting_balance) || 0;
+      const end = Number(ending_balance) || 0;
+      const profit = end - start;
+      const profitPct = start > 0 ? (profit / start) * 100 : 0;
+
+      const { data: report, error } = await supabase
+        .from('capital_reports')
+        .insert({
+          user_id: String(user_id),
+          period_start: String(period_start),
+          period_end: String(period_end),
+          starting_balance: start,
+          ending_balance: end,
+          profit,
+          profit_pct: Math.round(profitPct * 100) / 100,
+          note: note ? String(note) : null,
+        })
+        .select()
+        .single();
+      if (error) return errorJson(error.message, 500);
+
+      const accountRow: Record<string, unknown> = {
+        user_id: String(user_id),
+        achieved: end,
+        updated_at: new Date().toISOString(),
+      };
+      if (currency === 'usd' || currency === 'aoa') accountRow.currency = currency;
+      // Primeira conta do utilizador: capital inicial = saldo inicial do relatório.
+      const { data: existingAccount } = await supabase
+        .from('capital_accounts')
+        .select('user_id')
+        .eq('user_id', user_id)
+        .maybeSingle();
+      if (!existingAccount) accountRow.capital = start;
+
+      const { error: upsertError } = await supabase
+        .from('capital_accounts')
+        .upsert(accountRow, { onConflict: 'user_id', ignoreDuplicates: false });
+      if (upsertError) console.error('admin-manage: falha ao atualizar capital_accounts', upsertError.message);
+
+      const fmt = (currency === 'aoa')
+        ? `${Math.round(profit).toLocaleString('pt-PT')} Kz`
+        : `$${Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const sign = profit >= 0 ? '+' : '-';
+      await notifyUser(
+        String(user_id),
+        'Gestão de Capital',
+        `Novo relatório publicado: ${sign}${fmt} no período.`,
+        { type: 'capital_report', reportId: report.id },
+      );
+
+      return json({ report });
+    }
+    case 'list_capital_reports': {
+      const { user_id } = body;
+      if (!user_id) return errorJson('user_id em falta.');
+      const { data, error } = await supabase
+        .from('capital_reports')
+        .select('*')
+        .eq('user_id', user_id)
+        .order('created_at', { ascending: false })
+        .limit(52);
+      if (error) return errorJson(error.message, 500);
+      return json({ reports: data });
+    }
     case 'ban_user': {
       const { user_id } = body;
       if (!user_id) return errorJson('user_id em falta.');

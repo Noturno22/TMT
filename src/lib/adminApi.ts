@@ -329,6 +329,63 @@ export async function deleteAnnouncement(id: string): Promise<void> {
   await callAdminFn('delete_announcement', { id });
 }
 
+// ── Capital Management ─────────────────────────────────────────────────
+
+export interface AdminCapitalAccount {
+  user_id: string;
+  email: string;
+  currency: 'usd' | 'aoa';
+  capital: number;
+  achieved: number;
+  total_withdrawn: number;
+  status: string;
+  updated_at?: string;
+}
+
+export async function listCapitalAccounts(): Promise<AdminCapitalAccount[]> {
+  const { accounts } = await callAdminFn<{ accounts: AdminCapitalAccount[] }>('list_capital_accounts', {});
+  return accounts ?? [];
+}
+
+export async function upsertCapitalAccount(data: {
+  user_id: string;
+  capital?: number;
+  achieved?: number;
+  total_withdrawn?: number;
+  currency?: 'usd' | 'aoa';
+}): Promise<void> {
+  await callAdminFn('upsert_capital_account', data);
+}
+
+export async function postCapitalReport(data: {
+  user_id: string;
+  period_start: string;
+  period_end: string;
+  starting_balance: number;
+  ending_balance: number;
+  note?: string | null;
+  currency?: 'usd' | 'aoa';
+}): Promise<void> {
+  await callAdminFn('post_capital_report', data);
+}
+
+export interface AdminCapitalReport {
+  id: string;
+  period_start: string;
+  period_end: string;
+  starting_balance: number;
+  ending_balance: number;
+  profit: number;
+  profit_pct: number;
+  note: string | null;
+  created_at: string;
+}
+
+export async function listCapitalReports(userId: string): Promise<AdminCapitalReport[]> {
+  const { reports } = await callAdminFn<{ reports: AdminCapitalReport[] }>('list_capital_reports', { user_id: userId });
+  return reports ?? [];
+}
+
 // ── Bulk Delete ────────────────────────────────────────────────────────
 
 export async function bulkDeleteSignals(ids: string[]) {

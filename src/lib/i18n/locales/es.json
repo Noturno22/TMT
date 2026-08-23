@@ -666,7 +666,9 @@
     "suggestion1": "¿Cómo funcionan los planos?",
     "suggestion2": "¿Qué es la Hora del Boom?",
     "suggestion3": "¿Cómo activo las alarmas?",
-    "suggestion4": "¿Cómo gestiono mi banca?"
+    "suggestion4": "¿Cómo gestiono mi banca?",
+    "remainingChat": "Mensajes restantes hoy: {{count}}",
+    "remainingImage": "Análisis restantes hoy: {{count}}"
   },
   "planoCrescimento": {
     "title": "Plan de Crecimiento",
@@ -689,7 +691,11 @@
   "aiErrors": {
     "contact": "Error al contactar con el soporte. Inténtalo de nuevo.",
     "noResponse": "La IA no devolvió una respuesta.",
-    "connection": "Error de conexión. Verifica tu internet e inténtalo de nuevo."
+    "connection": "Error de conexión. Verifica tu internet e inténtalo de nuevo.",
+    "auth": "Inicia sesión para usar el asistente de IA.",
+    "quotaChat": "Alcanzaste el límite diario de tu plan. Haz upgrade para seguir conversando.",
+    "quotaImage": "El análisis de imágenes requiere un plan de pago. Haz upgrade en la pestaña Planos.",
+    "quotaBurst": "Demasiadas solicitudes seguidas. Espera unos minutos e inténtalo de nuevo."
   },
   "legal": {
     "termos": "Términos y Condiciones",

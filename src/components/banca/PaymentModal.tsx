@@ -289,9 +289,6 @@ export function PaymentModal({
         )}
 
         <DialogFooter className="gap-2 sm:gap-2 flex-col sm:flex-col">
-          <Button variant="outline" className="w-full" onClick={onClose} disabled={busy}>
-            {t("common.cancel")}
-          </Button>
           {method ? (
             <Button variant="premium" className="w-full" onClick={handleConfirm} disabled={busy}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

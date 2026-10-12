@@ -1,16 +1,23 @@
 import type { ComponentType } from "react";
-import { Bitcoin, CreditCard, Banknote } from "lucide-react";
+import { Bitcoin, CreditCard, Banknote, Smartphone } from "lucide-react";
 
 export type Currency = "usd" | "aoa";
 export type PlanId = "free" | "basic" | "pro" | "premium";
 
-export type PaymentMethod = "binance" | "rodotpay" | "express";
+export type PaymentMethod =
+  | "binance"
+  | "rodotpay"
+  | "express"
+  | "afrimoney"
+  | "unitelmoney";
 
 export const WA_GREEN = "#25D366";
 
 export const BINANCE_ID = "547723572";
 export const RODOTPAY_UID = "1927969477";
 export const EXPRESS_PHONE = "+244926717730";
+export const AFRIMONEY_PHONE = "+244956419784";
+export const UNITELMONEY_PHONE = "+244926717730";
 
 export interface PaymentMethodInfo {
   id: PaymentMethod;
@@ -43,6 +50,26 @@ export const PAYMENT_METHODS: PaymentMethodInfo[] = [
     aoa: true,
     copyValue: RODOTPAY_UID,
     getDetails: () => "UID: " + RODOTPAY_UID,
+  },
+  {
+    id: "afrimoney",
+    label: "Afrimoney",
+    icon: "smartphone",
+    color: "#16A34A",
+    usd: false,
+    aoa: true,
+    copyValue: AFRIMONEY_PHONE,
+    getDetails: () => "Telefone: " + AFRIMONEY_PHONE,
+  },
+  {
+    id: "unitelmoney",
+    label: "Unitel Money",
+    icon: "smartphone",
+    color: "#0EA5E9",
+    usd: false,
+    aoa: true,
+    copyValue: UNITELMONEY_PHONE,
+    getDetails: () => "Telefone: " + UNITELMONEY_PHONE,
   },
   {
     id: "express",
@@ -104,4 +131,5 @@ export const PAYMENT_METHOD_ICONS: Record<string, ComponentType<{ className?: st
   bitcoin: Bitcoin,
   "credit-card": CreditCard,
   banknote: Banknote,
+  smartphone: Smartphone,
 };

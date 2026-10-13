@@ -497,7 +497,30 @@
   "simulatorProjected": "Verwacht rendement",
   "simulatorProfit": "Geschatte winst: +{{value}}",
   "simulatorDepositCta": "Doe je eerste storting",
-  "simulatorStrategy": "Strategie: {{name}}"
+  "simulatorStrategy": "Strategie: {{name}}",
+  "chartTitle": "Evolutie van het saldo",
+  "contractCapital": "Startkapitaal",
+  "contractDaysLeft_one": "{{count}} dag resterend",
+  "contractDaysLeft_other": "{{count}} dagen resterend",
+  "contractEnd": "Einde",
+  "contractEnded": "Contract beëindigd",
+  "contractPenalty": "Boete bij vervroegde opname",
+  "contractPlan": "Plan",
+  "contractStart": "Start",
+  "contractTermsBody": "The Magic Trader beheert je kapitaal voor de duur van het contract. Opnames vóór het einde van de looptijd zijn onderworpen aan een boete van {{penalty}}% op het opgenomen bedrag.",
+  "contractTermsTitle": "Contractvoorwaarden",
+  "contractTitle": "Beheercontract",
+  "dailyGain": "Dagelijkse winst",
+  "liabilitiesEmpty": "Je hebt nog geen opnameverzoeken.",
+  "liabilitiesTitle": "Opnames",
+  "liabilityApproved": "Goedgekeurd",
+  "liabilityPaid": "Betaald",
+  "liabilityPending": "In behandeling",
+  "liabilityRejected": "Afgewezen",
+  "netValue": "Netto te ontvangen bedrag",
+  "penaltyNotice": "Je contract eindigt op {{date}}. Als je nu opneemt, geldt een boete van {{penalty}}% op het gevraagde bedrag.",
+  "penaltyTitle": "Vervroegde opname",
+  "viewContract": "Contract bekijken"
  },
  "language": {
   "title": "Taal"
@@ -1296,7 +1319,9 @@
   "months": "{{count}} maanden",
   "estimatedProfit": "Geschatte winst: +{{value}} USD",
   "planActive": "✓ Plan actief",
-  "activate": "Plan activeren"
+  "activate": "Plan activeren",
+  "activateErrorMsg": "Het plan kon niet worden geactiveerd. Probeer het opnieuw.",
+  "activateErrorTitle": "Fout bij het activeren van het plan"
  },
  "aiErrors": {
   "contact": "Fout bij het contact opnemen met support. Probeer opnieuw.",

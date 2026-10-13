@@ -497,7 +497,30 @@
   "simulatorProjected": "Retour oyo ezali kolanda",
   "simulatorProfit": "Mbongo ya kosengisa: +{{value}}",
   "simulatorDepositCta": "Kozalisa Depósita ya Liboso",
-  "simulatorStrategy": "Stratégie: {{name}}"
+  "simulatorStrategy": "Stratégie: {{name}}",
+  "chartTitle": "Bokoli ya Solde",
+  "contractCapital": "Capital ya ebandeli",
+  "contractDaysLeft_one": "{{count}} mokolo etikali",
+  "contractDaysLeft_other": "{{count}} mikolo etikali",
+  "contractEnd": "Nsuka",
+  "contractEnded": "Contrat esili",
+  "contractPenalty": "Pénalité ya kobimisa liboso",
+  "contractPlan": "Plan",
+  "contractStart": "Ebandeli",
+  "contractTermsBody": "The Magic Trader ezali kokamba capital na yo na boumeli ya contrat. Kobimisa mbongo liboso ya nsuka ya ntango esengeli kofuta pénalité ya {{penalty}}% na motuya oyo obimisi.",
+  "contractTermsTitle": "Mibeko ya Contrat",
+  "contractTitle": "Contrat ya Gestion",
+  "dailyGain": "Litomba ya mokolo",
+  "liabilitiesEmpty": "Ozali nanu na ba demande ya kobimisa mbongo te.",
+  "liabilitiesTitle": "Bobimisi",
+  "liabilityApproved": "Endimami",
+  "liabilityPaid": "Ebokali",
+  "liabilityPending": "Ekozela",
+  "liabilityRejected": "Ekandimami",
+  "netValue": "Motuya ya net ya kozwa",
+  "penaltyNotice": "Contrat na yo ekosila na {{date}}. Kobimisa sikoyo esengeli kofuta pénalité ya {{penalty}}% na motuya oyo osengi.",
+  "penaltyTitle": "Kobimisa liboso",
+  "viewContract": "Tala Contrat"
  },
  "language": {
   "title": "Lokótá"
@@ -1296,7 +1319,9 @@
   "months": "basanza {{count}}",
   "estimatedProfit": "Litomba estimé: +{{value}} USD",
   "planActive": "✓ Plan ya mosala",
-  "activate": "Kofungola Plan"
+  "activate": "Kofungola Plan",
+  "activateErrorMsg": "Ekoki te kofungola plan. Meka lisusu.",
+  "activateErrorTitle": "Libunga na kofungola plan"
  },
  "aiErrors": {
   "contact": "Libunga ya kozwa support. Meka lisusu.",

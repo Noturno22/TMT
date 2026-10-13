@@ -497,7 +497,30 @@
   "simulatorProjected": "예상 수익",
   "simulatorProfit": "예상 수익: +{{value}}",
   "simulatorDepositCta": "첫 입금하기",
-  "simulatorStrategy": "전략: {{name}}"
+  "simulatorStrategy": "전략: {{name}}",
+  "chartTitle": "잔액 추이",
+  "contractCapital": "초기 자본",
+  "contractDaysLeft_one": "{{count}}일 남음",
+  "contractDaysLeft_other": "{{count}}일 남음",
+  "contractEnd": "종료",
+  "contractEnded": "계약 종료됨",
+  "contractPenalty": "조기 인출 위약금",
+  "contractPlan": "플랜",
+  "contractStart": "시작",
+  "contractTermsBody": "The Magic Trader는 계약 기간 동안 회원님의 자본을 운용합니다. 기간 종료 전 인출에는 인출 금액의 {{penalty}}% 위약금이 부과됩니다.",
+  "contractTermsTitle": "계약 조건",
+  "contractTitle": "관리 계약",
+  "dailyGain": "일일 수익",
+  "liabilitiesEmpty": "아직 인출 요청이 없습니다.",
+  "liabilitiesTitle": "인출",
+  "liabilityApproved": "승인됨",
+  "liabilityPaid": "지급 완료",
+  "liabilityPending": "대기 중",
+  "liabilityRejected": "거부됨",
+  "netValue": "실수령액",
+  "penaltyNotice": "계약이 {{date}}에 종료됩니다. 지금 인출하면 요청 금액의 {{penalty}}% 위약금이 부과됩니다.",
+  "penaltyTitle": "조기 인출",
+  "viewContract": "계약 보기"
  },
  "language": {
   "title": "언어"
@@ -1296,7 +1319,9 @@
   "months": "{{count}}개월",
   "estimatedProfit": "예상 수익: +{{value}} USD",
   "planActive": "✓ 플랜 활성",
-  "activate": "플랜 활성화"
+  "activate": "플랜 활성화",
+  "activateErrorMsg": "플랜을 활성화할 수 없습니다. 다시 시도해 주세요.",
+  "activateErrorTitle": "플랜 활성화 오류"
  },
  "aiErrors": {
   "contact": "지원팀에 연락하는 중 오류가 발생했습니다. 다시 시도하세요.",

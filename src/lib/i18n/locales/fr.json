@@ -1102,7 +1102,30 @@
   "simulatorProjected": "Retour projeté",
   "simulatorProfit": "Bénéfice estimé : +{{value}}",
   "simulatorDepositCta": "Faire le premier dépôt",
-  "simulatorStrategy": "Stratégie : {{name}}"
+  "simulatorStrategy": "Stratégie : {{name}}",
+  "chartTitle": "Évolution du Solde",
+  "contractCapital": "Capital initial",
+  "contractDaysLeft_one": "{{count}} jour restant",
+  "contractDaysLeft_other": "{{count}} jours restants",
+  "contractEnd": "Fin",
+  "contractEnded": "Contrat terminé",
+  "contractPenalty": "Pénalité de retrait anticipé",
+  "contractPlan": "Plan",
+  "contractStart": "Début",
+  "contractTermsBody": "The Magic Trader gère ton capital pendant la durée du contrat. Les retraits avant la fin du terme sont soumis à une pénalité de {{penalty}}% sur le montant retiré.",
+  "contractTermsTitle": "Termes du Contrat",
+  "contractTitle": "Contrat de Gestion",
+  "dailyGain": "Gain quotidien",
+  "liabilitiesEmpty": "Tu n'as pas encore de demandes de retrait.",
+  "liabilitiesTitle": "Retraits",
+  "liabilityApproved": "Approuvé",
+  "liabilityPaid": "Payé",
+  "liabilityPending": "En attente",
+  "liabilityRejected": "Refusé",
+  "netValue": "Montant net à recevoir",
+  "penaltyNotice": "Ton contrat se termine le {{date}}. Un retrait maintenant applique une pénalité de {{penalty}}% sur le montant demandé.",
+  "penaltyTitle": "Retrait anticipé",
+  "viewContract": "Voir le Contrat"
  },
  "depositos": {
   "title": "Dépôts et retraits",
@@ -1296,7 +1319,9 @@
   "months": "{{count}} mois",
   "estimatedProfit": "Bénéfice estimé : +{{value}} USD",
   "planActive": "✓ Plan Actif",
-  "activate": "Activer le Plan"
+  "activate": "Activer le Plan",
+  "activateErrorMsg": "Impossible d'activer le plan. Réessaie.",
+  "activateErrorTitle": "Erreur lors de l'activation du plan"
  },
  "aiErrors": {
   "contact": "Erreur lors du contact avec le support. Réessaie.",

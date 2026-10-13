@@ -1102,7 +1102,30 @@
   "simulatorProjected": "العائد المتوقع",
   "simulatorProfit": "الربح المتوقع: +{{value}}",
   "simulatorDepositCta": "أجرِ أول إيداع",
-  "simulatorStrategy": "الاستراتيجية: {{name}}"
+  "simulatorStrategy": "الاستراتيجية: {{name}}",
+  "chartTitle": "تطور الرصيد",
+  "contractCapital": "رأس المال الأولي",
+  "contractDaysLeft_one": "{{count}} يوم متبقٍ",
+  "contractDaysLeft_other": "{{count}} أيام متبقية",
+  "contractEnd": "النهاية",
+  "contractEnded": "انتهى العقد",
+  "contractPenalty": "غرامة السحب المبكر",
+  "contractPlan": "الخطة",
+  "contractStart": "البداية",
+  "contractTermsBody": "تدير The Magic Trader رأس مالك طوال مدة العقد. تخضع عمليات السحب قبل انتهاء المدة إلى غرامة بنسبة {{penalty}}% من المبلغ المسحوب.",
+  "contractTermsTitle": "شروط العقد",
+  "contractTitle": "عقد الإدارة",
+  "dailyGain": "الربح اليومي",
+  "liabilitiesEmpty": "ليس لديك أي طلبات سحب بعد.",
+  "liabilitiesTitle": "السحوبات",
+  "liabilityApproved": "موافق عليه",
+  "liabilityPaid": "مدفوع",
+  "liabilityPending": "قيد الانتظار",
+  "liabilityRejected": "مرفوض",
+  "netValue": "المبلغ الصافي المستحق",
+  "penaltyNotice": "ينتهي عقدك في {{date}}. السحب الآن يطبّق غرامة بنسبة {{penalty}}% على المبلغ المطلوب.",
+  "penaltyTitle": "السحب المبكر",
+  "viewContract": "عرض العقد"
  },
  "depositos": {
   "title": "الإيداعات والسحوبات",
@@ -1296,7 +1319,9 @@
   "months": "{{count}} شهراً",
   "estimatedProfit": "الربح المتوقع: +{{value}} USD",
   "planActive": "✓ الخطة نشطة",
-  "activate": "تفعيل الخطة"
+  "activate": "تفعيل الخطة",
+  "activateErrorMsg": "تعذّر تفعيل الخطة. حاول مرة أخرى.",
+  "activateErrorTitle": "خطأ في تفعيل الخطة"
  },
  "aiErrors": {
   "contact": "خطأ في الاتصال بالدعم. حاول مرة أخرى.",

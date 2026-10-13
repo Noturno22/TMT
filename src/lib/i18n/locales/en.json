@@ -1063,7 +1063,30 @@
   "simulatorProjected": "Projected return",
   "simulatorProfit": "Estimated profit: +{{value}}",
   "simulatorStrategy": "Strategy: {{name}}",
-  "simulatorDepositCta": "Make your first deposit"
+  "simulatorDepositCta": "Make your first deposit",
+  "chartTitle": "Balance Evolution",
+  "contractCapital": "Initial capital",
+  "contractDaysLeft_one": "{{count}} day left",
+  "contractDaysLeft_other": "{{count}} days left",
+  "contractEnd": "End",
+  "contractEnded": "Contract ended",
+  "contractPenalty": "Early withdrawal penalty",
+  "contractPlan": "Plan",
+  "contractStart": "Start",
+  "contractTermsBody": "The Magic Trader manages your capital for the duration of the contract. Withdrawals before the end of the term are subject to a {{penalty}}% penalty on the amount withdrawn.",
+  "contractTermsTitle": "Contract Terms",
+  "contractTitle": "Management Contract",
+  "dailyGain": "Daily gain",
+  "liabilitiesEmpty": "You don't have any withdrawal requests yet.",
+  "liabilitiesTitle": "Withdrawals",
+  "liabilityApproved": "Approved",
+  "liabilityPaid": "Paid",
+  "liabilityPending": "Pending",
+  "liabilityRejected": "Rejected",
+  "netValue": "Net amount to receive",
+  "penaltyNotice": "Your contract ends on {{date}}. Withdrawing now applies a {{penalty}}% penalty on the requested amount.",
+  "penaltyTitle": "Early withdrawal",
+  "viewContract": "View Contract"
  },
  "diario": {
   "title": "Trader's Journal",
@@ -1314,7 +1337,9 @@
   "months": "{{count}} months",
   "estimatedProfit": "Estimated profit: +{{value}} USD",
   "planActive": "✓ Plan Active",
-  "activate": "Activate Plan"
+  "activate": "Activate Plan",
+  "activateErrorMsg": "Could not activate the plan. Please try again.",
+  "activateErrorTitle": "Error activating plan"
  },
  "aiErrors": {
   "contact": "Error contacting support. Try again.",

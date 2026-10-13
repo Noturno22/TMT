@@ -1046,7 +1046,30 @@
   "simulatorProjected": "Projizierte Rendite",
   "simulatorProfit": "Geschätzter Gewinn: +{{value}}",
   "simulatorDepositCta": "Erste Einzahlung tätigen",
-  "simulatorStrategy": "Strategie: {{name}}"
+  "simulatorStrategy": "Strategie: {{name}}",
+  "chartTitle": "Saldoverlauf",
+  "contractCapital": "Anfangskapital",
+  "contractDaysLeft_one": "{{count}} Tag verbleibend",
+  "contractDaysLeft_other": "{{count}} Tage verbleibend",
+  "contractEnd": "Ende",
+  "contractEnded": "Vertrag beendet",
+  "contractPenalty": "Strafe für vorzeitige Auszahlung",
+  "contractPlan": "Plan",
+  "contractStart": "Beginn",
+  "contractTermsBody": "The Magic Trader verwaltet dein Kapital für die Dauer des Vertrags. Auszahlungen vor Ende der Laufzeit unterliegen einer Strafe von {{penalty}}% auf den ausgezahlten Betrag.",
+  "contractTermsTitle": "Vertragsbedingungen",
+  "contractTitle": "Verwaltungsvertrag",
+  "dailyGain": "Täglicher Gewinn",
+  "liabilitiesEmpty": "Du hast noch keine Auszahlungsanträge.",
+  "liabilitiesTitle": "Auszahlungen",
+  "liabilityApproved": "Genehmigt",
+  "liabilityPaid": "Bezahlt",
+  "liabilityPending": "Ausstehend",
+  "liabilityRejected": "Abgelehnt",
+  "netValue": "Netto-Betrag zu erhalten",
+  "penaltyNotice": "Dein Vertrag endet am {{date}}. Eine Auszahlung jetzt zieht eine Strafe von {{penalty}}% auf den angeforderten Betrag nach sich.",
+  "penaltyTitle": "Vorzeitige Auszahlung",
+  "viewContract": "Vertrag ansehen"
  },
  "banca": {
   "title": "Bankroll-Verwaltung",
@@ -1296,7 +1319,9 @@
   "months": "{{count}} Monate",
   "estimatedProfit": "Geschätzter Gewinn: +{{value}} USD",
   "planActive": "✓ Plan Aktiv",
-  "activate": "Plan aktivieren"
+  "activate": "Plan aktivieren",
+  "activateErrorMsg": "Der Plan konnte nicht aktiviert werden. Versuche es erneut.",
+  "activateErrorTitle": "Fehler beim Aktivieren des Plans"
  },
  "aiErrors": {
   "contact": "Fehler beim Kontaktieren des Supports. Versuche es erneut.",

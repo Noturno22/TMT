@@ -1249,7 +1249,9 @@
   "months": "{{count}} meses",
   "estimatedProfit": "Beneficio estimado: +{{value}} USD",
   "planActive": "✓ Plan Activo",
-  "activate": "Activar Plan"
+  "activate": "Activar Plan",
+  "activateErrorMsg": "No se pudo activar el plan. Inténtalo de nuevo.",
+  "activateErrorTitle": "Error al activar el plan"
  },
  "aiErrors": {
   "contact": "Error al contactar con el soporte. Inténtalo de nuevo.",
@@ -1517,7 +1519,30 @@
   "simulatorProjected": "Retorno proyectado",
   "simulatorProfit": "Ganancia estimada: +{{value}}",
   "simulatorStrategy": "Estrategia: {{name}}",
-  "simulatorDepositCta": "Hacer el primer depósito"
+  "simulatorDepositCta": "Hacer el primer depósito",
+  "chartTitle": "Evolución del Saldo",
+  "contractCapital": "Capital inicial",
+  "contractDaysLeft_one": "{{count}} día restante",
+  "contractDaysLeft_other": "{{count}} días restantes",
+  "contractEnd": "Fin",
+  "contractEnded": "Contrato finalizado",
+  "contractPenalty": "Penalización por retiro anticipado",
+  "contractPlan": "Plan",
+  "contractStart": "Inicio",
+  "contractTermsBody": "The Magic Trader gestiona tu capital durante el plazo del contrato. Los retiros antes del final del plazo están sujetos a una penalización del {{penalty}}% sobre el importe retirado.",
+  "contractTermsTitle": "Términos del Contrato",
+  "contractTitle": "Contrato de Gestión",
+  "dailyGain": "Ganancia diaria",
+  "liabilitiesEmpty": "Aún no tienes solicitudes de retiro.",
+  "liabilitiesTitle": "Retiros",
+  "liabilityApproved": "Aprobado",
+  "liabilityPaid": "Pagado",
+  "liabilityPending": "Pendiente",
+  "liabilityRejected": "Rechazado",
+  "netValue": "Importe neto a recibir",
+  "penaltyNotice": "Tu contrato finaliza el {{date}}. Retirar ahora aplica una penalización del {{penalty}}% sobre el importe solicitado.",
+  "penaltyTitle": "Retiro anticipado",
+  "viewContract": "Ver Contrato"
  },
  "store": {
   "title": "Tienda",

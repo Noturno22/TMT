@@ -1102,7 +1102,30 @@
   "simulatorProjected": "Прогнозируемый возврат",
   "simulatorProfit": "Ожидаемая прибыль: +{{value}}",
   "simulatorDepositCta": "Внести первый депозит",
-  "simulatorStrategy": "Стратегия: {{name}}"
+  "simulatorStrategy": "Стратегия: {{name}}",
+  "chartTitle": "Динамика баланса",
+  "contractCapital": "Начальный капитал",
+  "contractDaysLeft_one": "{{count}} день до конца",
+  "contractDaysLeft_other": "{{count}} дней до конца",
+  "contractEnd": "Конец",
+  "contractEnded": "Контракт завершён",
+  "contractPenalty": "Штраф за досрочный вывод",
+  "contractPlan": "План",
+  "contractStart": "Начало",
+  "contractTermsBody": "The Magic Trader управляет вашим капиталом в течение срока действия контракта. Вывод средств до окончания срока облагается штрафом {{penalty}}% от выведенной суммы.",
+  "contractTermsTitle": "Условия контракта",
+  "contractTitle": "Контракт на управление",
+  "dailyGain": "Дневной доход",
+  "liabilitiesEmpty": "У вас пока нет запросов на вывод.",
+  "liabilitiesTitle": "Выводы",
+  "liabilityApproved": "Одобрено",
+  "liabilityPaid": "Оплачено",
+  "liabilityPending": "В ожидании",
+  "liabilityRejected": "Отклонено",
+  "netValue": "Чистая сумма к получению",
+  "penaltyNotice": "Ваш контракт завершается {{date}}. При выводе сейчас применяется штраф {{penalty}}% от запрошенной суммы.",
+  "penaltyTitle": "Досрочный вывод",
+  "viewContract": "Посмотреть контракт"
  },
  "depositos": {
   "title": "Депозиты и вывод средств",
@@ -1296,7 +1319,9 @@
   "months": "{{count}} мес.",
   "estimatedProfit": "Ожидаемая прибыль: +{{value}} USD",
   "planActive": "✓ План активен",
-  "activate": "Активировать план"
+  "activate": "Активировать план",
+  "activateErrorMsg": "Не удалось активировать план. Попробуйте ещё раз.",
+  "activateErrorTitle": "Ошибка активации плана"
  },
  "aiErrors": {
   "contact": "Ошибка связи с поддержкой. Попробуйте ещё раз.",

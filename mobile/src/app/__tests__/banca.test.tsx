@@ -32,6 +32,12 @@ jest.mock('@/hooks/useCapitalDeposits', () => ({
 jest.mock('@/hooks/useWithdrawals', () => ({
   useWithdrawals: jest.fn(() => ({ withdrawals: [], loading: false })),
 }));
+jest.mock('@/hooks/useCapitalContract', () => ({
+  useCapitalContract: jest.fn(() => ({ contract: null, loading: false, activate: jest.fn() })),
+}));
+jest.mock('@/hooks/useWithdrawalRequests', () => ({
+  useWithdrawalRequests: jest.fn(() => ({ requests: [], loading: false })),
+}));
 jest.mock('@/core/format', () => ({
   formatBancaMoney: (n: number) => `$${n.toFixed(2)}`,
   formatShortDate: (s: string) => s,
@@ -41,6 +47,7 @@ jest.mock('@/components/GrowthPlanSection', () => ({ GrowthPlanSection: () => nu
 jest.mock('@/components/GradientCard', () => ({ GradientCard: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 jest.mock('@/components/PremiumLock', () => ({ PremiumLock: () => null }));
 jest.mock('@/components/WithdrawalModal', () => ({ WithdrawalModal: jest.fn(() => null) }));
+jest.mock('@/components/ContractCard', () => ({ ContractCard: () => null }));
 
 describe('BancaScreen', () => {
   beforeEach(() => jest.clearAllMocks());

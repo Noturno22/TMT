@@ -8,16 +8,20 @@ import { GradientCard } from '@/components/GradientCard';
 import { PremiumLock } from '@/components/PremiumLock';
 import { WithdrawalModal } from '@/components/WithdrawalModal';
 import { GrowthPlanSection } from '@/components/GrowthPlanSection';
+import { ContractCard } from '@/components/ContractCard';
 import { CapitalSimulatorCard } from '@/components/CapitalSimulatorCard';
 import { formatBancaMoney, formatShortDate } from '@/core/format';
-import { formatMinDepositCore, profit, profitPct, progressPct, withdrawable } from '@/core/capital';
+import { formatMinDepositCore, profit, profitPct, progressPct, withdrawable, dailyGain } from '@/core/capital';
 import { Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useBanca } from '@/hooks/useBanca';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useCapitalAccount } from '@/hooks/useCapitalAccount';
 import { useCapitalDeposits } from '@/hooks/useCapitalDeposits';
-import { MIN_CAPITAL_DEPOSIT } from '@/lib/plans';
+import { useCapitalContract } from '@/hooks/useCapitalContract';
+import { useWithdrawalRequests } from '@/hooks/useWithdrawalRequests';
+import { MIN_CAPITAL_DEPOSIT, PAYMENT_METHODS } from '@/lib/plans';
+import type { WithdrawalRequest } from '@/core/types';
 
 function StatusPill({ label, color }: { label: string; color: string }) {
   const { colors } = useTheme();
@@ -39,6 +43,8 @@ export default function BancaScreen() {
   const { config, loading } = useBanca();
   const { account, reports, metaPercent } = useCapitalAccount();
   const { deposits } = useCapitalDeposits();
+  const { contract } = useCapitalContract();
+  const { requests: withdrawalRequests } = useWithdrawalRequests();
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   // Regra absoluta: um cliente premium NUNCA vê bloqueio. Enquanto o plano
@@ -60,6 +66,15 @@ export default function BancaScreen() {
   const totalWithdrawn = account?.total_withdrawn ?? config.totalWithdrawn;
   const latestReport = reports[0] ?? null;
 
+  const activeContract = contract && contract.status === 'active' ? contract : null;
+
+  // reports chegam latest-first do hook; o gráfico quer ordem cronológica.
+  const chartReports = [...reports].slice(0, 7).reverse();
+  const maxBalance = Math.max(...chartReports.map((r) => r.ending_balance), 1);
+  const avgDailyGain = chartReports.length
+    ? chartReports.reduce((s, r) => s + dailyGain(r), 0) / chartReports.length
+    : 0;
+
   const p = profit(current, capital);
   const pPct = profitPct(current, capital);
   const isProfit = p >= 0;
@@ -75,6 +90,19 @@ export default function BancaScreen() {
 
   // Estado binário: gestão ativa (conta publicada ou capital registado)
   const hasManagement = Boolean(account) || capital > 0 || current > 0;
+
+  const liabilityMeta = (status: WithdrawalRequest['status']): { label: string; color: string } => {
+    switch (status) {
+      case 'approved':
+        return { label: t('capital.liabilityApproved'), color: colors.accent };
+      case 'rejected':
+        return { label: t('capital.liabilityRejected'), color: colors.destructive };
+      case 'paid':
+        return { label: t('capital.liabilityPaid'), color: colors.success };
+      default:
+        return { label: t('capital.liabilityPending'), color: colors.warning };
+    }
+  };
 
   if (!hasManagement) {
     return (
@@ -191,6 +219,8 @@ export default function BancaScreen() {
         </Pressable>
       ) : null}
 
+      {activeContract ? <ContractCard contract={activeContract} /> : null}
+
       <View style={styles.statsGrid}>
         <Card style={styles.statCard}>
           <Ionicons name="wallet" size={18} color={colors.text} />
@@ -234,6 +264,35 @@ export default function BancaScreen() {
         </View>
       </Card>
 
+      {chartReports.length > 0 ? (
+        <Card style={styles.card}>
+          <View style={styles.cardHeader}>
+            <AppText variant="label">{t('capital.chartTitle')}</AppText>
+            <AppText variant="small" style={{ color: colors.textMuted }}>
+              {t('capital.dailyGain')}: {formatBancaMoney(avgDailyGain, cur)}
+            </AppText>
+          </View>
+          <View style={styles.chart}>
+            {chartReports.map((r) => (
+              <View key={r.id} style={styles.chartCol}>
+                <View
+                  style={[
+                    styles.chartBar,
+                    {
+                      height: Math.max(4, (r.ending_balance / maxBalance) * 72),
+                      backgroundColor: r.profit >= 0 ? colors.success : colors.destructive,
+                    },
+                  ]}
+                />
+                <AppText variant="small" style={styles.chartLabel}>
+                  {formatShortDate(r.period_end)}
+                </AppText>
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null}
+
       <CapitalSimulatorCard capital={capital} currency={cur} strategy={config.planId} />
 
       <Card style={styles.card}>
@@ -253,6 +312,31 @@ export default function BancaScreen() {
         />
       </Card>
 
+      <Card style={styles.card}>
+        <View style={styles.cardHeader}>
+          <AppText variant="label">{t('capital.liabilitiesTitle')}</AppText>
+        </View>
+        {withdrawalRequests.length === 0 ? (
+          <AppText variant="muted">{t('capital.liabilitiesEmpty')}</AppText>
+        ) : (
+          withdrawalRequests.slice(0, 10).map((r) => {
+            const method = PAYMENT_METHODS.find((m) => m.id === r.method);
+            const meta = liabilityMeta(r.status);
+            return (
+              <View key={r.id} style={styles.liabilityRow}>
+                <View style={{ flex: 1 }}>
+                  <AppText variant="label">{method?.label ?? r.method}</AppText>
+                  <AppText variant="small" style={{ color: colors.textMuted }}>
+                    {formatBancaMoney(r.amount, r.currency as 'usd' | 'aoa')} · {formatShortDate(r.created_at)}
+                  </AppText>
+                </View>
+                <StatusPill label={meta.label} color={meta.color} />
+              </View>
+            );
+          })
+        )}
+      </Card>
+
       <GrowthPlanSection capital={capital} currency={cur} />
 
       <WithdrawalModal
@@ -260,6 +344,8 @@ export default function BancaScreen() {
         available={withdrawable(current)}
         currency={cur}
         onClose={() => setWithdrawOpen(false)}
+        contractEndDate={activeContract?.end_date}
+        penaltyPct={activeContract?.penalty_pct}
       />
     </Screen>
   );
@@ -292,4 +378,9 @@ const makeStyles = (c: Palette) =>
     progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
     stepRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
     stepIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+    chart: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.xs, marginTop: Spacing.xs },
+    chartCol: { flex: 1, alignItems: 'center', gap: Spacing.xs },
+    chartBar: { width: '100%', minHeight: 4, borderRadius: 4 },
+    chartLabel: { fontSize: 9, color: c.textMuted },
+    liabilityRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   });

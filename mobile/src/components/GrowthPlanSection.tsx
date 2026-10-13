@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText, Badge, Card } from '@/components/ui';
 import { Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { formatBancaMoney } from '@/core/format';
+import { formatBancaMoney, formatShortDate } from '@/core/format';
 import { useTranslation } from 'react-i18next';
 import { useBanca } from '@/hooks/useBanca';
+import { useCapitalContract } from '@/hooks/useCapitalContract';
+import { daysUntil } from '@/core/capital';
+import type { CapitalPlanId } from '@/core/types';
 
 const STORAGE_KEY = 'growth_plan';
 
 interface GrowthPlan {
-  id: string;
+  id: CapitalPlanId;
   nameKey: 'planoCrescimento.conservative' | 'planoCrescimento.balanced' | 'planoCrescimento.aggressive';
   descKey: 'planoCrescimento.conservativeDesc' | 'planoCrescimento.balancedDesc' | 'planoCrescimento.aggressiveDesc';
   returnPct: number;
@@ -27,48 +30,54 @@ const makePlans = (c: Palette): GrowthPlan[] => [
   { id: 'agressivo', nameKey: 'planoCrescimento.aggressive', descKey: 'planoCrescimento.aggressiveDesc', returnPct: 15, months: 1, icon: 'rocket', color: c.destructive },
 ];
 
+export const planNameKey: Record<CapitalPlanId, GrowthPlan['nameKey']> = {
+  conservador: 'planoCrescimento.conservative',
+  equilibrado: 'planoCrescimento.balanced',
+  agressivo: 'planoCrescimento.aggressive',
+};
+
 export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: number; currency?: 'usd' | 'aoa' }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = makeStyles(colors);
   const plans = makePlans(colors);
   const { config, save } = useBanca();
-  const [selectedId, setSelectedId] = useState(config.planId);
-  const [activated, setActivated] = useState(false);
+  const { contract, activate } = useCapitalContract();
+  const [selectedId, setSelectedId] = useState<CapitalPlanId>(config.planId as CapitalPlanId);
+  const [busy, setBusy] = useState(false);
   const bancaConfigRef = useRef(config);
-  const activatedRef = useRef(activated);
+
   useEffect(() => {
     bancaConfigRef.current = config;
   }, [config]);
-  useEffect(() => {
-    activatedRef.current = activated;
-  }, [activated]);
 
+  // A seleção persiste localmente como preferência do simulador; a ativação
+  // (fonte da verdade) vem do servidor via contrato.
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
       if (!raw) return;
       try {
         const parsed = JSON.parse(raw);
-        if (parsed.planId) setSelectedId(parsed.planId);
-        if (parsed.activated) setActivated(true);
+        if (parsed.planId) setSelectedId(parsed.planId as CapitalPlanId);
       } catch {
-        // ignore
+        // ignora
       }
     });
   }, []);
 
-  const selectPlan = async (planId: string) => {
+  const contractActive = contract?.status === 'active';
+  useEffect(() => {
+    if (contractActive && contract) setSelectedId(contract.plan_id);
+  }, [contractActive, contract]);
+
+  const selectPlan = async (planId: CapitalPlanId) => {
+    if (contractActive) return;
     setSelectedId(planId);
-    // A estratégia escolhida passa a ser a estratégia da banca
-    // (simulador de retorno passa a refletir "média" ou "arriscada").
-    await AsyncStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ planId, capital: bancaConfigRef.current.capital, activated: activatedRef.current }),
-    );
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ planId }));
     try {
       await save({ ...bancaConfigRef.current, planId });
     } catch {
-      // ignore
+      // ignora
     }
   };
 
@@ -79,26 +88,56 @@ export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: numb
     ? t('planoCrescimento.monthOne', { count: plan.months })
     : t('planoCrescimento.months', { count: plan.months });
 
-  const activate = async () => {
-    setActivated(true);
-    await AsyncStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ planId: selectedId, capital, activated: true }),
-    );
+  const activatePlan = async () => {
+    if (busy || contractActive) return;
+    setBusy(true);
     try {
-      await save({ ...bancaConfigRef.current, planId: selectedId });
+      await activate(selectedId, currency);
     } catch {
-      // ignore
+      Alert.alert(t('planoCrescimento.activateErrorTitle'), t('planoCrescimento.activateErrorMsg'));
+    } finally {
+      setBusy(false);
     }
   };
+
+  if (contractActive && contract) {
+    const daysLeft = daysUntil(contract.end_date);
+    return (
+      <View style={styles.wrap}>
+        <View style={styles.header}>
+          <AppText variant="h2">{t('planoCrescimento.title')}</AppText>
+          <Badge color={colors.success} bg={`${colors.success}20`}>{t('planoCrescimento.planActive')}</Badge>
+        </View>
+        <Card style={styles.activeCard}>
+          <View style={styles.activeRow}>
+            <View style={[styles.planIcon, { backgroundColor: `${colors.success}1A` }]}>
+              <Ionicons name="shield-checkmark" size={18} color={colors.success} />
+            </View>
+            <View style={styles.planText}>
+              <AppText variant="label">{t(planNameKey[contract.plan_id])}</AppText>
+              <AppText variant="small" style={{ color: colors.textMuted }}>
+                {formatShortDate(contract.start_date)} — {formatShortDate(contract.end_date)}
+              </AppText>
+            </View>
+          </View>
+          <View style={styles.projectRow}>
+            <AppText variant="small" style={{ color: colors.textMuted }}>
+              {daysLeft > 0 ? t('capital.contractDaysLeft', { count: daysLeft }) : t('capital.contractEnded')}
+            </AppText>
+            <Badge color={daysLeft > 0 ? colors.success : colors.warning} bg={`${daysLeft > 0 ? colors.success : colors.warning}20`}>
+              {daysLeft > 0 ? t('capital.active') : t('capital.contractEnded')}
+            </Badge>
+          </View>
+        </Card>
+        <AppButton title={t('planoCrescimento.planActive')} variant="secondary" disabled />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrap}>
       <View style={styles.header}>
         <AppText variant="h2">{t('planoCrescimento.title')}</AppText>
-        {activated ? (
-          <Badge color={colors.success} bg={`${colors.success}20`}>{t('planoCrescimento.planActive')}</Badge>
-        ) : null}
       </View>
       <AppText variant="muted" style={styles.selectHint}>{t('planoCrescimento.select')}</AppText>
 
@@ -154,11 +193,12 @@ export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: numb
         </View>
       </Card>
 
-      {activated ? (
-        <AppButton title={t('planoCrescimento.planActive')} variant="secondary" disabled />
-      ) : (
-        <AppButton title={t('planoCrescimento.activate')} variant="primary" onPress={activate} />
-      )}
+      <AppButton
+        title={t('planoCrescimento.activate')}
+        variant="primary"
+        onPress={activatePlan}
+        loading={busy}
+      />
     </View>
   );
 }
@@ -194,4 +234,7 @@ const makeStyles = (c: Palette) => StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.xs,
   },
+  activeCard: { marginBottom: Spacing.md, gap: Spacing.md },
+  activeRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  projectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });

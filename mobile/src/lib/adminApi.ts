@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/env';
 import { i18n } from '@/lib/i18n';
 import { getReferralCode } from '@/lib/referral';
-import type { AdminNotification } from '@/core/types';
+import type { AdminNotification, WithdrawalRequest } from '@/core/types';
 
 const ADMIN_FN = `${SUPABASE_URL}/functions/v1/admin-manage`;
 
@@ -414,19 +414,7 @@ export async function bulkDeletePosts(ids: string[]) {
 
 // ── Withdrawal Requests ──────────────────────────────────────────────
 
-export interface WithdrawalRequest {
-  id: string;
-  user_id: string;
-  method: string;
-  amount: number;
-  currency: string;
-  details: string | null;
-  status: 'pending' | 'approved' | 'rejected' | 'paid';
-  reviewed_by: string | null;
-  reviewed_at: string | null;
-  notes: string | null;
-  created_at: string;
-}
+export type { WithdrawalRequest };
 
 export async function submitWithdrawalRequest(req: {
   method: string;

@@ -135,7 +135,46 @@ export interface CapitalAccount {
   total_withdrawn: number;
   status: string;
   meta_percent?: number;
+  /** Preenchido pela mutation_credit_capital_account no primeiro depósito. */
+  plan?: string;
+  created_at?: string;
   updated_at?: string;
+}
+
+export type CapitalPlanId = 'conservador' | 'equilibrado' | 'agressivo';
+export type CapitalContractStatus = 'active' | 'completed' | 'cancelled';
+
+/** Contrato de Gerenciamento: plano, prazo e penalidade por levantamento antecipado. */
+export interface CapitalContract {
+  id: string;
+  user_id: string;
+  plan_id: CapitalPlanId;
+  currency: 'usd' | 'aoa';
+  capital_inicial: number;
+  start_date: string;
+  end_date: string;
+  months: number;
+  status: CapitalContractStatus;
+  penalty_pct: number;
+  terms_version: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Pedido de levantamento (fonte: withdrawal_requests; RLS permite ler o próprio). */
+export interface WithdrawalRequest {
+  id: string;
+  user_id: string;
+  method: string;
+  amount: number;
+  currency: string;
+  details: string | null;
+  status: 'pending' | 'approved' | 'rejected' | 'paid';
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  notes: string | null;
+  paid_at?: string | null;
+  created_at: string;
 }
 
 /** Relatório periódico de performance publicado pela equipa. */

@@ -9,15 +9,19 @@ import { useTheme } from '@/hooks/useTheme';
 import { useMovements } from '@/hooks/useMovements';
 import { PAYMENT_METHODS, type Currency, type PaymentMethod } from '@/lib/plans';
 import { submitWithdrawalRequest } from '@/lib/adminApi';
+import { contractEnded, netAfterPenalty } from '@/core/capital';
+import { formatShortDate } from '@/core/format';
 
 interface WithdrawalModalProps {
   visible: boolean;
   available: number;
   currency: Currency;
   onClose: () => void;
+  contractEndDate?: string;
+  penaltyPct?: number;
 }
 
-export function WithdrawalModal({ visible, available, currency, onClose }: WithdrawalModalProps) {
+export function WithdrawalModal({ visible, available, currency, onClose, contractEndDate, penaltyPct }: WithdrawalModalProps) {
   const { colors } = useTheme();
   const styles = makeStyles(colors);
   const { t } = useTranslation();
@@ -35,6 +39,9 @@ export function WithdrawalModal({ visible, available, currency, onClose }: Withd
     (!isAoa || details.trim().length > 0);
 
   const selectedMethod = method ? methods.find((m) => m.id === method) : null;
+
+  const penaltyActive = typeof penaltyPct === 'number' && penaltyPct > 0 && !!contractEndDate && !contractEnded(contractEndDate);
+  const netValue = penaltyActive ? netAfterPenalty(amountNum, penaltyPct as number) : amountNum;
 
   const submit = async () => {
     if (!valid || busy || !method) return;
@@ -125,6 +132,22 @@ export function WithdrawalModal({ visible, available, currency, onClose }: Withd
                 <AppText variant="small" style={{ color: colors.textMuted }}>
                   {selectedMethod?.copyValue}
                 </AppText>
+                {penaltyActive && amountNum > 0 ? (
+                  <View style={styles.penaltyBox}>
+                    <AppText variant="small" style={{ color: colors.warning, fontWeight: '700' }}>
+                      {t('capital.penaltyTitle')}
+                    </AppText>
+                    <AppText variant="small" style={{ color: colors.textMuted }}>
+                      {t('capital.penaltyNotice', { date: formatShortDate(contractEndDate as string), penalty: penaltyPct })}
+                    </AppText>
+                    <View style={styles.penaltyRow}>
+                      <AppText variant="small" style={{ color: colors.textMuted }}>{t('capital.netValue')}</AppText>
+                      <AppText variant="label" style={{ color: colors.warning }}>
+                        {formatWithdrawable(netValue, currency)}
+                      </AppText>
+                    </View>
+                  </View>
+                ) : null}
               </>
             )}
           </View>
@@ -161,5 +184,14 @@ const makeStyles = (c: Palette) =>
     methodIcon: { width: 50, height: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
     selectedRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, backgroundColor: c.surfaceElevated, borderRadius: 12, borderWidth: 1, borderColor: c.border },
     selectedInfo: { flex: 1, gap: 2 },
+    penaltyBox: {
+      backgroundColor: `${c.warning}14`,
+      borderColor: `${c.warning}40`,
+      borderWidth: 1,
+      borderRadius: 12,
+      padding: Spacing.md,
+      gap: Spacing.xs,
+    },
+    penaltyRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     actions: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.md },
   });

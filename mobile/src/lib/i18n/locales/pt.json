@@ -719,7 +719,30 @@
     "simulatorProjected": "Retorno projetado",
     "simulatorProfit": "Lucro estimado: +{{value}}",
     "simulatorStrategy": "Estratégia: {{name}}",
-    "simulatorDepositCta": "Fazer o primeiro depósito"
+    "simulatorDepositCta": "Fazer o primeiro depósito",
+    "contractTitle": "Contrato de Gerenciamento",
+    "contractPlan": "Plano",
+    "contractStart": "Início",
+    "contractEnd": "Fim",
+    "contractCapital": "Capital inicial",
+    "contractPenalty": "Penalidade por saque antecipado",
+    "contractDaysLeft_one": "{{count}} dia restante",
+    "contractDaysLeft_other": "{{count}} dias restantes",
+    "contractEnded": "Contrato terminado",
+    "viewContract": "Ver Contrato",
+    "contractTermsTitle": "Termos do Contrato",
+    "contractTermsBody": "A The Magic Trader gere o teu capital durante o prazo do contrato. Levantamentos antes do fim do prazo estão sujeitos a uma penalidade de {{penalty}}% sobre o montante levantado.",
+    "liabilitiesTitle": "Levantamentos",
+    "liabilitiesEmpty": "Ainda não tens pedidos de levantamento.",
+    "liabilityPending": "Pendente",
+    "liabilityApproved": "Aprovado",
+    "liabilityRejected": "Recusado",
+    "liabilityPaid": "Pago",
+    "dailyGain": "Ganho diário",
+    "chartTitle": "Evolução do Saldo",
+    "penaltyTitle": "Levantamento antecipado",
+    "penaltyNotice": "O teu contrato termina a {{date}}. Levantar agora aplica uma penalidade de {{penalty}}% sobre o valor pedido.",
+    "netValue": "Valor líquido a receber"
   },
   "diario": {
     "title": "Diário de Trader",
@@ -939,7 +962,9 @@
     "months": "{{count}} meses",
     "estimatedProfit": "Lucro estimado: +{{value}} USD",
     "planActive": "✓ Plano Ativo",
-    "activate": "Ativar Plano"
+    "activate": "Ativar Plano",
+    "activateErrorTitle": "Erro ao ativar plano",
+    "activateErrorMsg": "Não foi possível ativar o plano. Tenta novamente."
   },
   "aiErrors": {
     "contact": "Erro ao contactar o suporte. Tenta novamente.",

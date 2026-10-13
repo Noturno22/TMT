@@ -159,7 +159,8 @@ function fundir(loc, onda) {
   const locale = JSON.parse(fs.readFileSync(fLoc, "utf8"));
   const flat = flatten(locale);
   Object.assign(flat, done);
-  fs.writeFileSync(fLoc, JSON.stringify(unflatten(flat), null, 2) + "\n", "utf8");
+  const indent = mobile ? 2 : 1;
+  fs.writeFileSync(fLoc, JSON.stringify(unflatten(flat), null, indent) + "\n", "utf8");
   rel.fundido = true;
   return rel;
 }

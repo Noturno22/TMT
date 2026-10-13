@@ -4,6 +4,8 @@ import { Bitcoin, CreditCard, Banknote, Smartphone } from "lucide-react";
 export type Currency = "usd" | "aoa";
 export type PlanId = "free" | "basic" | "pro" | "premium";
 
+export const MIN_CAPITAL_DEPOSIT: Record<Currency, number> = { usd: 50, aoa: 50000 };
+
 export type PaymentMethod =
   | "binance"
   | "rodotpay"

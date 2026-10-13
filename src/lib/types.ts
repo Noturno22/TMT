@@ -151,6 +151,25 @@ export interface CapitalReport {
   created_at: string;
 }
 
+export type CapitalPlanId = 'conservador' | 'equilibrado' | 'agressivo';
+export type CapitalContractStatus = 'active' | 'completed' | 'cancelled';
+
+export interface CapitalContract {
+  id: string;
+  user_id: string;
+  plan_id: CapitalPlanId;
+  currency: 'usd' | 'aoa';
+  capital_inicial: number;
+  start_date: string;
+  end_date: string;
+  months: number;
+  status: CapitalContractStatus;
+  penalty_pct: number;
+  terms_version: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type TradeDirection = 'BUY' | 'SELL';
 export type TradeResult = 'WIN' | 'LOSS' | 'BREAKEVEN';
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -16,12 +17,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CapitalSimulatorCard } from "@/components/banca/CapitalSimulatorCard";
+import { ContractCard } from "@/components/banca/ContractCard";
 import { GrowthPlanSection } from "@/components/banca/GrowthPlanSection";
+import { WithdrawModal } from "@/components/banca/WithdrawModal";
 import { useBanca } from "@/hooks/useBanca";
 import { useCapitalAccount } from "@/hooks/useCapitalAccount";
+import { useCapitalContract } from "@/hooks/useCapitalContract";
 import { useMovements } from "@/hooks/useMovements";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useWithdrawalRequests } from "@/hooks/useWithdrawalRequests";
 import { formatBancaMoney, formatShortDate } from "@/lib/format";
+import { dailyGain, withdrawable } from "@/lib/capital";
+import { submitWithdrawalRequest, type WithdrawalRequest } from "@/lib/adminApi";
+import { PAYMENT_METHODS, type Currency, type PaymentMethod } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 function StatusPill({ label, color }: { label: string; color: string }) {
@@ -51,7 +59,10 @@ export default function Banca() {
   const { canAccessBanca, loading: subLoading } = useSubscription();
   const { config, loading } = useBanca();
   const { account, reports } = useCapitalAccount();
-  const { movements } = useMovements();
+  const { movements, addMovement } = useMovements();
+  const { contract } = useCapitalContract();
+  const { requests: withdrawalRequests } = useWithdrawalRequests();
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   if (!subLoading && !canAccessBanca) {
     return (
@@ -94,6 +105,54 @@ export default function Banca() {
   const totalInvested = Math.max(walletDeposits, capital);
 
   const hasManagement = Boolean(account) || capital > 0 || current > 0;
+
+  const activeContract = contract && contract.status === "active" ? contract : null;
+
+  const chartReports = [...reports].slice(0, 7).reverse();
+  const maxBalance = Math.max(...chartReports.map((r) => r.ending_balance), 1);
+  const avgDailyGain = chartReports.length
+    ? chartReports.reduce((s, r) => s + dailyGain(r), 0) / chartReports.length
+    : 0;
+
+  const liabilityMeta = (status: WithdrawalRequest["status"]): { label: string; color: string } => {
+    switch (status) {
+      case "approved":
+        return { label: t("capital.liabilityApproved"), color: PROVIDER_COLORS.accent };
+      case "rejected":
+        return { label: t("capital.liabilityRejected"), color: PROVIDER_COLORS.destructive };
+      case "paid":
+        return { label: t("capital.liabilityPaid"), color: PROVIDER_COLORS.success };
+      default:
+        return { label: t("capital.liabilityPending"), color: PROVIDER_COLORS.warning };
+    }
+  };
+
+  const submitWithdrawal = async (input: {
+    method: PaymentMethod;
+    amount: number;
+    details: string;
+    currency: Currency;
+  }) => {
+    const requestId = await submitWithdrawalRequest({
+      method: input.method,
+      amount: input.amount,
+      currency: input.currency,
+      details: input.details,
+    }).catch(() => null);
+    void addMovement({
+      type: "withdrawal",
+      method: input.method,
+      amount: input.amount,
+      currency: input.currency,
+      status: "pendente",
+      notes: input.details,
+      ...(requestId ? { requestId } : {}),
+    });
+    setWithdrawOpen(false);
+    toast.success(t("depositos.confirmWithdrawOk"), {
+      description: t("depositos.confirmWithdrawMsg"),
+    });
+  };
 
   const steps = [
     { icon: Wallet, color: PROVIDER_COLORS.success, title: t("capital.step1Title"), desc: t("capital.step1Desc") },
@@ -238,6 +297,8 @@ export default function Banca() {
           </Card>
         ) : null}
 
+        {activeContract ? <ContractCard contract={activeContract} /> : null}
+
         <div className="grid grid-cols-2 gap-3">
           {stats.map((s, i) => (
             <Card key={i}>
@@ -273,6 +334,30 @@ export default function Banca() {
           </CardContent>
         </Card>
 
+        {chartReports.length > 0 ? (
+          <Card>
+            <CardContent className="space-y-3 pt-6">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold">{t("capital.chartTitle")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("capital.dailyGain")}: {formatBancaMoney(avgDailyGain, cur)}
+                </p>
+              </div>
+              <div className="flex items-end gap-1.5">
+                {chartReports.map((r) => (
+                  <div key={r.id} className="flex flex-1 flex-col items-center gap-1.5">
+                    <div
+                      className={cn("w-full rounded", r.profit >= 0 ? "bg-success" : "bg-destructive")}
+                      style={{ height: Math.max(4, (r.ending_balance / maxBalance) * 72) }}
+                    />
+                    <span className="text-[9px] text-muted-foreground">{formatShortDate(r.period_end)}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
+
         <CapitalSimulatorCard capital={capital} currency={cur} strategy={config.planId} />
 
         <Card>
@@ -287,11 +372,7 @@ export default function Banca() {
             <Button
               variant="secondary"
               className="h-[54px] w-full"
-              onClick={() =>
-                toast.info(t("capital.withdrawalRequest"), {
-                  description: t("capital.withdrawalMsg"),
-                })
-              }
+              onClick={() => setWithdrawOpen(true)}
             >
               <FileBarChart className="mr-2 h-4 w-4 text-accent" />
               {t("capital.requestWithdrawal")}
@@ -299,7 +380,41 @@ export default function Banca() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardContent className="space-y-3 pt-6">
+            <p className="font-semibold">{t("capital.liabilitiesTitle")}</p>
+            {withdrawalRequests.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("capital.liabilitiesEmpty")}</p>
+            ) : (
+              withdrawalRequests.slice(0, 10).map((r) => {
+                const method = PAYMENT_METHODS.find((m) => m.id === r.method);
+                const meta = liabilityMeta(r.status);
+                return (
+                  <div key={r.id} className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold">{method?.label ?? r.method}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatBancaMoney(r.amount, r.currency as Currency)} · {formatShortDate(r.created_at)}
+                      </p>
+                    </div>
+                    <StatusPill label={meta.label} color={meta.color} />
+                  </div>
+                );
+              })
+            )}
+          </CardContent>
+        </Card>
+
         <GrowthPlanSection capital={capital} currency={cur} />
+
+        <WithdrawModal
+          available={withdrawable(current)}
+          balanceCurrency={cur}
+          contractEndDate={activeContract?.end_date}
+          penaltyPct={activeContract?.penalty_pct}
+          onClose={() => setWithdrawOpen(false)}
+          onSubmit={submitWithdrawal}
+        />
       </section>
     </Layout>
   );

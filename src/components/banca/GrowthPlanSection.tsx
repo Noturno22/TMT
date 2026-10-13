@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Leaf, Rocket, TrendingUp } from "lucide-react";
+import { Leaf, Loader2, Rocket, ShieldCheck, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useBanca } from "@/hooks/useBanca";
-import { formatBancaMoney } from "@/lib/format";
+import { useCapitalContract } from "@/hooks/useCapitalContract";
+import { formatBancaMoney, formatShortDate } from "@/lib/format";
+import { daysUntil } from "@/lib/capital";
+import type { CapitalPlanId } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "growth_plan";
 
 interface GrowthPlan {
-  id: string;
-  nameKey: string;
-  descKey: string;
+  id: CapitalPlanId;
+  nameKey: "planoCrescimento.conservative" | "planoCrescimento.balanced" | "planoCrescimento.aggressive";
+  descKey: "planoCrescimento.conservativeDesc" | "planoCrescimento.balancedDesc" | "planoCrescimento.aggressiveDesc";
   returnPct: number;
   months: number;
   icon: "leaf" | "analytics" | "rocket";
@@ -26,29 +30,52 @@ const PLANS: GrowthPlan[] = [
   { id: "agressivo", nameKey: "planoCrescimento.aggressive", descKey: "planoCrescimento.aggressiveDesc", returnPct: 15, months: 1, icon: "rocket", color: "text-destructive" },
 ];
 
+export const planNameKey: Record<CapitalPlanId, GrowthPlan["nameKey"]> = {
+  conservador: "planoCrescimento.conservative",
+  equilibrado: "planoCrescimento.balanced",
+  agressivo: "planoCrescimento.aggressive",
+};
+
 const PLAN_ICONS: Record<GrowthPlan["icon"], typeof Leaf> = {
   leaf: Leaf,
   analytics: TrendingUp,
   rocket: Rocket,
 };
 
+function readStoredPlan(): CapitalPlanId | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { planId?: CapitalPlanId };
+    return parsed.planId ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function GrowthPlanSection({ capital, currency = "usd" }: { capital: number; currency?: "usd" | "aoa" }) {
   const { t } = useTranslation();
   const { config, save } = useBanca();
-  const [selectedId, setSelectedId] = useState(config.planId);
-  const [activated, setActivated] = useState(false);
+  const { contract, activate } = useCapitalContract();
+  const [selectedId, setSelectedId] = useState<CapitalPlanId>(config.planId as CapitalPlanId);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as { planId?: string; activated?: boolean };
-      if (parsed.planId) setSelectedId(parsed.planId);
-      if (parsed.activated) setActivated(true);
-    } catch {
-      /* ignore */
-    }
+    const stored = readStoredPlan();
+    if (stored) setSelectedId(stored);
   }, []);
+
+  const contractActive = contract?.status === "active";
+  useEffect(() => {
+    if (contractActive && contract) setSelectedId(contract.plan_id);
+  }, [contractActive, contract]);
+
+  const selectPlan = (planId: CapitalPlanId) => {
+    if (contractActive) return;
+    setSelectedId(planId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ planId }));
+    save({ ...config, planId }).catch(() => {});
+  };
 
   const plan = PLANS.find((p) => p.id === selectedId) ?? PLANS[0];
   const projectedReturn = capital * (1 + plan.returnPct / 100);
@@ -58,25 +85,68 @@ export function GrowthPlanSection({ capital, currency = "usd" }: { capital: numb
       ? t("planoCrescimento.monthOne", { count: plan.months })
       : t("planoCrescimento.months", { count: plan.months });
 
-  const selectPlan = (planId: string) => {
-    setSelectedId(planId);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ planId, capital: config.capital, activated }));
-    save({ ...config, planId }).catch(() => {});
+  const activatePlan = async () => {
+    if (busy || contractActive) return;
+    setBusy(true);
+    try {
+      await activate(selectedId, currency);
+    } catch {
+      toast.error(t("planoCrescimento.activateErrorTitle"), {
+        description: t("planoCrescimento.activateErrorMsg"),
+      });
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const activate = () => {
-    setActivated(true);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ planId: selectedId, capital, activated: true }));
-    save({ ...config, planId: selectedId }).catch(() => {});
-  };
+  if (contractActive && contract) {
+    const daysLeft = daysUntil(contract.end_date);
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold">{t("planoCrescimento.title")}</h2>
+          <Badge className="border-success/30 bg-success/20 text-success">{t("planoCrescimento.planActive")}</Badge>
+        </div>
+        <Card>
+          <CardContent className="space-y-3 pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-[38px] w-[38px] items-center justify-center rounded-xl bg-success/10 text-success">
+                <ShieldCheck className="h-[18px] w-[18px]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold">{t(planNameKey[contract.plan_id])}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatShortDate(contract.start_date)} — {formatShortDate(contract.end_date)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {daysLeft > 0 ? t("capital.contractDaysLeft", { count: daysLeft }) : t("capital.contractEnded")}
+              </p>
+              <Badge
+                className={
+                  daysLeft > 0
+                    ? "border-success/30 bg-success/20 text-success"
+                    : "border-warning/30 bg-warning/20 text-warning"
+                }
+              >
+                {daysLeft > 0 ? t("capital.active") : t("capital.contractEnded")}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+        <Button variant="secondary" disabled className="w-full">
+          {t("planoCrescimento.planActive")}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="font-display text-xl font-bold">{t("planoCrescimento.title")}</h2>
-        {activated ? (
-          <Badge className="bg-success/20 text-success border-success/30">{t("planoCrescimento.planActive")}</Badge>
-        ) : null}
       </div>
       <p className="text-sm text-muted-foreground">{t("planoCrescimento.select")}</p>
 
@@ -101,7 +171,7 @@ export function GrowthPlanSection({ capital, currency = "usd" }: { capital: numb
                   <p className="font-semibold">{t(p.nameKey)}</p>
                   <p className="truncate text-xs text-muted-foreground">{t(p.descKey)}</p>
                 </div>
-                <Badge className="bg-secondary text-secondary-foreground border-transparent">+{p.returnPct}%</Badge>
+                <Badge className="border-transparent bg-secondary text-secondary-foreground">+{p.returnPct}%</Badge>
                 <span
                   className={cn(
                     "h-[18px] w-[18px] shrink-0 rounded-full border-2",
@@ -137,15 +207,10 @@ export function GrowthPlanSection({ capital, currency = "usd" }: { capital: numb
         </CardContent>
       </Card>
 
-      {activated ? (
-        <Button variant="secondary" disabled className="w-full">
-          {t("planoCrescimento.planActive")}
-        </Button>
-      ) : (
-        <Button variant="premium" className="w-full" onClick={activate}>
-          {t("planoCrescimento.activate")}
-        </Button>
-      )}
+      <Button variant="premium" className="w-full" onClick={activatePlan} disabled={busy}>
+        {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        {t("planoCrescimento.activate")}
+      </Button>
     </div>
   );
 }

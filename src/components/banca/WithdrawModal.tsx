@@ -18,7 +18,8 @@ import {
   type Currency,
   type PaymentMethod,
 } from "@/lib/plans";
-import { formatBancaMoney } from "@/lib/format";
+import { formatBancaMoney, formatShortDate } from "@/lib/format";
+import { contractEnded, netAfterPenalty } from "@/lib/capital";
 import { cn } from "@/lib/utils";
 
 const CURRENCIES: Currency[] = ["usd", "aoa"];
@@ -29,6 +30,8 @@ interface WithdrawModalProps {
   onClose: () => void;
   onSubmit: (input: { method: PaymentMethod; amount: number; details: string; currency: Currency }) => void;
   busy?: boolean;
+  contractEndDate?: string;
+  penaltyPct?: number;
 }
 
 export function WithdrawModal({
@@ -37,6 +40,8 @@ export function WithdrawModal({
   onClose,
   onSubmit,
   busy = false,
+  contractEndDate,
+  penaltyPct,
 }: WithdrawModalProps) {
   const { t } = useTranslation();
   const [currency, setCurrency] = useState<Currency>(balanceCurrency);
@@ -50,6 +55,10 @@ export function WithdrawModal({
   );
   const selectedMethod = method ? availableMethods.find((m) => m.id === method) : null;
   const currencySymbol = currency === "usd" ? "USD" : "AOA";
+  const amountNum = Number(amount.replace(",", "."));
+  const penaltyActive =
+    typeof penaltyPct === "number" && penaltyPct > 0 && !!contractEndDate && !contractEnded(contractEndDate);
+  const netValue = penaltyActive ? netAfterPenalty(amountNum, penaltyPct as number) : amountNum;
 
   const handleSubmit = () => {
     const parsed = parseFloat(amount.replace(",", "."));
@@ -174,6 +183,22 @@ export function WithdrawModal({
               rows={2}
             />
           </div>
+
+          {penaltyActive && amountNum > 0 ? (
+            <div className="space-y-1.5 rounded-xl border border-warning/40 bg-warning/10 p-4">
+              <p className="text-sm font-bold text-warning">{t("capital.penaltyTitle")}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("capital.penaltyNotice", {
+                  date: formatShortDate(contractEndDate as string),
+                  penalty: penaltyPct,
+                })}
+              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">{t("capital.netValue")}</p>
+                <p className="font-semibold text-warning">{formatBancaMoney(netValue, currency)}</p>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2 flex-col sm:flex-col">

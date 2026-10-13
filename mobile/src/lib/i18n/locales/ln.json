@@ -126,9 +126,6 @@
     "loading": "Eza kotia lisanga…",
     "emptyTitle": "Ba booms te",
     "emptyBody": "Ezali nanu na ba booms ya kolakisa te.",
-    "weekendMarketClosed": "Mazando makolami",
-    "weekendMarketClosedBody": "Signal forex ezongaka na mokolo ya lundi.",
-    "weekendCryptoAiBody": "Na mpokwa, IA ya TMT epreparaka signal BTC na ETH mpo na ba plan nionso.",
     "errorTitle": "Libunga"
   },
   "workspace": {
@@ -160,9 +157,6 @@
     "noProfiles": "Bautilisateur ya sika te.",
     "bot": "BOT",
     "loading": "Eza kotia…",
-    "weekendMarketClosed": "Mazando makolami",
-    "weekendMarketClosedBody": "Signal forex ezongaka na mokolo ya lundi.",
-    "weekendCryptoAiBody": "Na mpokwa, IA ya TMT epreparaka signal BTC na ETH mpo na ba plan nionso.",
     "errorTitle": "Libunga",
     "messageActions": "Message",
     "edit": "Kobongola",
@@ -354,7 +348,30 @@
     "withdrawErrorMsg": "Tokokala te kosala demande na yo. Meka lisusu.",
     "targetValue": "Metá: {{value}}",
     "simulatorStrategy": "Stratégie: {{name}}",
-    "simulatorDepositCta": "Kozalisa Depósita ya Liboso"
+    "simulatorDepositCta": "Kozalisa Depósita ya Liboso",
+    "chartTitle": "Bokoli ya Solde",
+    "contractCapital": "Capital ya ebandeli",
+    "contractDaysLeft_one": "{{count}} mokolo etikali",
+    "contractDaysLeft_other": "{{count}} mikolo etikali",
+    "contractEnd": "Nsuka",
+    "contractEnded": "Contrat esili",
+    "contractPenalty": "Pénalité ya kobimisa liboso",
+    "contractPlan": "Plan",
+    "contractStart": "Ebandeli",
+    "contractTermsBody": "The Magic Trader ezali kokamba capital na yo na boumeli ya contrat. Kobimisa mbongo liboso ya nsuka ya ntango esengeli kofuta pénalité ya {{penalty}}% na motuya oyo obimisi.",
+    "contractTermsTitle": "Mibeko ya Contrat",
+    "contractTitle": "Contrat ya Gestion",
+    "dailyGain": "Litomba ya mokolo",
+    "liabilitiesEmpty": "Ozali nanu na ba demande ya kobimisa mbongo te.",
+    "liabilitiesTitle": "Bobimisi",
+    "liabilityApproved": "Endimami",
+    "liabilityPaid": "Ebokali",
+    "liabilityPending": "Ekozela",
+    "liabilityRejected": "Ekandimami",
+    "netValue": "Motuya ya net ya kozwa",
+    "penaltyNotice": "Contrat na yo ekosila na {{date}}. Kobimisa sikoyo esengeli kofuta pénalité ya {{penalty}}% na motuya oyo osengi.",
+    "penaltyTitle": "Kobimisa liboso",
+    "viewContract": "Tala Contrat"
   },
   "language": {
     "title": "Lokótá"
@@ -892,9 +909,6 @@
     "loading": "Eza kotia ba définitions…",
     "loadingBooms": "Eza kotia ba booms…",
     "emptyTitle": "Ba booms te",
-    "weekendMarketClosed": "Mazando makolami",
-    "weekendMarketClosedBody": "Signal forex ezongaka na mokolo ya lundi.",
-    "weekendCryptoAiBody": "Na mpokwa, IA ya TMT epreparaka signal BTC na ETH mpo na ba plan nionso.",
     "errorTitle": "Libunga"
   },
   "suporteIa": {
@@ -930,7 +944,9 @@
     "months": "basanza {{count}}",
     "estimatedProfit": "Litomba estimé: +{{value}} USD",
     "planActive": "✓ Plan ya mosala",
-    "activate": "Kofungola Plan"
+    "activate": "Kofungola Plan",
+    "activateErrorMsg": "Ekoki te kofungola plan. Meka lisusu.",
+    "activateErrorTitle": "Libunga na kofungola plan"
   },
   "aiErrors": {
     "contact": "Libunga ya kozwa support. Meka lisusu.",

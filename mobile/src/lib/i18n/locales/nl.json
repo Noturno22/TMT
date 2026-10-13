@@ -126,9 +126,6 @@
     "loading": "Community laden…",
     "emptyTitle": "Geen booms",
     "emptyBody": "Er zijn nog geen booms om te tonen.",
-    "weekendMarketClosed": "Markt gesloten",
-    "weekendMarketClosedBody": "Forex-signalen komen maandag terug.",
-    "weekendCryptoAiBody": "In het weekend genereert TMT AI BTC- en ETH-signalen voor alle abonnementen.",
     "errorTitle": "Fout"
   },
   "workspace": {
@@ -160,9 +157,6 @@
     "noProfiles": "Geen beschikbare gebruikers.",
     "bot": "BOT",
     "loading": "Laden…",
-    "weekendMarketClosed": "Markt gesloten",
-    "weekendMarketClosedBody": "Forex-signalen komen maandag terug.",
-    "weekendCryptoAiBody": "In het weekend genereert TMT AI BTC- en ETH-signalen voor alle abonnementen.",
     "errorTitle": "Fout",
     "messageActions": "Bericht",
     "edit": "Bewerken",
@@ -354,7 +348,30 @@
     "withdrawErrorMsg": "We konden je aanvraag niet registreren. Probeer het opnieuw.",
     "targetValue": "Doel: {{value}}",
     "simulatorStrategy": "Strategie: {{name}}",
-    "simulatorDepositCta": "Doe je eerste storting"
+    "simulatorDepositCta": "Doe je eerste storting",
+    "chartTitle": "Evolutie van het saldo",
+    "contractCapital": "Startkapitaal",
+    "contractDaysLeft_one": "{{count}} dag resterend",
+    "contractDaysLeft_other": "{{count}} dagen resterend",
+    "contractEnd": "Einde",
+    "contractEnded": "Contract beëindigd",
+    "contractPenalty": "Boete bij vervroegde opname",
+    "contractPlan": "Plan",
+    "contractStart": "Start",
+    "contractTermsBody": "The Magic Trader beheert je kapitaal voor de duur van het contract. Opnames vóór het einde van de looptijd zijn onderworpen aan een boete van {{penalty}}% op het opgenomen bedrag.",
+    "contractTermsTitle": "Contractvoorwaarden",
+    "contractTitle": "Beheercontract",
+    "dailyGain": "Dagelijkse winst",
+    "liabilitiesEmpty": "Je hebt nog geen opnameverzoeken.",
+    "liabilitiesTitle": "Opnames",
+    "liabilityApproved": "Goedgekeurd",
+    "liabilityPaid": "Betaald",
+    "liabilityPending": "In behandeling",
+    "liabilityRejected": "Afgewezen",
+    "netValue": "Netto te ontvangen bedrag",
+    "penaltyNotice": "Je contract eindigt op {{date}}. Als je nu opneemt, geldt een boete van {{penalty}}% op het gevraagde bedrag.",
+    "penaltyTitle": "Vervroegde opname",
+    "viewContract": "Contract bekijken"
   },
   "language": {
     "title": "Taal"
@@ -892,9 +909,6 @@
     "loading": "Instellingen laden…",
     "loadingBooms": "Booms laden…",
     "emptyTitle": "Geen booms",
-    "weekendMarketClosed": "Markt gesloten",
-    "weekendMarketClosedBody": "Forex-signalen komen maandag terug.",
-    "weekendCryptoAiBody": "In het weekend genereert TMT AI BTC- en ETH-signalen voor alle abonnementen.",
     "errorTitle": "Fout"
   },
   "suporteIa": {
@@ -930,7 +944,9 @@
     "months": "{{count}} maanden",
     "estimatedProfit": "Geschatte winst: +{{value}} USD",
     "planActive": "✓ Plan actief",
-    "activate": "Plan activeren"
+    "activate": "Plan activeren",
+    "activateErrorMsg": "Het plan kon niet worden geactiveerd. Probeer het opnieuw.",
+    "activateErrorTitle": "Fout bij het activeren van het plan"
   },
   "aiErrors": {
     "contact": "Fout bij het contact opnemen met support. Probeer opnieuw.",

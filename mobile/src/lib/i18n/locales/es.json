@@ -126,9 +126,6 @@
     "loading": "Cargando comunidad…",
     "emptyTitle": "Sin booms",
     "emptyBody": "Aún no hay booms para mostrar.",
-    "weekendMarketClosed": "Mercado cerrado",
-    "weekendMarketClosedBody": "Las señales de forex regresan el lunes.",
-    "weekendCryptoAiBody": "Los fines de semana, la IA de TMT genera señales de BTC y ETH para todos los planes.",
     "errorTitle": "Error"
   },
   "workspace": {
@@ -160,9 +157,6 @@
     "noProfiles": "Sin usuarios disponibles.",
     "bot": "BOT",
     "loading": "Cargando…",
-    "weekendMarketClosed": "Mercado cerrado",
-    "weekendMarketClosedBody": "Las señales de forex regresan el lunes.",
-    "weekendCryptoAiBody": "Los fines de semana, la IA de TMT genera señales de BTC y ETH para todos los planes.",
     "errorTitle": "Error",
     "messageActions": "Mensaje",
     "edit": "Editar",
@@ -176,7 +170,7 @@
     "mentionHeader": "Mencionar",
     "shareToFeed": "Compartir en el feed",
     "sharedToFeed": "Publicado en #sinais",
-    "viewFeed": "Ver #sinais",
+    "viewFeed": "Ver #señales",
     "shareFailed": "No se pudo compartir en el feed",
     "shareLogin": "Inicia sesión para compartir en el feed",
     "sendTo": "Enviar a…",
@@ -409,7 +403,7 @@
     "gateLockedDesc": "Esta área está protegida por un código de acceso.",
     "quickPairs": "PARES RÁPIDOS",
     "volatility": "VOLATILIDAD",
-    "presetSessions": "SESSÕES RÁPIDAS",
+    "presetSessions": "SESIONES RÁPIDAS",
     "presetTokyo": "🇯🇵 Tokyo",
     "presetLondon": "🇬🇧 Londres",
     "presetNewYork": "🇺🇸 Nueva York",
@@ -428,7 +422,7 @@
     "receiptPlan": "Plan",
     "receiptMethod": "Método",
     "receiptViewProof": "Ver comprobante",
-    "receiptApprove": "Aprovar",
+    "receiptApprove": "Aprobar",
     "receiptReject": "Rechazar",
     "receiptApproveConfirm": "Aprovar pago",
     "receiptApproveMsg": "¿Seguro que quieres aprobar este pago? Se activará el plan del usuario.",
@@ -839,9 +833,6 @@
     "loading": "Cargando ajustes…",
     "loadingBooms": "Cargando booms…",
     "emptyTitle": "Sin booms",
-    "weekendMarketClosed": "Mercado cerrado",
-    "weekendMarketClosedBody": "Las señales de forex regresan el lunes.",
-    "weekendCryptoAiBody": "Los fines de semana, la IA de TMT genera señales de BTC y ETH para todos los planes.",
     "errorTitle": "Error"
   },
   "suporteIa": {
@@ -877,7 +868,9 @@
     "months": "{{count}} meses",
     "estimatedProfit": "Beneficio estimado: +{{value}} USD",
     "planActive": "✓ Plan Activo",
-    "activate": "Activar Plan"
+    "activate": "Activar Plan",
+    "activateErrorMsg": "No se pudo activar el plan. Inténtalo de nuevo.",
+    "activateErrorTitle": "Error al activar el plan"
   },
   "aiErrors": {
     "contact": "Error al contactar con el soporte. Inténtalo de nuevo.",
@@ -1021,7 +1014,7 @@
     },
     "audioRecorder": {
       "stop": "PARAR · {{seconds}}s",
-      "audio": "ÁUDIO"
+      "audio": "AUDIO"
     },
     "aiFab": {
       "label": "Soporte por IA"
@@ -1149,7 +1142,30 @@
     "withdrawableValue": "Disponible: {{value}}",
     "withdrawErrorTitle": "Error al solicitar el retiro",
     "withdrawErrorMsg": "No pudimos registrar tu solicitud. Inténtalo de nuevo.",
-    "targetValue": "Meta: {{value}}"
+    "targetValue": "Meta: {{value}}",
+    "chartTitle": "Evolución del Saldo",
+    "contractCapital": "Capital inicial",
+    "contractDaysLeft_one": "{{count}} día restante",
+    "contractDaysLeft_other": "{{count}} días restantes",
+    "contractEnd": "Fin",
+    "contractEnded": "Contrato finalizado",
+    "contractPenalty": "Penalización por retiro anticipado",
+    "contractPlan": "Plan",
+    "contractStart": "Inicio",
+    "contractTermsBody": "The Magic Trader gestiona tu capital durante el plazo del contrato. Los retiros antes del final del plazo están sujetos a una penalización del {{penalty}}% sobre el importe retirado.",
+    "contractTermsTitle": "Términos del Contrato",
+    "contractTitle": "Contrato de Gestión",
+    "dailyGain": "Ganancia diaria",
+    "liabilitiesEmpty": "Aún no tienes solicitudes de retiro.",
+    "liabilitiesTitle": "Retiros",
+    "liabilityApproved": "Aprobado",
+    "liabilityPaid": "Pagado",
+    "liabilityPending": "Pendiente",
+    "liabilityRejected": "Rechazado",
+    "netValue": "Importe neto a recibir",
+    "penaltyNotice": "Tu contrato finaliza el {{date}}. Retirar ahora aplica una penalización del {{penalty}}% sobre el importe solicitado.",
+    "penaltyTitle": "Retiro anticipado",
+    "viewContract": "Ver Contrato"
   },
   "store": {
     "title": "Tienda",

@@ -126,9 +126,6 @@
     "loading": "Chargement de la communauté…",
     "emptyTitle": "Aucun boom",
     "emptyBody": "Il n'y a pas encore de booms à afficher.",
-    "weekendMarketClosed": "Marché fermé",
-    "weekendMarketClosedBody": "Les signaux forex reviennent lundi.",
-    "weekendCryptoAiBody": "Le week-end, l'IA de TMT génère des signaux BTC et ETH pour tous les plans.",
     "errorTitle": "Erreur"
   },
   "workspace": {
@@ -160,9 +157,6 @@
     "noProfiles": "Aucun utilisateur disponible.",
     "bot": "BOT",
     "loading": "Chargement…",
-    "weekendMarketClosed": "Marché fermé",
-    "weekendMarketClosedBody": "Les signaux forex reviennent lundi.",
-    "weekendCryptoAiBody": "Le week-end, l'IA de TMT génère des signaux BTC et ETH pour tous les plans.",
     "errorTitle": "Erreur",
     "messageActions": "Message",
     "edit": "Modifier",
@@ -739,7 +733,30 @@
     "withdrawErrorMsg": "Nous n'avons pas pu enregistrer votre demande. Réessayez.",
     "targetValue": "Objectif : {{value}}",
     "simulatorStrategy": "Stratégie : {{name}}",
-    "simulatorDepositCta": "Faire le premier dépôt"
+    "simulatorDepositCta": "Faire le premier dépôt",
+    "chartTitle": "Évolution du Solde",
+    "contractCapital": "Capital initial",
+    "contractDaysLeft_one": "{{count}} jour restant",
+    "contractDaysLeft_other": "{{count}} jours restants",
+    "contractEnd": "Fin",
+    "contractEnded": "Contrat terminé",
+    "contractPenalty": "Pénalité de retrait anticipé",
+    "contractPlan": "Plan",
+    "contractStart": "Début",
+    "contractTermsBody": "The Magic Trader gère ton capital pendant la durée du contrat. Les retraits avant la fin du terme sont soumis à une pénalité de {{penalty}}% sur le montant retiré.",
+    "contractTermsTitle": "Termes du Contrat",
+    "contractTitle": "Contrat de Gestion",
+    "dailyGain": "Gain quotidien",
+    "liabilitiesEmpty": "Tu n'as pas encore de demandes de retrait.",
+    "liabilitiesTitle": "Retraits",
+    "liabilityApproved": "Approuvé",
+    "liabilityPaid": "Payé",
+    "liabilityPending": "En attente",
+    "liabilityRejected": "Refusé",
+    "netValue": "Montant net à recevoir",
+    "penaltyNotice": "Ton contrat se termine le {{date}}. Un retrait maintenant applique une pénalité de {{penalty}}% sur le montant demandé.",
+    "penaltyTitle": "Retrait anticipé",
+    "viewContract": "Voir le Contrat"
   },
   "depositos": {
     "title": "Dépôts et retraits",
@@ -892,9 +909,6 @@
     "loading": "Chargement des réglages…",
     "loadingBooms": "Chargement des booms…",
     "emptyTitle": "Aucun boom",
-    "weekendMarketClosed": "Marché fermé",
-    "weekendMarketClosedBody": "Les signaux forex reviennent lundi.",
-    "weekendCryptoAiBody": "Le week-end, l'IA de TMT génère des signaux BTC et ETH pour tous les plans.",
     "errorTitle": "Erreur"
   },
   "suporteIa": {
@@ -930,7 +944,9 @@
     "months": "{{count}} mois",
     "estimatedProfit": "Bénéfice estimé : +{{value}} USD",
     "planActive": "✓ Plan Actif",
-    "activate": "Activer le Plan"
+    "activate": "Activer le Plan",
+    "activateErrorMsg": "Impossible d'activer le plan. Réessaie.",
+    "activateErrorTitle": "Erreur lors de l'activation du plan"
   },
   "aiErrors": {
     "contact": "Erreur lors du contact avec le support. Réessaie.",

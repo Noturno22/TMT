@@ -126,9 +126,6 @@
     "loading": "Inapakia jamii…",
     "emptyTitle": "Hakuna booms",
     "emptyBody": "Bado hakuna booms za kuonyesha.",
-    "weekendMarketClosed": "Soko limefungwa",
-    "weekendMarketClosedBody": "Ishara za forex zinarudi Jumatatu.",
-    "weekendCryptoAiBody": "Mwishoni mwa wiki, AI ya TMT hutoa ishara za BTC na ETH kwa mipango yote.",
     "errorTitle": "Hitilafu"
   },
   "workspace": {
@@ -160,9 +157,6 @@
     "noProfiles": "Hakuna watumiaji wanaopatikana.",
     "bot": "BOT",
     "loading": "Inapakia…",
-    "weekendMarketClosed": "Soko limefungwa",
-    "weekendMarketClosedBody": "Ishara za forex zinarudi Jumatatu.",
-    "weekendCryptoAiBody": "Mwishoni mwa wiki, AI ya TMT hutoa ishara za BTC na ETH kwa mipango yote.",
     "errorTitle": "Hitilafu",
     "messageActions": "Ujumbe",
     "edit": "Hariri",
@@ -683,7 +677,30 @@
     "withdrawErrorMsg": "Hatukuweza kurekodi ombi lako. Jaribu tena.",
     "targetValue": "Lengo: {{value}}",
     "simulatorStrategy": "Mkakati: {{name}}",
-    "simulatorDepositCta": "Fanya amana yako ya kwanza"
+    "simulatorDepositCta": "Fanya amana yako ya kwanza",
+    "chartTitle": "Mabadiliko ya Salio",
+    "contractCapital": "Mtaji wa mwanzo",
+    "contractDaysLeft_one": "Siku {{count}} iliyobaki",
+    "contractDaysLeft_other": "Siku {{count}} zilizobaki",
+    "contractEnd": "Mwisho",
+    "contractEnded": "Mkataba umemalizika",
+    "contractPenalty": "Adhabu ya uondoaji wa mapema",
+    "contractPlan": "Mpango",
+    "contractStart": "Mwanzo",
+    "contractTermsBody": "The Magic Trader inasimamia mtaji wako katika kipindi cha mkataba. Uondoaji kabla ya mwisho wa kipindi unatozwa adhabu ya {{penalty}}% kwa kiasi kilichotolewa.",
+    "contractTermsTitle": "Masharti ya Mkataba",
+    "contractTitle": "Mkataba wa Usimamizi",
+    "dailyGain": "Faida ya kila siku",
+    "liabilitiesEmpty": "Bado huna maombi ya uondoaji.",
+    "liabilitiesTitle": "Uondoaji",
+    "liabilityApproved": "Imeidhinishwa",
+    "liabilityPaid": "Imelipwa",
+    "liabilityPending": "Inasubiri",
+    "liabilityRejected": "Imekataa",
+    "netValue": "Kiasi halisi cha kupokea",
+    "penaltyNotice": "Mkataba wako unaisha {{date}}. Kuondoa sasa kunatoza adhabu ya {{penalty}}% kwa kiasi ulichoombaji.",
+    "penaltyTitle": "Uondoaji wa mapema",
+    "viewContract": "Ona Mkataba"
   },
   "banca": {
     "title": "Usimamizi wa Mtaji",
@@ -892,9 +909,6 @@
     "loading": "Inapakia mipangilio…",
     "loadingBooms": "Inapakia booms…",
     "emptyTitle": "Hakuna booms",
-    "weekendMarketClosed": "Soko limefungwa",
-    "weekendMarketClosedBody": "Ishara za forex zinarudi Jumatatu.",
-    "weekendCryptoAiBody": "Mwishoni mwa wiki, AI ya TMT hutoa ishara za BTC na ETH kwa mipango yote.",
     "errorTitle": "Hitilafu"
   },
   "suporteIa": {
@@ -930,7 +944,9 @@
     "months": "{{count}} miezi",
     "estimatedProfit": "Faida inayokadiriwa: +{{value}} USD",
     "planActive": "✓ Mpango Umewashwa",
-    "activate": "Washa Mpango"
+    "activate": "Washa Mpango",
+    "activateErrorMsg": "Imeshindwa kuwasha mpango. Jaribu tena.",
+    "activateErrorTitle": "Hitilafu wakati wa kuwasha mpango"
   },
   "aiErrors": {
     "contact": "Hitilafu wakati wa kuwasiliana na msaada. Jaribu tena.",

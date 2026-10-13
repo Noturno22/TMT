@@ -126,9 +126,6 @@
     "loading": "Caricamento community…",
     "emptyTitle": "Nessun boom",
     "emptyBody": "Non ci sono ancora boom da mostrare.",
-    "weekendMarketClosed": "Mercato chiuso",
-    "weekendMarketClosedBody": "I segnali forex tornano lunedì.",
-    "weekendCryptoAiBody": "Nel fine settimana, l'IA di TMT genera segnali BTC ed ETH per tutti i piani.",
     "errorTitle": "Errore"
   },
   "workspace": {
@@ -160,9 +157,6 @@
     "noProfiles": "Nessun utente disponibile.",
     "bot": "BOT",
     "loading": "Caricamento…",
-    "weekendMarketClosed": "Mercato chiuso",
-    "weekendMarketClosedBody": "I segnali forex tornano lunedì.",
-    "weekendCryptoAiBody": "Nel fine settimana, l'IA di TMT genera segnali BTC ed ETH per tutti i piani.",
     "errorTitle": "Errore",
     "messageActions": "Messaggio",
     "edit": "Modifica",
@@ -739,7 +733,30 @@
     "withdrawErrorMsg": "Non siamo riusciti a registrare la tua richiesta. Riprova.",
     "targetValue": "Obiettivo: {{value}}",
     "simulatorStrategy": "Strategia: {{name}}",
-    "simulatorDepositCta": "Fai il Primo Deposito"
+    "simulatorDepositCta": "Fai il Primo Deposito",
+    "chartTitle": "Evoluzione del Saldo",
+    "contractCapital": "Capitale iniziale",
+    "contractDaysLeft_one": "{{count}} giorno rimanente",
+    "contractDaysLeft_other": "{{count}} giorni rimanenti",
+    "contractEnd": "Fine",
+    "contractEnded": "Contratto terminato",
+    "contractPenalty": "Penalità di prelievo anticipato",
+    "contractPlan": "Piano",
+    "contractStart": "Inizio",
+    "contractTermsBody": "The Magic Trader gestisce il tuo capitale per la durata del contratto. I prelievi prima della fine del termine sono soggetti a una penalità del {{penalty}}% sull'importo prelevato.",
+    "contractTermsTitle": "Termini del Contratto",
+    "contractTitle": "Contratto di Gestione",
+    "dailyGain": "Guadagno giornaliero",
+    "liabilitiesEmpty": "Non hai ancora richieste di prelievo.",
+    "liabilitiesTitle": "Prelievi",
+    "liabilityApproved": "Approvato",
+    "liabilityPaid": "Pagato",
+    "liabilityPending": "In attesa",
+    "liabilityRejected": "Rifiutato",
+    "netValue": "Importo netto da ricevere",
+    "penaltyNotice": "Il tuo contratto termina il {{date}}. Prelevare ora applica una penalità del {{penalty}}% sull'importo richiesto.",
+    "penaltyTitle": "Prelievo anticipato",
+    "viewContract": "Vedi Contratto"
   },
   "depositos": {
     "title": "Depositi e Prelievi",
@@ -892,9 +909,6 @@
     "loading": "Caricamento impostazioni…",
     "loadingBooms": "Caricamento boom…",
     "emptyTitle": "Nessun boom",
-    "weekendMarketClosed": "Mercato chiuso",
-    "weekendMarketClosedBody": "I segnali forex tornano lunedì.",
-    "weekendCryptoAiBody": "Nel fine settimana, l'IA di TMT genera segnali BTC ed ETH per tutti i piani.",
     "errorTitle": "Errore"
   },
   "suporteIa": {
@@ -930,7 +944,9 @@
     "months": "{{count}} mesi",
     "estimatedProfit": "Profitto stimato: +{{value}} USD",
     "planActive": "✓ Piano Attivo",
-    "activate": "Attiva Piano"
+    "activate": "Attiva Piano",
+    "activateErrorMsg": "Impossibile attivare il piano. Riprova.",
+    "activateErrorTitle": "Errore nell'attivazione del piano"
   },
   "aiErrors": {
     "contact": "Errore nel contattare il supporto. Riprova.",

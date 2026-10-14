@@ -10,7 +10,6 @@ import {
   ShieldCheck,
   User as UserIcon,
   UserX,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -142,9 +141,6 @@ export function UserDetailModal({
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader className="flex-row items-center justify-between">
           <DialogTitle className="text-sm font-medium text-muted-foreground">Detalhes do Utilizador</DialogTitle>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} disabled={loading}>
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
 
         {/* Hero */}

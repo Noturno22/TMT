@@ -125,15 +125,6 @@ export function PaymentModal({
             <DialogTitle className="font-display text-xl">
               {titleText ?? t("planos.paymentTitle", { plan: planLabel(plan) })}
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={onClose}
-              disabled={busy}
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
           <p className="text-sm text-muted-foreground">
             {amountText ?? t("planos.paymentAmount", { amount: price })}

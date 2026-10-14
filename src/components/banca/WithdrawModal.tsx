@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -93,17 +93,6 @@ export function WithdrawModal({
             <DialogTitle className="font-display text-xl">
               {t("depositos.withdrawCta")}
             </DialogTitle>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={onClose}
-              disabled={busy}
-              aria-label={t("common.close")}
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
           <div className="flex items-center justify-between rounded-xl border border-border bg-secondary/50 px-4 py-3">
             <span className="text-sm font-semibold text-muted-foreground">

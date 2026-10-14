@@ -92,13 +92,6 @@ export function AddTradeModal({ open, onClose, onSave }: Props) {
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex-row items-center justify-between">
           <DialogTitle className="font-display text-lg">Registar</DialogTitle>
-          <button
-            onClick={onClose}
-            className="rounded-full bg-muted p-2 text-muted-foreground hover:text-foreground"
-            aria-label="Fechar"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </DialogHeader>
 
         <div className="space-y-4">

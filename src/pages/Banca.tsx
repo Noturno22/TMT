@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CapitalSimulatorCard } from "@/components/banca/CapitalSimulatorCard";
 import { ContractCard } from "@/components/banca/ContractCard";
+import { GoalReached } from "@/components/banca/GoalReached";
 import { GrowthPlanSection, planNameKey } from "@/components/banca/GrowthPlanSection";
 import { WithdrawModal } from "@/components/banca/WithdrawModal";
 import { useBanca } from "@/hooks/useBanca";
@@ -449,39 +450,49 @@ export default function Banca() {
           ))}
         </div>
 
-        <Card>
-          <CardContent className="space-y-3 pt-6">
-            <div className="flex items-center justify-between">
-              <p className="font-semibold">{t("capital.progressTitle")}</p>
-              <p className="text-xs text-muted-foreground">{Math.round(progress)}%</p>
-            </div>
-            <div
-              className="h-2 overflow-hidden rounded-full bg-secondary"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(progress)}
-              aria-label={t("capital.progressTitle")}
-            >
-              <motion.div
-                className="h-full rounded-full bg-accent"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">{signedMoney(profitValue)}</p>
-              <p className="text-xs font-semibold text-accent">
-                {t("capital.target")}: +{formatBancaMoney(targetValue, cur)}
-              </p>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">{t("capital.progressMissing")}</p>
-              <p className="text-xs font-semibold">{Math.round(missingPct)}%</p>
-            </div>
-          </CardContent>
-        </Card>
+        {targetValue > 0 && progress >= 100 ? (
+          <GoalReached
+            finalValue={current}
+            currency={cur}
+            returnPct={returnPct}
+            profitValue={profitValue}
+            onWithdraw={() => setWithdrawOpen(true)}
+          />
+        ) : (
+          <Card>
+            <CardContent className="space-y-3 pt-6">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold">{t("capital.progressTitle")}</p>
+                <p className="text-xs text-muted-foreground">{Math.round(progress)}%</p>
+              </div>
+              <div
+                className="h-2 overflow-hidden rounded-full bg-secondary"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progress)}
+                aria-label={t("capital.progressTitle")}
+              >
+                <motion.div
+                  className="h-full rounded-full bg-accent"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{signedMoney(profitValue)}</p>
+                <p className="text-xs font-semibold text-accent">
+                  {t("capital.target")}: +{formatBancaMoney(targetValue, cur)}
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{t("capital.progressMissing")}</p>
+                <p className="text-xs font-semibold">{Math.round(missingPct)}%</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {chartReports.length > 0 ? (
           <Card>

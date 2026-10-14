@@ -748,7 +748,9 @@
     "penaltyNotice": "O teu contrato termina a {{date}}. Levantar agora aplica uma penalidade de {{penalty}}% sobre o valor pedido.",
     "netValue": "Valor líquido a receber",
     "grossValue": "Valor bruto",
-    "penaltyLabel": "Penalidade ({{penalty}}%)"
+    "penaltyLabel": "Penalidade ({{penalty}}%)",
+    "goalReachedTitle": "OBJETIVO ALCANÇADO",
+    "goalReachedDesc": "A tua banca atingiu a meta planeada. Parabéns! Podes agora pedir o levantamento dos teus lucros."
   },
   "diario": {
     "title": "Diário de Trader",
@@ -1221,5 +1223,40 @@
     "incEbook1": "Acesso imediato",
     "incEbook2": "Exemplos práticos",
     "incEbook3": "Actualizações gratuitas"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Só membros com plano pago podem comentar. Faz upgrade para participar.",
+  "postPremiumOnly": "Apenas membros premium e administradores podem publicar. Faz upgrade para partilhar.",
+  "tab": "Rede",
+  "composerPlaceholder": "Partilha uma análise, ideia ou resultado...",
+  "publish": "Publicar",
+  "media": "Média",
+  "linkPlaceholder": "Cola um link (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Publicado!",
+  "postError": "Não foi possível publicar.",
+  "deletePost": "Apagar",
+  "commentPlaceholder": "Escreve um comentário...",
+  "noComments": "Ainda sem comentários.",
+  "loginToPost": "Entra na tua conta para participar.",
+  "shareCopied": "Link copiado!",
+  "follow": "Seguir",
+  "following": "A seguir",
+  "followers": "seguidores",
+  "followingCount": "a seguir",
+  "postsCount": "posts",
+  "emptyFeed": "Ainda não há publicações",
+  "emptyFeedHint": "Sê o primeiro a partilhar com a comunidade.",
+  "noPosts": "Ainda sem publicações.",
+  "filterAll": "Tudo",
+  "embedFrom": "Conteúdo de {{network}}",
+  "openOn": "Abrir no {{network}}",
+  "postNotFound": "Publicação não encontrada.",
+  "visibilityPublic": "Público",
+  "visibilityFollowers": "Só seguidores",
+  "visibilityPrivate": "Só eu",
+  "title": "Rede",
+  "posts": "publicações",
+  "needGalleryPermission": "Permite o acesso às tuas fotos.",
+  "emptyPost": "Escreve algo ou adiciona média."
+ }
 }

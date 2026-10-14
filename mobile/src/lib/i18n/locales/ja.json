@@ -758,7 +758,9 @@
     "penaltyTitle": "早期出金",
     "viewContract": "契約を表示",
     "grossValue": "総額",
-    "penaltyLabel": "ペナルティ（{{penalty}}%）"
+    "penaltyLabel": "ペナルティ（{{penalty}}%）",
+    "goalReachedTitle": "目標達成",
+    "goalReachedDesc": "口座が予定の目標に到達しました。おめでとうございます！利益の出金を申請できます。"
   },
   "depositos": {
     "title": "入金と出金",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Premiumプランの有効期限が切れました",
     "expiredSub": "{{date}}に期限切れになりました。更新するとすべてのアクセスが復活します。",
     "renew": "更新"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "有料プランの会員のみコメントできます。アップグレードして参加しましょう。",
+  "postPremiumOnly": "プレミアム会員と管理者のみが投稿できます。アップグレードして共有しましょう。",
+  "tab": "フィード",
+  "composerPlaceholder": "分析・アイデア・結果を共有しよう...",
+  "publish": "投稿",
+  "media": "メディア",
+  "linkPlaceholder": "リンクを貼り付け（X、YouTube、TikTok、Instagram、Telegram）",
+  "postCreated": "投稿しました！",
+  "postError": "投稿できませんでした。",
+  "deletePost": "削除",
+  "commentPlaceholder": "コメントを書く...",
+  "noComments": "まだコメントはありません。",
+  "loginToPost": "参加するにはログインしてください。",
+  "shareCopied": "リンクをコピーしました！",
+  "follow": "フォロー",
+  "following": "フォロー中",
+  "followers": "フォロワー",
+  "followingCount": "フォロー中",
+  "postsCount": "投稿",
+  "emptyFeed": "まだ投稿がありません",
+  "emptyFeedHint": "最初にコミュニティへ共有しよう。",
+  "noPosts": "まだ投稿がありません。",
+  "filterAll": "すべて",
+  "embedFrom": "{{network}} のコンテンツ",
+  "openOn": "{{network}} で開く",
+  "postNotFound": "投稿が見つかりません。",
+  "visibilityPublic": "公開",
+  "visibilityFollowers": "フォロワーのみ",
+  "visibilityPrivate": "自分のみ",
+  "title": "フィード",
+  "posts": "投稿",
+  "needGalleryPermission": "写真へのアクセスを許可してください。",
+  "emptyPost": "何か書くかメディアを追加してください。"
+ }
 }

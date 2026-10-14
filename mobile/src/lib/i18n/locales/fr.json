@@ -758,7 +758,9 @@
     "penaltyTitle": "Retrait anticipé",
     "viewContract": "Voir le Contrat",
     "grossValue": "Montant brut",
-    "penaltyLabel": "Pénalité ({{penalty}}%)"
+    "penaltyLabel": "Pénalité ({{penalty}}%)",
+    "goalReachedTitle": "OBJECTIF ATTEINT",
+    "goalReachedDesc": "Ton compte a atteint l'objectif prévu. Félicitations ! Tu peux maintenant demander un retrait de tes profits."
   },
   "depositos": {
     "title": "Dépôts et retraits",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Ton plan Premium a expiré",
     "expiredSub": "Expiré le {{date}}. Renouvelez pour retrouver l'accès complet.",
     "renew": "Renouveler"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Seuls les membres avec un abonnement payant peuvent commenter. Passe à un plan supérieur pour participer.",
+  "postPremiumOnly": "Seuls les membres premium et les administrateurs peuvent publier. Passe à un plan supérieur pour partager.",
+  "tab": "Fil",
+  "composerPlaceholder": "Partage une analyse, une idée ou un résultat...",
+  "publish": "Publier",
+  "media": "Média",
+  "linkPlaceholder": "Colle un lien (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Publié !",
+  "postError": "Publication impossible.",
+  "deletePost": "Supprimer",
+  "commentPlaceholder": "Écris un commentaire...",
+  "noComments": "Pas encore de commentaires.",
+  "loginToPost": "Connecte-toi pour participer.",
+  "shareCopied": "Lien copié !",
+  "follow": "Suivre",
+  "following": "Abonné",
+  "followers": "abonnés",
+  "followingCount": "abonnements",
+  "postsCount": "publications",
+  "emptyFeed": "Aucune publication",
+  "emptyFeedHint": "Sois le premier à partager avec la communauté.",
+  "noPosts": "Aucune publication.",
+  "filterAll": "Tout",
+  "embedFrom": "Contenu de {{network}}",
+  "openOn": "Ouvrir sur {{network}}",
+  "postNotFound": "Publication introuvable.",
+  "visibilityPublic": "Public",
+  "visibilityFollowers": "Abonnés uniquement",
+  "visibilityPrivate": "Moi uniquement",
+  "title": "Fil",
+  "posts": "publications",
+  "needGalleryPermission": "Autorise l'accès à tes photos.",
+  "emptyPost": "Écris quelque chose ou ajoute un média."
+ }
 }

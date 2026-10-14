@@ -702,7 +702,9 @@
     "penaltyTitle": "Vorzeitige Auszahlung",
     "viewContract": "Vertrag ansehen",
     "grossValue": "Bruttobetrag",
-    "penaltyLabel": "Strafe ({{penalty}}%)"
+    "penaltyLabel": "Strafe ({{penalty}}%)",
+    "goalReachedTitle": "ZIEL ERREICHT",
+    "goalReachedDesc": "Dein Konto hat das geplante Ziel erreicht. Herzlichen Glückwunsch! Du kannst jetzt eine Auszahlung deiner Gewinne beantragen."
   },
   "banca": {
     "title": "Bankroll-Verwaltung",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Dein Premium-Plan ist abgelaufen",
     "expiredSub": "Am {{date}} abgelaufen. Verlängere, um den vollen Zugang wiederherzustellen.",
     "renew": "Verlängern"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Nur Mitglieder mit einem bezahlten Plan können kommentieren. Upgrade zum Mitmachen.",
+  "postPremiumOnly": "Nur Premium-Mitglieder und Administratoren können posten. Upgrade zum Teilen.",
+  "tab": "Feed",
+  "composerPlaceholder": "Teile eine Analyse, Idee oder ein Ergebnis...",
+  "publish": "Veröffentlichen",
+  "media": "Medien",
+  "linkPlaceholder": "Link einfügen (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Veröffentlicht!",
+  "postError": "Beitrag fehlgeschlagen.",
+  "deletePost": "Löschen",
+  "commentPlaceholder": "Kommentar schreiben...",
+  "noComments": "Noch keine Kommentare.",
+  "loginToPost": "Melde dich an, um teilzunehmen.",
+  "shareCopied": "Link kopiert!",
+  "follow": "Folgen",
+  "following": "Gefolgt",
+  "followers": "Follower",
+  "followingCount": "folge ich",
+  "postsCount": "Beiträge",
+  "emptyFeed": "Noch keine Beiträge",
+  "emptyFeedHint": "Sei der Erste, der mit der Community teilt.",
+  "noPosts": "Noch keine Beiträge.",
+  "filterAll": "Alle",
+  "embedFrom": "Inhalt von {{network}}",
+  "openOn": "Öffnen auf {{network}}",
+  "postNotFound": "Beitrag nicht gefunden.",
+  "visibilityPublic": "Öffentlich",
+  "visibilityFollowers": "Nur Follower",
+  "visibilityPrivate": "Nur ich",
+  "title": "Feed",
+  "posts": "Beiträge",
+  "needGalleryPermission": "Erlaube den Zugriff auf deine Fotos.",
+  "emptyPost": "Schreibe etwas oder füge Medien hinzu."
+ }
 }

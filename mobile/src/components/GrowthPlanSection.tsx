@@ -3,13 +3,14 @@ import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText, Badge, Card } from '@/components/ui';
+import { GoalReached } from '@/components/GoalReached';
 import { Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { formatBancaMoney, formatShortDate } from '@/core/format';
 import { useTranslation } from 'react-i18next';
 import { useBanca } from '@/hooks/useBanca';
 import { useCapitalContract } from '@/hooks/useCapitalContract';
-import { daysUntil } from '@/core/capital';
+import { contractEnded, daysUntil } from '@/core/capital';
 import type { CapitalPlanId } from '@/core/types';
 
 const STORAGE_KEY = 'growth_plan';
@@ -36,7 +37,21 @@ export const planNameKey: Record<CapitalPlanId, GrowthPlan['nameKey']> = {
   agressivo: 'planoCrescimento.aggressive',
 };
 
-export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: number; currency?: 'usd' | 'aoa' }) {
+export function GrowthPlanSection({
+  capital,
+  currency = 'usd',
+  achieved,
+  profitValue,
+  returnPct,
+  onWithdraw,
+}: {
+  capital: number;
+  currency?: 'usd' | 'aoa';
+  achieved?: number;
+  profitValue?: number;
+  returnPct?: number;
+  onWithdraw?: () => void;
+}) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = makeStyles(colors);
@@ -65,7 +80,7 @@ export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: numb
     });
   }, []);
 
-  const contractActive = contract?.status === 'active';
+  const contractActive = !!contract && contract.status === 'active' && !contractEnded(contract.end_date);
   useEffect(() => {
     if (contractActive && contract) setSelectedId(contract.plan_id);
   }, [contractActive, contract]);
@@ -130,6 +145,23 @@ export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: numb
           </View>
         </Card>
         <AppButton title={t('planoCrescimento.planActive')} variant="secondary" disabled />
+      </View>
+    );
+  }
+
+  if (contract) {
+    return (
+      <View style={styles.wrap}>
+        <View style={styles.header}>
+          <AppText variant="h2">{t('planoCrescimento.title')}</AppText>
+        </View>
+        <GoalReached
+          finalValue={achieved ?? capital}
+          currency={currency}
+          returnPct={returnPct ?? plan.returnPct}
+          profitValue={profitValue ?? (achieved ?? capital) - capital}
+          onWithdraw={onWithdraw ?? (() => {})}
+        />
       </View>
     );
   }

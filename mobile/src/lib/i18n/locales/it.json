@@ -758,7 +758,9 @@
     "penaltyTitle": "Prelievo anticipato",
     "viewContract": "Vedi Contratto",
     "grossValue": "Importo lordo",
-    "penaltyLabel": "Penalità ({{penalty}}%)"
+    "penaltyLabel": "Penalità ({{penalty}}%)",
+    "goalReachedTitle": "OBIETTIVO RAGGIUNTO",
+    "goalReachedDesc": "Il tuo conto ha raggiunto l'obiettivo previsto. Congratulazioni! Ora puoi richiedere il prelievo dei tuoi profitti."
   },
   "depositos": {
     "title": "Depositi e Prelievi",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Il tuo piano Premium è scaduto",
     "expiredSub": "Scaduto il {{date}}. Rinnova per recuperare l'accesso completo.",
     "renew": "Rinnova"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Solo i membri con un piano a pagamento possono commentare. Passa a un piano superiore per partecipare.",
+  "postPremiumOnly": "Solo i membri premium e gli amministratori possono pubblicare. Passa a un piano superiore per condividere.",
+  "tab": "Feed",
+  "composerPlaceholder": "Condividi un'analisi, un'idea o un risultato...",
+  "publish": "Pubblica",
+  "media": "Media",
+  "linkPlaceholder": "Incolla un link (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Pubblicato!",
+  "postError": "Impossibile pubblicare.",
+  "deletePost": "Elimina",
+  "commentPlaceholder": "Scrivi un commento...",
+  "noComments": "Ancora nessun commento.",
+  "loginToPost": "Accedi per partecipare.",
+  "shareCopied": "Link copiato!",
+  "follow": "Segui",
+  "following": "Segui già",
+  "followers": "follower",
+  "followingCount": "seguiti",
+  "postsCount": "post",
+  "emptyFeed": "Ancora nessun post",
+  "emptyFeedHint": "Sii il primo a condividere con la community.",
+  "noPosts": "Ancora nessun post.",
+  "filterAll": "Tutti",
+  "embedFrom": "Contenuto da {{network}}",
+  "openOn": "Apri su {{network}}",
+  "postNotFound": "Post non trovato.",
+  "visibilityPublic": "Pubblico",
+  "visibilityFollowers": "Solo follower",
+  "visibilityPrivate": "Solo io",
+  "title": "Feed",
+  "posts": "post",
+  "needGalleryPermission": "Consenti l'accesso alle tue foto.",
+  "emptyPost": "Scrivi qualcosa o aggiungi un media."
+ }
 }

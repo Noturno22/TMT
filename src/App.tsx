@@ -34,6 +34,7 @@ import Horarios from "./pages/Horarios";
 import Comunidade from "./pages/Comunidade";
 import ComunidadeCanal from "./pages/ComunidadeCanal";
 import ComunidadeDm from "./pages/ComunidadeDm";
+import ComunidadePost from "./pages/ComunidadePost";
 import ComunidadePesquisa from "./pages/ComunidadePesquisa";
 import ComunidadeNovoCanal from "./pages/ComunidadeNovoCanal";
 import ComunidadeNovoDm from "./pages/ComunidadeNovoDm";
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/comunidade/novo-canal" element={<ComunidadeNovoCanal />} />
               <Route path="/comunidade/novo-dm" element={<ComunidadeNovoDm />} />
               <Route path="/comunidade/user/:userId" element={<PerfilPublico />} />
+              <Route path="/comunidade/post/:postId" element={<ComunidadePost />} />
               <Route path="/comunidade/loja" element={<Loja />} />
               <Route path="/termos" element={<Termos />} />
               <Route path="/privacidade" element={<Privacidade />} />

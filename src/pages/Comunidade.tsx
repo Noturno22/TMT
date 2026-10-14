@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { motion } from "framer-motion";
-import { Camera, Network, Newspaper, Plus, Search, Store } from "lucide-react";
+import { Camera, Network, Newspaper, Plus, Rss, Search, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { CommunityFeed } from "@/components/community/CommunityFeed";
 import { CommunityHero } from "@/components/community/CommunityHero";
 import { DmRow } from "@/components/community/DmRow";
 import { PairRoomCard } from "@/components/community/PairRoomCard";
+import { SocialFeed } from "@/components/community/social/SocialFeed";
 import { WorkspaceSection } from "@/components/community/WorkspaceSection";
 import { Layout } from "@/components/layout/Layout";
 import { useChannels } from "@/hooks/useChannels";
@@ -21,7 +22,7 @@ import { isAdminEmail } from "@/lib/admin";
 import { pairRoomState } from "@/lib/community";
 import type { Channel } from "@/lib/types";
 
-type Tab = "feed" | "workspace";
+type Tab = "social" | "workspace" | "feed";
 
 function SkeletonRow({ width }: { width: string }) {
   return (
@@ -50,7 +51,7 @@ function WorkspaceSkeleton() {
 }
 
 export default function Comunidade() {
-  const [tab, setTab] = useState<Tab>("workspace");
+  const [tab, setTab] = useState<Tab>("social");
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -121,11 +122,18 @@ export default function Comunidade() {
           <div className="mb-4 flex rounded-full border border-border bg-card p-1">
             {(
               [
+                ["social", Rss],
                 ["workspace", Network],
                 ["feed", Newspaper],
               ] as [Tab, typeof Network][]
             ).map(([key, Icon]) => {
               const active = tab === key;
+              const label =
+                key === "social"
+                  ? t("social.tab")
+                  : key === "workspace"
+                    ? t("workspace.segmented")
+                    : t("workspace.feed");
               return (
                 <button
                   key={key}
@@ -136,13 +144,15 @@ export default function Comunidade() {
                   }`}
                 >
                   <Icon className="h-4 w-4" />
-                  {key === "workspace" ? t("workspace.segmented") : t("workspace.feed")}
+                  {label}
                 </button>
               );
             })}
           </div>
 
-          {tab === "feed" ? (
+          {tab === "social" ? (
+            <SocialFeed onOpenProfile={openProfile} />
+          ) : tab === "feed" ? (
             <CommunityFeed />
           ) : (
             <>

@@ -245,6 +245,8 @@ export interface ConversationMember {
   joined_at: string;
 }
 
+export type AccountType = 'user' | 'bot' | 'platform';
+
 export interface UserProfile {
   user_id: string;
   display_name: string;
@@ -253,6 +255,57 @@ export interface UserProfile {
   role: 'admin' | 'member';
   status: string;
   last_seen_at: string | null;
+  created_at: string;
+  bio?: string;
+  cover_url?: string | null;
+  website?: string | null;
+  links?: { label: string; url: string }[];
+  account_type?: AccountType;
+  is_verified?: boolean;
+  posts_count?: number;
+  followers_count?: number;
+  following_count?: number;
+}
+
+export type SocialNetwork = 'x' | 'youtube' | 'tiktok' | 'instagram' | 'telegram';
+export type PostKind = 'post' | 'boom' | 'network' | 'signal';
+export type PostVisibility = 'public' | 'followers' | 'private';
+
+export interface PostMedia {
+  type: 'image' | 'video' | 'audio';
+  url: string;
+  thumb?: string;
+}
+
+export interface CommunityPost {
+  id: string;
+  author_id: string;
+  content: string;
+  media: PostMedia[];
+  kind: PostKind;
+  network: SocialNetwork | null;
+  external_url: string | null;
+  external_id: string | null;
+  embed: Record<string, unknown> | null;
+  visibility: PostVisibility;
+  parent_id: string | null;
+  like_count: number;
+  comment_count: number;
+  share_count: number;
+  is_pinned: boolean;
+  deleted_at: string | null;
+  created_at: string;
+}
+
+export interface PostComment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  parent_id: string | null;
+  content: string;
+  media: PostMedia[];
+  like_count: number;
+  deleted_at: string | null;
   created_at: string;
 }
 

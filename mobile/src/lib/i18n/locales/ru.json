@@ -758,7 +758,9 @@
     "penaltyTitle": "Досрочный вывод",
     "viewContract": "Посмотреть контракт",
     "grossValue": "Сумма до вычета",
-    "penaltyLabel": "Штраф ({{penalty}}%)"
+    "penaltyLabel": "Штраф ({{penalty}}%)",
+    "goalReachedTitle": "ЦЕЛЬ ДОСТИГНУТА",
+    "goalReachedDesc": "Ваш счёт достиг запланированной цели. Поздравляем! Теперь вы можете запросить вывод прибыли."
   },
   "depositos": {
     "title": "Депозиты и вывод средств",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Ваш тариф Premium истёк",
     "expiredSub": "Истёк {{date}}. Продлите, чтобы вернуть полный доступ.",
     "renew": "Продлить"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Комментировать могут только участники с платной подпиской. Оформи подписку, чтобы участвовать.",
+  "postPremiumOnly": "Публиковать могут только премиум-участники и администраторы. Оформи подписку, чтобы делиться.",
+  "tab": "Лента",
+  "composerPlaceholder": "Поделись анализом, идеей или результатом...",
+  "publish": "Опубликовать",
+  "media": "Медиа",
+  "linkPlaceholder": "Вставь ссылку (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Опубликовано!",
+  "postError": "Не удалось опубликовать.",
+  "deletePost": "Удалить",
+  "commentPlaceholder": "Напиши комментарий...",
+  "noComments": "Комментариев пока нет.",
+  "loginToPost": "Войди, чтобы участвовать.",
+  "shareCopied": "Ссылка скопирована!",
+  "follow": "Подписаться",
+  "following": "Подписки",
+  "followers": "подписчиков",
+  "followingCount": "подписок",
+  "postsCount": "постов",
+  "emptyFeed": "Пока нет публикаций",
+  "emptyFeedHint": "Будь первым, кто поделится с сообществом.",
+  "noPosts": "Пока нет публикаций.",
+  "filterAll": "Все",
+  "embedFrom": "Контент из {{network}}",
+  "openOn": "Открыть в {{network}}",
+  "postNotFound": "Публикация не найдена.",
+  "visibilityPublic": "Публично",
+  "visibilityFollowers": "Только подписчики",
+  "visibilityPrivate": "Только я",
+  "title": "Лента",
+  "posts": "постов",
+  "needGalleryPermission": "Разреши доступ к своим фото.",
+  "emptyPost": "Напиши что-нибудь или добавь медиа."
+ }
 }

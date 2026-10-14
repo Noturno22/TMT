@@ -702,7 +702,9 @@
     "penaltyTitle": "Uondoaji wa mapema",
     "viewContract": "Ona Mkataba",
     "grossValue": "Kiasi ghafi",
-    "penaltyLabel": "Adhabu ({{penalty}}%)"
+    "penaltyLabel": "Adhabu ({{penalty}}%)",
+    "goalReachedTitle": "LENGO LIMEFIKIWA",
+    "goalReachedDesc": "Akaunti yako imefikia lengo lililopangwa. Hongera! Sasa unaweza kuomba kutoa faida yako."
   },
   "banca": {
     "title": "Usimamizi wa Mtaji",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Mpango wako wa Premium umeisha",
     "expiredSub": "Imekwisha tarehe {{date}}. Endeleza ili kupata ufikiaji kamili.",
     "renew": "Endeleza"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Wanachama wa mpango wa kulipia pekee wanaweza kutoa maoni. Panda daraja ili kushiriki.",
+  "postPremiumOnly": "Wanachama wa premium na wasimamizi pekee wanaweza kuchapisha. Panda daraja ili kushiriki.",
+  "tab": "Mkondo",
+  "composerPlaceholder": "Shiriki uchambuzi, wazo au matokeo...",
+  "publish": "Chapisha",
+  "media": "Midia",
+  "linkPlaceholder": "Bandika kiungo (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Imechapishwa!",
+  "postError": "Imeshindwa kuchapisha.",
+  "deletePost": "Futa",
+  "commentPlaceholder": "Andika maoni...",
+  "noComments": "Bado hakuna maoni.",
+  "loginToPost": "Ingia ili kushiriki.",
+  "shareCopied": "Kiungo kimenakiliwa!",
+  "follow": "Fuata",
+  "following": "Unafuata",
+  "followers": "wafuasi",
+  "followingCount": "unafuata",
+  "postsCount": "machapisho",
+  "emptyFeed": "Bado hakuna machapisho",
+  "emptyFeedHint": "Kuwa wa kwanza kushiriki na jamii.",
+  "noPosts": "Bado hakuna machapisho.",
+  "filterAll": "Zote",
+  "embedFrom": "Maudhui kutoka {{network}}",
+  "openOn": "Fungua kwenye {{network}}",
+  "postNotFound": "Chapisho halipatikani.",
+  "visibilityPublic": "Hadharani",
+  "visibilityFollowers": "Wafuasi pekee",
+  "visibilityPrivate": "Mimi pekee",
+  "title": "Mkondo",
+  "posts": "machapisho",
+  "needGalleryPermission": "Ruhusu ufikiaji wa picha zako.",
+  "emptyPost": "Andika kitu au ongeza midia."
+ }
 }

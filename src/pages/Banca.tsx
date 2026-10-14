@@ -450,7 +450,7 @@ export default function Banca() {
           ))}
         </div>
 
-        {targetValue > 0 && progress >= 100 ? (
+        {targetValue > 0 && progress >= 100 && !contractFinished ? (
           <GoalReached
             finalValue={current}
             currency={cur}
@@ -586,7 +586,14 @@ export default function Banca() {
           </CardContent>
         </Card>
 
-        <GrowthPlanSection capital={capital} currency={cur} />
+        <GrowthPlanSection
+          capital={capital}
+          currency={cur}
+          achieved={current}
+          profitValue={profitValue}
+          returnPct={returnPct}
+          onWithdraw={() => setWithdrawOpen(true)}
+        />
 
         {withdrawOpen ? (
           <WithdrawModal

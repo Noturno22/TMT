@@ -385,7 +385,14 @@ export default function BancaScreen() {
         )}
       </Card>
 
-      <GrowthPlanSection capital={capital} currency={cur} />
+      <GrowthPlanSection
+        capital={capital}
+        currency={cur}
+        achieved={current}
+        profitValue={p}
+        returnPct={targetPct}
+        onWithdraw={() => setWithdrawOpen(true)}
+      />
 
       <WithdrawalModal
         visible={withdrawOpen}

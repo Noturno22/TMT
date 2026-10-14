@@ -11,6 +11,7 @@ import { CommunityFeed } from '@/components/community/CommunityFeed';
 import { CommunityHero } from '@/components/community/CommunityHero';
 import { DmRow } from '@/components/community/DmRow';
 import { PairRoomCard } from '@/components/community/PairRoomCard';
+import { SocialFeed } from '@/components/community/social/SocialFeed';
 import { WorkspaceSection } from '@/components/community/WorkspaceSection';
 import { useChannels } from '@/hooks/useChannels';
 import { useConversations } from '@/hooks/useConversations';
@@ -24,7 +25,7 @@ import { Radius, Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 import type { Channel } from '@/core/types';
 
-type Tab = 'feed' | 'workspace';
+type Tab = 'social' | 'feed' | 'workspace';
 
 function SkeletonRow({ width }: { width: DimensionValue }) {
   const { colors } = useTheme();
@@ -60,7 +61,7 @@ export default function ComunidadeScreen() {
   const { colors } = useTheme();
   const styles = makeStyles(colors);
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>('workspace');
+  const [tab, setTab] = useState<Tab>('social');
 
   const channels = useChannels();
   const conversations = useConversations();
@@ -110,6 +111,7 @@ export default function ComunidadeScreen() {
       <View style={styles.segment}>
         {(
           [
+            ['social', 'people-circle-outline'],
             ['workspace', 'git-network-outline'],
             ['feed', 'newspaper-outline'],
           ] as [Tab, keyof typeof Ionicons.glyphMap][]
@@ -128,14 +130,20 @@ export default function ComunidadeScreen() {
               <AppText
                 variant="small"
                 style={active ? styles.segmentTextActive : styles.segmentText}>
-                {key === 'workspace' ? t('workspace.segmented') : t('workspace.feed')}
+                {key === 'social'
+                  ? t('social.title')
+                  : key === 'workspace'
+                    ? t('workspace.segmented')
+                    : t('workspace.feed')}
               </AppText>
             </Pressable>
           );
         })}
       </View>
 
-      {tab === 'feed' ? (
+      {tab === 'social' ? (
+        <SocialFeed onOpenProfile={openProfile} />
+      ) : tab === 'feed' ? (
         <CommunityFeed />
       ) : (
         <>

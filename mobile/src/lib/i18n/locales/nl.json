@@ -373,7 +373,9 @@
     "penaltyTitle": "Vervroegde opname",
     "viewContract": "Contract bekijken",
     "grossValue": "Brutobedrag",
-    "penaltyLabel": "Boete ({{penalty}}%)"
+    "penaltyLabel": "Boete ({{penalty}}%)",
+    "goalReachedTitle": "DOEL BEREIKT",
+    "goalReachedDesc": "Je account heeft het geplande doel bereikt. Gefeliciteerd! Je kunt nu een opname van je winst aanvragen."
   },
   "language": {
     "title": "Taal"
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Je Premium-abonnement is verlopen",
     "expiredSub": "Verlopen op {{date}}. Vernieuw om je volledige toegang terug te krijgen.",
     "renew": "Vernieuwen"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Alleen leden met een betaald abonnement kunnen reageren. Upgrade om mee te doen.",
+  "postPremiumOnly": "Alleen premiumleden en beheerders kunnen plaatsen. Upgrade om te delen.",
+  "tab": "Feed",
+  "composerPlaceholder": "Deel een analyse, idee of resultaat...",
+  "publish": "Plaatsen",
+  "media": "Media",
+  "linkPlaceholder": "Plak een link (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "Geplaatst!",
+  "postError": "Plaatsen mislukt.",
+  "deletePost": "Verwijderen",
+  "commentPlaceholder": "Schrijf een reactie...",
+  "noComments": "Nog geen reacties.",
+  "loginToPost": "Log in om mee te doen.",
+  "shareCopied": "Link gekopieerd!",
+  "follow": "Volgen",
+  "following": "Volgend",
+  "followers": "volgers",
+  "followingCount": "volgend",
+  "postsCount": "posts",
+  "emptyFeed": "Nog geen berichten",
+  "emptyFeedHint": "Wees de eerste die met de community deelt.",
+  "noPosts": "Nog geen berichten.",
+  "filterAll": "Alles",
+  "embedFrom": "Inhoud van {{network}}",
+  "openOn": "Openen op {{network}}",
+  "postNotFound": "Bericht niet gevonden.",
+  "visibilityPublic": "Openbaar",
+  "visibilityFollowers": "Alleen volgers",
+  "visibilityPrivate": "Alleen ik",
+  "title": "Feed",
+  "posts": "posts",
+  "needGalleryPermission": "Sta toegang tot je foto's toe.",
+  "emptyPost": "Schrijf iets of voeg media toe."
+ }
 }

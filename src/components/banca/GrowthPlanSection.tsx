@@ -5,10 +5,11 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { GoalReached } from "@/components/banca/GoalReached";
 import { useBanca } from "@/hooks/useBanca";
 import { useCapitalContract } from "@/hooks/useCapitalContract";
 import { formatBancaMoney, formatShortDate } from "@/lib/format";
-import { daysUntil } from "@/lib/capital";
+import { contractEnded, daysUntil } from "@/lib/capital";
 import { CAPITAL_PLANS } from "@/lib/plans";
 import type { CapitalPlanId } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -54,7 +55,21 @@ function readStoredPlan(): CapitalPlanId | null {
   }
 }
 
-export function GrowthPlanSection({ capital, currency = "usd" }: { capital: number; currency?: "usd" | "aoa" }) {
+export function GrowthPlanSection({
+  capital,
+  currency = "usd",
+  achieved,
+  profitValue,
+  returnPct,
+  onWithdraw,
+}: {
+  capital: number;
+  currency?: "usd" | "aoa";
+  achieved?: number;
+  profitValue?: number;
+  returnPct?: number;
+  onWithdraw?: () => void;
+}) {
   const { t } = useTranslation();
   const { config, save } = useBanca();
   const { contract, activate } = useCapitalContract();
@@ -66,7 +81,7 @@ export function GrowthPlanSection({ capital, currency = "usd" }: { capital: numb
     if (stored) setSelectedId(stored);
   }, []);
 
-  const contractActive = contract?.status === "active";
+  const contractActive = !!contract && contract.status === "active" && !contractEnded(contract.end_date);
   useEffect(() => {
     if (contractActive && contract) setSelectedId(contract.plan_id);
   }, [contractActive, contract]);
@@ -140,6 +155,23 @@ export function GrowthPlanSection({ capital, currency = "usd" }: { capital: numb
         <Button variant="secondary" disabled className="w-full">
           {t("planoCrescimento.planActive")}
         </Button>
+      </div>
+    );
+  }
+
+  if (contract) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold">{t("planoCrescimento.title")}</h2>
+        </div>
+        <GoalReached
+          finalValue={achieved ?? capital}
+          currency={currency}
+          returnPct={returnPct ?? plan.returnPct}
+          profitValue={profitValue ?? (achieved ?? capital) - capital}
+          onWithdraw={onWithdraw ?? (() => {})}
+        />
       </div>
     );
   }

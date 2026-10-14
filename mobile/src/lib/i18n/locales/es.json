@@ -1167,7 +1167,9 @@
     "penaltyTitle": "Retiro anticipado",
     "viewContract": "Ver Contrato",
     "grossValue": "Importe bruto",
-    "penaltyLabel": "Penalización ({{penalty}}%)"
+    "penaltyLabel": "Penalización ({{penalty}}%)",
+    "goalReachedTitle": "OBJETIVO ALCANZADO",
+    "goalReachedDesc": "Tu cuenta alcanzó la meta planeada. ¡Felicidades! Ya puedes solicitar el retiro de tus ganancias."
   },
   "store": {
     "title": "Tienda",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "Tu plan Premium ha expirado",
     "expiredSub": "Expiró el {{date}}. Renueva para recuperar el acceso total.",
     "renew": "Renovar"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "Solo los miembros con plan de pago pueden comentar. Mejora tu plan para participar.",
+  "postPremiumOnly": "Solo los miembros premium y administradores pueden publicar. Mejora tu plan para compartir.",
+  "tab": "Red",
+  "composerPlaceholder": "Comparte un análisis, idea o resultado...",
+  "publish": "Publicar",
+  "media": "Multimedia",
+  "linkPlaceholder": "Pega un enlace (X, YouTube, TikTok, Instagram, Telegram)",
+  "postCreated": "¡Publicado!",
+  "postError": "No se pudo publicar.",
+  "deletePost": "Eliminar",
+  "commentPlaceholder": "Escribe un comentario...",
+  "noComments": "Aún no hay comentarios.",
+  "loginToPost": "Inicia sesión para participar.",
+  "shareCopied": "¡Enlace copiado!",
+  "follow": "Seguir",
+  "following": "Siguiendo",
+  "followers": "seguidores",
+  "followingCount": "siguiendo",
+  "postsCount": "publicaciones",
+  "emptyFeed": "Aún no hay publicaciones",
+  "emptyFeedHint": "Sé el primero en compartir con la comunidad.",
+  "noPosts": "Aún no hay publicaciones.",
+  "filterAll": "Todo",
+  "embedFrom": "Contenido de {{network}}",
+  "openOn": "Abrir en {{network}}",
+  "postNotFound": "Publicación no encontrada.",
+  "visibilityPublic": "Público",
+  "visibilityFollowers": "Solo seguidores",
+  "visibilityPrivate": "Solo yo",
+  "title": "Red",
+  "posts": "publicaciones",
+  "needGalleryPermission": "Permite el acceso a tus fotos.",
+  "emptyPost": "Escribe algo o añade contenido."
+ }
 }

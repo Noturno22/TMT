@@ -758,7 +758,9 @@
     "penaltyTitle": "السحب المبكر",
     "viewContract": "عرض العقد",
     "grossValue": "المبلغ الإجمالي",
-    "penaltyLabel": "الغرامة ({{penalty}}%)"
+    "penaltyLabel": "الغرامة ({{penalty}}%)",
+    "goalReachedTitle": "تم تحقيق الهدف",
+    "goalReachedDesc": "وصل حسابك إلى الهدف المخطط له. تهانينا! يمكنك الآن طلب سحب أرباحك."
   },
   "depositos": {
     "title": "الإيداعات والسحوبات",
@@ -1217,5 +1219,40 @@
     "expiredTitle": "انتهت صلاحية خطة Premium",
     "expiredSub": "انتهت في {{date}}. جدّد لاستعادة الوصول الكامل.",
     "renew": "تجديد"
-  }
+  },
+ "social": {
+  "commentPremiumOnly": "يمكن للأعضاء ذوي الخطة المدفوعة فقط التعليق. قم بالترقية للمشاركة.",
+  "postPremiumOnly": "يمكن للأعضاء المميزين والمشرفين فقط النشر. قم بالترقية للمشاركة.",
+  "tab": "المنشورات",
+  "composerPlaceholder": "شارك تحليلاً أو فكرة أو نتيجة...",
+  "publish": "نشر",
+  "media": "وسائط",
+  "linkPlaceholder": "الصق رابطاً (X، YouTube، TikTok، Instagram، Telegram)",
+  "postCreated": "تم النشر!",
+  "postError": "تعذّر النشر.",
+  "deletePost": "حذف",
+  "commentPlaceholder": "اكتب تعليقاً...",
+  "noComments": "لا توجد تعليقات بعد.",
+  "loginToPost": "سجّل الدخول للمشاركة.",
+  "shareCopied": "تم نسخ الرابط!",
+  "follow": "متابعة",
+  "following": "تتابع",
+  "followers": "متابع",
+  "followingCount": "تتابع",
+  "postsCount": "منشورات",
+  "emptyFeed": "لا توجد منشورات بعد",
+  "emptyFeedHint": "كن أول من يشارك مع المجتمع.",
+  "noPosts": "لا توجد منشورات بعد.",
+  "filterAll": "الكل",
+  "embedFrom": "محتوى من {{network}}",
+  "openOn": "افتح على {{network}}",
+  "postNotFound": "المنشور غير موجود.",
+  "visibilityPublic": "عام",
+  "visibilityFollowers": "المتابعون فقط",
+  "visibilityPrivate": "أنا فقط",
+  "title": "المنشورات",
+  "posts": "منشورات",
+  "needGalleryPermission": "اسمح بالوصول إلى صورك.",
+  "emptyPost": "اكتب شيئاً أو أضف وسائط."
+ }
 }

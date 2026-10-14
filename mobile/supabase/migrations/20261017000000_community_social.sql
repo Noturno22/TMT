@@ -422,6 +422,15 @@ exception when duplicate_object then null; end $$;
 -- ---------------------------------------------------------------------------
 -- 10) Contas bot (seed da comunidade)
 -- ---------------------------------------------------------------------------
+-- Assume o papel de service_role apenas nesta transacao para que os triggers
+-- de protecao (lock_user_profiles_identity / lock_user_profiles_social) nao
+-- bloqueiem a criacao das contas oficiais.
+select set_config(
+  'request.jwt.claims',
+  json_build_object('role', 'service_role')::text,
+  true
+);
+
 do $$
 declare
   v_bots jsonb := '[

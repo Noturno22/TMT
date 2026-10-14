@@ -510,11 +510,13 @@ Volatilidade esperada: ${session.volatilityHint}
 REGRAS SMART MONEY CONCEPTS (OBRIGATÓRIO):
 - O setup DEVE ter confirmação de estrutura de mercado: BOS (Break of Structure) ou CHoCH (Change of Character).
 - Entrada ideal: retração para Order Block ou preenchimento de Fair Value Gap (FVG) na zona de desconto (BUY) ou premium (SELL).
+- Confirmação RSI: NÃO comprar com RSI > 70 (sobrecompra) nem vender com RSI < 30 (sobrevenda). Preferir RSI a recuperar de sobrevenda para BUY, ou a virar de sobrecompra para SELL.
+- SL APERTADO (esmagar o SL): coloca o SL o mais perto possível da entrada, imediatamente atrás do Order Block ou do último swing point relevante e a uma distância máxima de ~1× ATR. NUNCA SL largo nem em zona redonda óbvia.
 - Liquidez: identificar onde estão os stops (equal highs/lows, swing points). NÃO colocar SL em zonas óbvias de liquidez.
-- SL deve estar ATRÁS do Order Block ou além do último swing point, NÃO em nível redondo.
-- TP deve visar próxima zona de liquidez ou FVG oposto.
+- TP deve visar a próxima zona de liquidez ou FVG oposto.
 - Se não houver setup SMC claro com confirmação, responde: [] (array vazio).
-- PREFERIR: R:R mínimo 1:2. Qualidade > quantidade. Melhor 1 sinal forte que 3 fracos.
+- OBRIGATÓRIO: R:R mínimo 1:2 — o TP tem de estar pelo menos ao DOBRO da distância do SL. Qualidade > quantidade. Melhor 1 sinal forte que 3 fracos.
+- Prefere entradas durante os horários de boom (maior liquidez e volatilidade); evita horas mortas de baixa liquidez.
 `;
 
   if (isWeekend) {
@@ -620,7 +622,7 @@ function parseSignals(text: string, isWeekend: boolean): ValidSignal[] {
     const risk = Math.abs(entry - sl);
     const reward = Math.abs(tp - entry);
     const rr = risk > 0 ? reward / risk : 0;
-    if (risk === 0 || rr < 1.5) continue;
+    if (risk === 0 || rr < 2.0) continue;
     const reasons = Array.isArray(r.reasons)
       ? r.reasons.filter((x): x is string => typeof x === 'string' && x.trim().length > 0).slice(0, 3)
       : [];

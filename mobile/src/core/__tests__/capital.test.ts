@@ -1,4 +1,4 @@
-import { clamp, formatMinDepositCore, MIN_CAPITAL_DEPOSIT, profit, profitPct, progressPct, withdrawable } from '../capital';
+import { clamp, contractEnded, dailyGain, daysBetween, formatMinDepositCore, MIN_CAPITAL_DEPOSIT, netAfterPenalty, profit, profitPct, progressPct, withdrawable } from '../capital';
 
 describe('capital helpers', () => {
   it('profit: saldo menos investido', () => {
@@ -40,5 +40,30 @@ describe('capital helpers', () => {
   it('formatMinDepositCore: formata conforme a moeda', () => {
     expect(formatMinDepositCore('usd')).toBe('$50');
     expect(formatMinDepositCore('aoa')).toBe(`50${'\u00A0'}000 Kz`);
+  });
+
+  it('netAfterPenalty: aplica a penalidade e nunca fica negativo', () => {
+    expect(netAfterPenalty(100, 10)).toBe(90);
+    expect(netAfterPenalty(100, 0)).toBe(100);
+    expect(netAfterPenalty(200, 50)).toBe(100);
+    expect(netAfterPenalty(NaN, 10)).toBe(0);
+    expect(netAfterPenalty(100, NaN)).toBe(0);
+  });
+
+  it('dailyGain: lucro do período dividido pelos dias', () => {
+    expect(dailyGain({ period_start: '2026-01-01', period_end: '2026-01-11', profit: 250 })).toBe(25);
+    expect(dailyGain({ period_start: '2026-01-01', period_end: '2026-01-01', profit: 30 })).toBe(30);
+  });
+
+  it('daysBetween: diferença em dias, mínimo 1', () => {
+    expect(daysBetween('2026-01-01', '2026-01-11')).toBe(10);
+    expect(daysBetween('2026-01-11', '2026-01-01')).toBe(10);
+    expect(daysBetween('2026-01-01', '2026-01-01')).toBe(1);
+  });
+
+  it('contractEnded: verdadeiro no passado, falso no futuro ou vazio', () => {
+    expect(contractEnded('2000-01-01')).toBe(true);
+    expect(contractEnded('2999-12-31')).toBe(false);
+    expect(contractEnded('')).toBe(false);
   });
 });

@@ -101,7 +101,9 @@ export function AppButton({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
-      accessibilityState={{ disabled: isDisabled }}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: isDisabled, busy: !!loading }}
       style={({ pressed }) => [
         styles.button,
         { backgroundColor: palette.bg, borderColor: palette.border },
@@ -256,17 +258,21 @@ export function Divider({ style }: { style?: object }) {
 export function AppInput(
   props: TextInputProps & { label?: string; icon?: ReactNode; accessory?: ReactNode },
 ) {
-  const { label, icon, accessory, style, ...rest } = props;
+  const { label, icon, accessory, style, nativeID, accessibilityLabel, ...rest } = props;
   const { colors } = useTheme();
   const styles = makeStyles(colors);
+  const labelID = nativeID ? `${nativeID}-label` : undefined;
   return (
     <View style={styles.inputWrap}>
       {label ? (
-        <AppText variant="label" style={{ marginBottom: Spacing.xs }}>{label}</AppText>
+        <AppText nativeID={labelID} variant="label" style={{ marginBottom: Spacing.xs }}>{label}</AppText>
       ) : null}
       <View style={styles.inputRow}>
         {icon ? <View style={styles.inputIcon}>{icon}</View> : null}
         <TextInput
+          nativeID={nativeID}
+          accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityLabelledBy={labelID}
           placeholderTextColor={colors.textMuted}
           style={[styles.input, { color: colors.text }, style]}
           {...rest}

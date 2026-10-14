@@ -73,11 +73,11 @@ export function GrowthPlanSection({ capital, currency = 'usd' }: { capital: numb
   const selectPlan = async (planId: CapitalPlanId) => {
     if (contractActive) return;
     setSelectedId(planId);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ planId }));
     try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ planId }));
       await save({ ...bancaConfigRef.current, planId });
     } catch {
-      // ignora
+      Alert.alert(t('common.error'), 'Não foi possível guardar a seleção do plano. Tenta novamente.');
     }
   };
 

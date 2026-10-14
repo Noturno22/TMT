@@ -41,7 +41,9 @@ export function WithdrawalModal({ visible, available, currency, onClose, contrac
   const selectedMethod = method ? methods.find((m) => m.id === method) : null;
 
   const penaltyActive = typeof penaltyPct === 'number' && penaltyPct > 0 && !!contractEndDate && !contractEnded(contractEndDate);
-  const netValue = penaltyActive ? netAfterPenalty(amountNum, penaltyPct as number) : amountNum;
+  const effectivePenaltyPct = penaltyActive ? (penaltyPct as number) : 0;
+  const netValue = netAfterPenalty(amountNum, effectivePenaltyPct);
+  const penaltyAmount = Math.max(0, amountNum - netValue);
 
   const submit = async () => {
     if (!valid || busy || !method) return;
@@ -64,6 +66,7 @@ export function WithdrawalModal({ visible, available, currency, onClose, contrac
       setAmount('');
       setDetails('');
       setMethod(null);
+      Alert.alert(t('capital.withdrawalRequest'), t('capital.withdrawalMsg'));
       onClose();
     } catch {
       Alert.alert(t('capital.withdrawErrorTitle'), t('capital.withdrawErrorMsg'));
@@ -132,20 +135,31 @@ export function WithdrawalModal({ visible, available, currency, onClose, contrac
                 <AppText variant="small" style={{ color: colors.textMuted }}>
                   {selectedMethod?.copyValue}
                 </AppText>
-                {penaltyActive && amountNum > 0 ? (
+                {amountNum > 0 ? (
                   <View style={styles.penaltyBox}>
-                    <AppText variant="small" style={{ color: colors.warning, fontWeight: '700' }}>
-                      {t('capital.penaltyTitle')}
-                    </AppText>
-                    <AppText variant="small" style={{ color: colors.textMuted }}>
-                      {t('capital.penaltyNotice', { date: formatShortDate(contractEndDate as string), penalty: penaltyPct })}
-                    </AppText>
+                    <View style={styles.penaltyRow}>
+                      <AppText variant="small" style={{ color: colors.textMuted }}>{t('capital.grossValue')}</AppText>
+                      <AppText variant="label">{formatWithdrawable(amountNum, currency)}</AppText>
+                    </View>
+                    <View style={styles.penaltyRow}>
+                      <AppText variant="small" style={{ color: colors.textMuted }}>
+                        {t('capital.penaltyLabel', { penalty: effectivePenaltyPct })}
+                      </AppText>
+                      <AppText variant="label" style={{ color: penaltyAmount > 0 ? colors.destructive : colors.textMuted }}>
+                        -{formatWithdrawable(penaltyAmount, currency)}
+                      </AppText>
+                    </View>
                     <View style={styles.penaltyRow}>
                       <AppText variant="small" style={{ color: colors.textMuted }}>{t('capital.netValue')}</AppText>
-                      <AppText variant="label" style={{ color: colors.warning }}>
+                      <AppText variant="label" style={{ color: penaltyAmount > 0 ? colors.warning : colors.success }}>
                         {formatWithdrawable(netValue, currency)}
                       </AppText>
                     </View>
+                    {penaltyActive ? (
+                      <AppText variant="small" style={{ color: colors.textMuted }}>
+                        {t('capital.penaltyNotice', { date: formatShortDate(contractEndDate as string), penalty: effectivePenaltyPct })}
+                      </AppText>
+                    ) : null}
                   </View>
                 ) : null}
               </>

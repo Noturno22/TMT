@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { AppButton, AppText, Badge, Card, Screen, SectionTitle } from '@/components/ui';
+import { AppButton, AppText, Badge, Card, EmptyState, Screen, SectionTitle } from '@/components/ui';
 import { GradientCard } from '@/components/GradientCard';
 import { PremiumLock } from '@/components/PremiumLock';
 import { WithdrawalModal } from '@/components/WithdrawalModal';
@@ -11,7 +11,7 @@ import { GrowthPlanSection } from '@/components/GrowthPlanSection';
 import { ContractCard } from '@/components/ContractCard';
 import { CapitalSimulatorCard } from '@/components/CapitalSimulatorCard';
 import { formatBancaMoney, formatShortDate } from '@/core/format';
-import { formatMinDepositCore, profit, profitPct, progressPct, withdrawable, dailyGain } from '@/core/capital';
+import { contractEnded, formatMinDepositCore, profit, profitPct, progressPct, withdrawable, dailyGain } from '@/core/capital';
 import { Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useBanca } from '@/hooks/useBanca';
@@ -22,6 +22,12 @@ import { useCapitalContract } from '@/hooks/useCapitalContract';
 import { useWithdrawalRequests } from '@/hooks/useWithdrawalRequests';
 import { MIN_CAPITAL_DEPOSIT, PAYMENT_METHODS } from '@/lib/plans';
 import type { WithdrawalRequest } from '@/core/types';
+
+const PLAN_RETURN_PCT: Record<string, number> = {
+  conservador: 25,
+  equilibrado: 20,
+  agressivo: 15,
+};
 
 function StatusPill({ label, color }: { label: string; color: string }) {
   const { colors } = useTheme();
@@ -40,11 +46,11 @@ export default function BancaScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { canAccessBanca, loading: subLoading } = useSubscription();
-  const { config, loading } = useBanca();
-  const { account, reports, metaPercent } = useCapitalAccount();
-  const { deposits } = useCapitalDeposits();
-  const { contract } = useCapitalContract();
-  const { requests: withdrawalRequests } = useWithdrawalRequests();
+  const { config, loading: bancaLoading } = useBanca();
+  const { account, reports, metaPercent, loading: accountLoading, error: accountError } = useCapitalAccount();
+  const { deposits, loading: depositsLoading } = useCapitalDeposits();
+  const { contract, loading: contractLoading, error: contractError } = useCapitalContract();
+  const { requests: withdrawalRequests, loading: withdrawalsLoading, error: withdrawalsError } = useWithdrawalRequests();
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
   // Regra absoluta: um cliente premium NUNCA vê bloqueio. Enquanto o plano
@@ -57,7 +63,20 @@ export default function BancaScreen() {
     );
   }
 
-  if (loading || subLoading) return <Screen><AppText variant="muted">{t('capital.loading')}</AppText></Screen>;
+  const dataLoading = bancaLoading || accountLoading || depositsLoading || contractLoading || withdrawalsLoading;
+  if (subLoading || dataLoading) {
+    return <Screen><AppText variant="muted">{t('capital.loading')}</AppText></Screen>;
+  }
+
+  const dataError = accountError ?? contractError ?? withdrawalsError ?? null;
+  if (dataError) {
+    return (
+      <Screen>
+        <SectionTitle>{t('capital.title')}</SectionTitle>
+        <EmptyState title={t('common.error')} subtitle={'Não conseguimos carregar os teus dados. Tenta novamente.'} />
+      </Screen>
+    );
+  }
 
   // Servidor é a fonte da verdade; config local é fallback (offline/ainda sem conta).
   const capital = account?.capital ?? config.capital;
@@ -65,8 +84,10 @@ export default function BancaScreen() {
   const cur = account?.currency ?? config.currency ?? 'usd';
   const totalWithdrawn = account?.total_withdrawn ?? config.totalWithdrawn;
   const latestReport = reports[0] ?? null;
+  const latestDailyGain = latestReport ? dailyGain(latestReport) : 0;
 
   const activeContract = contract && contract.status === 'active' ? contract : null;
+  const managementActive = contract ? contract.status === 'active' && !contractEnded(contract.end_date) : true;
 
   // reports chegam latest-first do hook; o gráfico quer ordem cronológica.
   const chartReports = [...reports].slice(0, 7).reverse();
@@ -78,7 +99,8 @@ export default function BancaScreen() {
   const p = profit(current, capital);
   const pPct = profitPct(current, capital);
   const isProfit = p >= 0;
-  const targetPct = metaPercent;
+  const planId = account?.plan ?? contract?.plan_id ?? config.planId;
+  const targetPct = PLAN_RETURN_PCT[planId] ?? metaPercent;
   const targetValue = capital * (targetPct / 100);
   const progress = progressPct(current, capital, targetPct);
 
@@ -171,10 +193,23 @@ export default function BancaScreen() {
 
       <GradientCard colors={[colors.primaryDim, 'rgba(22,164,58,0.15)']} style={styles.hero}>
         <View style={styles.heroTop}>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, gap: 2 }}>
             <AppText variant="small" style={styles.heroEyebrow}>{t('capital.currentBalance')}</AppText>
+            <View style={styles.managedRow}>
+              <Ionicons
+                name={managementActive ? 'shield-checkmark' : 'shield-outline'}
+                size={13}
+                color={managementActive ? colors.success : colors.warning}
+              />
+              <AppText variant="small" style={{ color: managementActive ? colors.success : colors.warning }}>
+                {managementActive ? 'A tua banca está a ser gerida' : 'A gestão da tua banca terminou'}
+              </AppText>
+            </View>
           </View>
-          <StatusPill label={t('capital.active')} color={colors.success} />
+          <StatusPill
+            label={managementActive ? t('capital.active') : t('capital.contractEnded')}
+            color={managementActive ? colors.success : colors.warning}
+          />
         </View>
         <AppText variant="mono" style={[styles.heroValue, { color: isProfit ? colors.text : colors.destructive }]}>
           {formatBancaMoney(current, cur)}
@@ -208,6 +243,12 @@ export default function BancaScreen() {
               </AppText>
               <AppText variant="label" style={{ color: latestReport.profit >= 0 ? colors.success : colors.destructive }}>
                 {`${latestReport.profit >= 0 ? '+' : ''}${formatBancaMoney(latestReport.profit, cur)}`}
+              </AppText>
+            </View>
+            <View style={styles.reportRow}>
+              <AppText variant="small" style={{ color: colors.textMuted }}>{t('capital.dailyGain')}</AppText>
+              <AppText variant="label" style={{ color: latestDailyGain >= 0 ? colors.success : colors.destructive }}>
+                {`${latestDailyGain >= 0 ? '+' : ''}${formatBancaMoney(latestDailyGain, cur)}`}
               </AppText>
             </View>
             {latestReport.note ? (
@@ -251,7 +292,10 @@ export default function BancaScreen() {
           <AppText variant="label">{t('capital.progressTitle')}</AppText>
           <AppText variant="small" style={{ color: colors.textMuted }}>{Math.round(progress)}%</AppText>
         </View>
-        <View style={styles.track}>
+        <View
+          style={styles.track}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 0, max: 100, now: Math.round(progress) }}>
           <View style={[styles.fill, { width: `${progress}%` }]} />
         </View>
         <View style={styles.progressLabels}>
@@ -261,6 +305,10 @@ export default function BancaScreen() {
           <AppText variant="small" style={{ color: colors.accent }}>
             {t('capital.targetValue', { value: formatBancaMoney(targetValue, cur) })}
           </AppText>
+        </View>
+        <View style={styles.progressLabels}>
+          <AppText variant="small" style={{ color: colors.textMuted }}>Falta para a meta</AppText>
+          <AppText variant="label" style={{ color: colors.warning }}>{Math.round(100 - progress)}%</AppText>
         </View>
       </Card>
 
@@ -344,8 +392,8 @@ export default function BancaScreen() {
         available={withdrawable(current)}
         currency={cur}
         onClose={() => setWithdrawOpen(false)}
-        contractEndDate={activeContract?.end_date}
-        penaltyPct={activeContract?.penalty_pct}
+        contractEndDate={contract?.end_date}
+        penaltyPct={contract?.penalty_pct}
       />
     </Screen>
   );
@@ -355,6 +403,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     hero: { gap: Spacing.sm, marginBottom: Spacing.md },
     heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    managedRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
     heroEyebrow: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', letterSpacing: 1 },
     heroValue: { fontSize: 36, lineHeight: 46, color: c.text, letterSpacing: 0.5 },
     heroFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

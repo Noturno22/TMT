@@ -10,7 +10,7 @@ import {
   SearchBar, FilterChips, BulkActionsBar, SkeletonList, Toast, ExportButton,
   NotificationBadge, NotificationListModal, UserDetailModal,
 } from '@/components/admin';
-import { WithdrawalsPanel, MessagingPanel, ReportsPanel, ChannelsPanel, AnnouncementsPanel } from '@/components/admin';
+import { WithdrawalsPanel, MessagingPanel, ReportsPanel, ChannelsPanel, AnnouncementsPanel, CapitalContractsPanel } from '@/components/admin';
 import { Spacing, Radius, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase, isAdminEmail } from '@/lib/supabase';
@@ -26,11 +26,12 @@ import type { TFunction } from 'i18next';
 import { useAdminSearch } from '@/hooks/useAdminSearch';
 import { useAdminAlerts } from '@/hooks/useAdminAlerts';
 
-type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users' | 'receipts' | 'withdrawals' | 'messaging' | 'reports' | 'channels' | 'announcements';
+type Tab = 'dashboard' | 'signals' | 'boom' | 'boom_times' | 'posts' | 'users' | 'receipts' | 'withdrawals' | 'messaging' | 'reports' | 'channels' | 'announcements' | 'capital';
 
 const TABS = [
   { key: 'dashboard' as const, labelKey: 'admin.tabDashboard' as const },
   { key: 'receipts' as const, labelKey: 'admin.tabReceipts' as const },
+  { key: 'capital' as const, labelKey: 'admin.tabCapital' as const },
   { key: 'signals' as const, labelKey: 'admin.tabSignals' as const },
   { key: 'boom' as const, labelKey: 'admin.tabBoom' as const },
   { key: 'boom_times' as const, labelKey: 'admin.tabBoomTimes' as const },
@@ -233,6 +234,8 @@ export default function AdminScreen() {
         <DashboardPanel stats={stats} busy={busy} run={run} t={t} onRefresh={loadData} />
       ) : tab === 'receipts' ? (
         <ReceiptsPanel receipts={receipts} onRefresh={loadData} refreshing={refreshing} onPullRefresh={onRefresh} />
+      ) : tab === 'capital' ? (
+        <CapitalContractsPanel />
       ) : tab === 'signals' ? (
         <SignalsPanel signals={signals} onRefresh={loadData} refreshing={refreshing} onPullRefresh={onRefresh} />
       ) : tab === 'boom' ? (

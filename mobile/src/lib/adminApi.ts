@@ -454,3 +454,28 @@ export async function markWithdrawalPaid(id: string): Promise<void> {
 export async function rejectWithdrawalWithNotes(id: string, notes?: string): Promise<void> {
   await callAdminFn('reject_withdrawal', { id, notes });
 }
+
+export interface AdminCapitalContract {
+  id: string;
+  user_id: string;
+  email: string;
+  plan_id: 'conservador' | 'equilibrado' | 'agressivo';
+  currency: 'usd' | 'aoa';
+  capital_inicial: number;
+  start_date: string;
+  end_date: string;
+  months: number;
+  status: 'active' | 'completed' | 'cancelled';
+  penalty_pct: number;
+  terms_version: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function listCapitalContracts(): Promise<{ contracts: AdminCapitalContract[]; activeCount: number }> {
+  const data = await callAdminFn<{ contracts?: AdminCapitalContract[]; active_count?: number }>(
+    'list_capital_contracts',
+    {},
+  );
+  return { contracts: data.contracts ?? [], activeCount: data.active_count ?? 0 };
+}

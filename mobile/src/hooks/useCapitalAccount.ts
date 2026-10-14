@@ -69,6 +69,7 @@ export function useCapitalAccount() {
     account: accountQuery.data ?? null,
     reports: reportsQuery.data ?? [],
     loading: accountQuery.isLoading || reportsQuery.isLoading,
+    error: accountQuery.error ?? reportsQuery.error,
     // Meta normalizada: valor publicado pela equipa (0-100) com fallback 25.
     metaPercent: accountQuery.data?.meta_percent ?? DEFAULT_META_PERCENT,
   };

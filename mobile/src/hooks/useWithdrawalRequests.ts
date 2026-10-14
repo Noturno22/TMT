@@ -41,5 +41,6 @@ export function useWithdrawalRequests() {
   return {
     requests: requestsQuery.data ?? [],
     loading: requestsQuery.isLoading,
+    error: requestsQuery.error,
   };
 }

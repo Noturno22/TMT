@@ -19,3 +19,4 @@ export { MessagingPanel } from './MessagingPanel';
 export { ReportsPanel } from './ReportsPanel';
 export { ChannelsPanel } from './ChannelsPanel';
 export { AnnouncementsPanel } from './AnnouncementsPanel';
+export { CapitalContractsPanel } from './CapitalContractsPanel';

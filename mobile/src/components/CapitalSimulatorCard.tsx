@@ -5,6 +5,7 @@ import { AppButton, AppInput, AppText, Badge, Card } from '@/components/ui';
 import { Radius, Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { formatBancaMoney } from '@/core/format';
+import { formatMinDepositCore, MIN_CAPITAL_DEPOSIT } from '@/core/capital';
 import { useTranslation } from 'react-i18next';
 
 // Retorno esperado por estratégia da banca:
@@ -49,6 +50,8 @@ export function CapitalSimulatorCard({
 
   const projected = amount * (1 + returnPct / 100);
   const profit = projected - amount;
+  const minDeposit = MIN_CAPITAL_DEPOSIT[currency];
+  const belowMin = amount < minDeposit;
 
   return (
     <Card style={styles.card}>
@@ -96,13 +99,20 @@ export function CapitalSimulatorCard({
         </AppText>
       </View>
       {onDeposit ? (
-        <AppButton
-          title={t('capital.simulatorDepositCta')}
-          variant="gold"
-          disabled={amount < 50}
-          icon={<Ionicons name="arrow-forward-circle-outline" size={18} color="#1A1A2E" />}
-          onPress={() => onDeposit(amount)}
-        />
+        <>
+          {belowMin && amount > 0 ? (
+            <AppText variant="small" style={{ color: colors.warning }}>
+              {t('capital.minDeposit')}: {formatMinDepositCore(currency)}
+            </AppText>
+          ) : null}
+          <AppButton
+            title={t('capital.simulatorDepositCta')}
+            variant="gold"
+            disabled={belowMin}
+            icon={<Ionicons name="arrow-forward-circle-outline" size={18} color="#1A1A2E" />}
+            onPress={() => onDeposit(amount)}
+          />
+        </>
       ) : null}
     </Card>
   );

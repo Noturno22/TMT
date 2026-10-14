@@ -1,10 +1,30 @@
 import type { ComponentType } from "react";
 import { Bitcoin, CreditCard, Banknote, Smartphone } from "lucide-react";
+import type { CapitalPlanId } from "@/lib/types";
 
 export type Currency = "usd" | "aoa";
 export type PlanId = "free" | "basic" | "pro" | "premium";
 
 export const MIN_CAPITAL_DEPOSIT: Record<Currency, number> = { usd: 50, aoa: 50000 };
+
+// Definições canónicas dos planos de gestão de capital. O prazo (meses) é
+// apenas um limite temporal máximo; o progresso mede-se por valor.
+export interface CapitalPlanDefinition {
+  returnPct: number;
+  months: number;
+}
+
+export const CAPITAL_PLANS: Record<CapitalPlanId, CapitalPlanDefinition> = {
+  conservador: { returnPct: 25, months: 3 },
+  equilibrado: { returnPct: 20, months: 2 },
+  agressivo: { returnPct: 15, months: 1 },
+};
+
+export const PLAN_RETURN_PCT: Record<CapitalPlanId, number> = {
+  conservador: CAPITAL_PLANS.conservador.returnPct,
+  equilibrado: CAPITAL_PLANS.equilibrado.returnPct,
+  agressivo: CAPITAL_PLANS.agressivo.returnPct,
+};
 
 export type PaymentMethod =
   | "binance"

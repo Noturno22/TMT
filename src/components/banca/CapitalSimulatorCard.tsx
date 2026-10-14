@@ -1,17 +1,13 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Calculator, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatBancaMoney } from "@/lib/format";
-
-const STRATEGY_RETURN_PCT: Record<string, number> = {
-  conservador: 25,
-  equilibrado: 20,
-  agressivo: 15,
-};
+import { PLAN_RETURN_PCT } from "@/lib/plans";
 
 const STRATEGY_NAME_KEY: Record<string, string> = {
   conservador: "planoCrescimento.conservative",
@@ -31,7 +27,8 @@ export function CapitalSimulatorCard({
   onDeposit?: (amount: number) => void;
 }) {
   const { t } = useTranslation();
-  const returnPct = STRATEGY_RETURN_PCT[strategy] ?? 25;
+  const amountId = useId();
+  const returnPct = PLAN_RETURN_PCT[strategy as keyof typeof PLAN_RETURN_PCT] ?? 25;
   const strategyName = t(STRATEGY_NAME_KEY[strategy] ?? STRATEGY_NAME_KEY.conservador);
   const [raw, setRaw] = useState(capital > 0 ? String(Math.round(capital)) : "");
 
@@ -64,10 +61,11 @@ export function CapitalSimulatorCard({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs text-muted-foreground">
+          <Label htmlFor={amountId} className="text-xs text-muted-foreground">
             {t("capital.simulatorAmount", { currency: currency.toUpperCase() })}
-          </label>
+          </Label>
           <Input
+            id={amountId}
             value={raw}
             onChange={(e) => setRaw(e.target.value)}
             placeholder="0.00"

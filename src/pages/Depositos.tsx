@@ -115,6 +115,7 @@ export default function Depositos() {
   const [sending, setSending] = useState(false);
   const [showReceiptSuccess, setShowReceiptSuccess] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawBusy, setWithdrawBusy] = useState(false);
 
   useEffect(() => {
     const p = searchParams.get("plan");
@@ -304,30 +305,35 @@ export default function Depositos() {
     details: string;
     currency: Currency;
   }) => {
-    let requestId: string | null = null;
+    setWithdrawBusy(true);
     try {
-      requestId = await submitWithdrawalRequest({
+      let requestId: string | null = null;
+      try {
+        requestId = await submitWithdrawalRequest({
+          method: input.method,
+          amount: input.amount,
+          currency: input.currency,
+          details: input.details,
+        });
+      } catch {
+        /* mantém apenas local */
+      }
+      void addMovement({
+        type: "withdrawal",
         method: input.method,
         amount: input.amount,
         currency: input.currency,
-        details: input.details,
+        status: "pendente",
+        notes: input.details,
+        ...(requestId ? { requestId } : {}),
       });
-    } catch {
-      /* mantém apenas local */
+      setWithdrawOpen(false);
+      toast.success(t("depositos.confirmWithdrawOk"), {
+        description: t("depositos.confirmWithdrawMsg"),
+      });
+    } finally {
+      setWithdrawBusy(false);
     }
-    void addMovement({
-      type: "withdrawal",
-      method: input.method,
-      amount: input.amount,
-      currency: input.currency,
-      status: "pendente",
-      notes: input.details,
-      ...(requestId ? { requestId } : {}),
-    });
-    setWithdrawOpen(false);
-    toast.success(t("depositos.confirmWithdrawOk"), {
-      description: t("depositos.confirmWithdrawMsg"),
-    });
   };
 
   const renderMovement = (m: WalletMovement, index: number) => {
@@ -647,9 +653,11 @@ export default function Depositos() {
         {withdrawOpen ? (
           <WithdrawModal
             available={banca.achieved}
+            maxAmount={banca.achieved}
             balanceCurrency={banca.currency ?? "usd"}
             onClose={() => setWithdrawOpen(false)}
             onSubmit={submitWithdrawal}
+            busy={withdrawBusy}
           />
         ) : null}
 

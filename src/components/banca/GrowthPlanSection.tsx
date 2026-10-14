@@ -9,6 +9,7 @@ import { useBanca } from "@/hooks/useBanca";
 import { useCapitalContract } from "@/hooks/useCapitalContract";
 import { formatBancaMoney, formatShortDate } from "@/lib/format";
 import { daysUntil } from "@/lib/capital";
+import { CAPITAL_PLANS } from "@/lib/plans";
 import type { CapitalPlanId } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -25,9 +26,9 @@ interface GrowthPlan {
 }
 
 const PLANS: GrowthPlan[] = [
-  { id: "conservador", nameKey: "planoCrescimento.conservative", descKey: "planoCrescimento.conservativeDesc", returnPct: 25, months: 3, icon: "leaf", color: "text-success" },
-  { id: "equilibrado", nameKey: "planoCrescimento.balanced", descKey: "planoCrescimento.balancedDesc", returnPct: 20, months: 2, icon: "analytics", color: "text-accent" },
-  { id: "agressivo", nameKey: "planoCrescimento.aggressive", descKey: "planoCrescimento.aggressiveDesc", returnPct: 15, months: 1, icon: "rocket", color: "text-destructive" },
+  { id: "conservador", nameKey: "planoCrescimento.conservative", descKey: "planoCrescimento.conservativeDesc", ...CAPITAL_PLANS.conservador, icon: "leaf", color: "text-success" },
+  { id: "equilibrado", nameKey: "planoCrescimento.balanced", descKey: "planoCrescimento.balancedDesc", ...CAPITAL_PLANS.equilibrado, icon: "analytics", color: "text-accent" },
+  { id: "agressivo", nameKey: "planoCrescimento.aggressive", descKey: "planoCrescimento.aggressiveDesc", ...CAPITAL_PLANS.agressivo, icon: "rocket", color: "text-destructive" },
 ];
 
 export const planNameKey: Record<CapitalPlanId, GrowthPlan["nameKey"]> = {
@@ -150,13 +151,16 @@ export function GrowthPlanSection({ capital, currency = "usd" }: { capital: numb
       </div>
       <p className="text-sm text-muted-foreground">{t("planoCrescimento.select")}</p>
 
-      <div className="space-y-3">
+      <div className="space-y-3" role="radiogroup" aria-label={t("planoCrescimento.select")}>
         {PLANS.map((p) => {
           const selected = p.id === selectedId;
           const Icon = PLAN_ICONS[p.icon];
           return (
             <button
               key={p.id}
+              type="button"
+              role="radio"
+              aria-checked={selected}
               onClick={() => selectPlan(p.id)}
               className={cn(
                 "w-full rounded-xl border bg-card p-4 text-left transition-colors",

@@ -126,5 +126,9 @@ export function useCapitalAccount() {
     account: accountQuery.data ?? null,
     reports: reportsQuery.data ?? [],
     loading: accountQuery.isLoading || reportsQuery.isLoading,
+    error: accountQuery.error ?? reportsQuery.error ?? null,
+    refetch: async () => {
+      await Promise.all([accountQuery.refetch(), reportsQuery.refetch()]);
+    },
   };
 }

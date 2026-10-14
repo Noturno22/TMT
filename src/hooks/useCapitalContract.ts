@@ -95,6 +95,10 @@ export function useCapitalContract() {
   return {
     contract: contractQuery.data ?? null,
     loading: contractQuery.isLoading,
+    error: contractQuery.error ?? null,
+    refetch: async () => {
+      await contractQuery.refetch();
+    },
     activate,
   };
 }

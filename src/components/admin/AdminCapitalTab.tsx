@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   listCapitalAccounts,
+  listCapitalContracts,
   listCapitalReports,
   postCapitalReport,
   upsertCapitalAccount,
   type AdminCapitalAccount,
+  type AdminCapitalContract,
   type AdminCapitalReport,
 } from "@/lib/adminApi";
 import { formatShortDate } from "@/lib/format";
@@ -24,8 +26,21 @@ const money = (v: number, currency: string) =>
 const statusLabel = (s: string) =>
   s === "inactive" ? "Inativa" : s === "paused" ? "Pausada" : "Ativa";
 
+const planLabel = (p: string) =>
+  p === "conservador" ? "Conservador" : p === "equilibrado" ? "Equilibrado" : p === "agressivo" ? "Agressivo" : p;
+
+const contractStatusLabel = (s: string) =>
+  s === "active" ? "Ativa" : s === "completed" ? "Concluída" : s === "cancelled" ? "Cancelada" : s;
+
+const daysLeft = (endDate: string) => {
+  const ms = new Date(`${endDate}T00:00:00`).getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / 86_400_000));
+};
+
 export function AdminCapitalTab() {
   const [accounts, setAccounts] = useState<AdminCapitalAccount[]>([]);
+  const [contracts, setContracts] = useState<AdminCapitalContract[]>([]);
+  const [activeCount, setActiveCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Record<string, Partial<AdminCapitalAccount>>>({});
   const [reporting, setReporting] = useState<string | null>(null);
@@ -34,7 +49,10 @@ export function AdminCapitalTab() {
 
   const load = useCallback(async () => {
     try {
-      setAccounts(await listCapitalAccounts());
+      const [accs, ctr] = await Promise.all([listCapitalAccounts(), listCapitalContracts()]);
+      setAccounts(accs);
+      setContracts(ctr.contracts);
+      setActiveCount(ctr.activeCount);
     } catch (e: unknown) {
       toast.error("Erro", { description: e instanceof Error ? e.message : "Não foi possível carregar as contas de capital." });
     } finally {
@@ -54,12 +72,13 @@ export function AdminCapitalTab() {
     const aoaAccounts = accounts.filter((a) => a.currency === "aoa").length;
     return [
       { label: "Contas", value: accounts.length, color: "#6366F1" },
+      { label: "Bancas em gestão", value: activeCount, color: "#8B5CF6" },
       { label: "Capital total", value: money(totalCapital, "usd"), color: "#00C853" },
       { label: "Resultado total", value: money(totalAchieved, "usd"), color: "#FF9F0A" },
       { label: "Levantado total", value: money(totalWithdrawn, "usd"), color: "#FF453A" },
       { label: "USD / AOA", value: `${usdAccounts} / ${aoaAccounts}`, color: "#34C759" },
     ];
-  }, [accounts]);
+  }, [accounts, activeCount]);
 
   const runAction = async (fn: () => Promise<void>, success: string) => {
     setBusy(true);
@@ -142,7 +161,7 @@ export function AdminCapitalTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {summary.map((s) => (
           <div key={s.label} className="glass-card p-4 text-center">
             <p className="text-lg font-bold" style={{ color: s.color }}>
@@ -152,6 +171,42 @@ export function AdminCapitalTab() {
           </div>
         ))}
       </div>
+
+      <Card>
+        <CardContent className="pt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Bancas em gestão</h3>
+            <span className="text-xs text-muted-foreground">
+              {activeCount} ativa(s) · {contracts.length} no total
+            </span>
+          </div>
+          {contracts.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">Nenhuma banca em gestão.</p>
+          ) : (
+            contracts.map((c, idx) => (
+              <div
+                key={c.id}
+                className={cn("flex flex-wrap items-center gap-3 py-2 text-sm", idx > 0 && "border-t border-border")}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{c.email || "—"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {planLabel(c.plan_id)} · {money(Number(c.capital_inicial), c.currency)} ·{" "}
+                    {formatShortDate(c.start_date)} → {formatShortDate(c.end_date)}
+                  </p>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {c.status === "active" ? `${daysLeft(c.end_date)} dia(s) restantes · ` : ""}
+                  penalidade {Number(c.penalty_pct)}%
+                </span>
+                <Badge variant={c.status === "active" ? "default" : "secondary"}>
+                  {contractStatusLabel(c.status)}
+                </Badge>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="space-y-0 pt-3">

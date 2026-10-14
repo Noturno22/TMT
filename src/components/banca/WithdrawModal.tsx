@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   PAYMENT_METHODS,
@@ -32,6 +33,7 @@ interface WithdrawModalProps {
   busy?: boolean;
   contractEndDate?: string;
   penaltyPct?: number;
+  maxAmount?: number;
 }
 
 export function WithdrawModal({
@@ -42,8 +44,11 @@ export function WithdrawModal({
   busy = false,
   contractEndDate,
   penaltyPct,
+  maxAmount,
 }: WithdrawModalProps) {
   const { t } = useTranslation();
+  const amountId = useId();
+  const detailsId = useId();
   const [currency, setCurrency] = useState<Currency>(balanceCurrency);
   const [method, setMethod] = useState<PaymentMethod | null>(null);
   const [amount, setAmount] = useState("");
@@ -56,14 +61,25 @@ export function WithdrawModal({
   const selectedMethod = method ? availableMethods.find((m) => m.id === method) : null;
   const currencySymbol = currency === "usd" ? "USD" : "AOA";
   const amountNum = Number(amount.replace(",", "."));
+  const isAmountValid = isFinite(amountNum) && amountNum > 0;
   const penaltyActive =
     typeof penaltyPct === "number" && penaltyPct > 0 && !!contractEndDate && !contractEnded(contractEndDate);
+  const penaltyAmount = penaltyActive ? amountNum * ((penaltyPct as number) / 100) : 0;
   const netValue = penaltyActive ? netAfterPenalty(amountNum, penaltyPct as number) : amountNum;
+  const sameCurrency = currency === balanceCurrency;
+  const effectiveMax = maxAmount ?? available;
+  const exceedsMax = sameCurrency && isAmountValid && amountNum > effectiveMax;
+  const contractFinished = !!contractEndDate && contractEnded(contractEndDate);
+  const valid = Boolean(method) && isAmountValid && !exceedsMax && details.trim().length > 0;
 
   const handleSubmit = () => {
     const parsed = parseFloat(amount.replace(",", "."));
     if (!method || !isFinite(parsed) || parsed <= 0 || !details.trim()) {
       toast.error(t("depositos.invalidWithdraw"));
+      return;
+    }
+    if (exceedsMax) {
+      toast.error(t("capital.withdrawAboveBalance"));
       return;
     }
     onSubmit({ method, amount: parsed, details: details.trim(), currency });
@@ -78,11 +94,13 @@ export function WithdrawModal({
               {t("depositos.withdrawCta")}
             </DialogTitle>
             <Button
+              type="button"
               variant="ghost"
               size="icon"
               className="h-8 w-8 shrink-0"
               onClick={onClose}
               disabled={busy}
+              aria-label={t("common.close")}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -100,12 +118,14 @@ export function WithdrawModal({
         <div className="space-y-4 py-2">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">{t("planos.currency")}</p>
-            <div className="flex rounded-full bg-secondary/70 p-1">
+            <div className="flex rounded-full bg-secondary/70 p-1" role="group" aria-label={t("planos.currency")}>
               {CURRENCIES.map((c) => {
                 const active = currency === c;
                 return (
                   <button
                     key={c}
+                    type="button"
+                    aria-pressed={active}
                     onClick={() => {
                       if (c === currency) return;
                       setCurrency(c);
@@ -138,6 +158,8 @@ export function WithdrawModal({
                 return (
                   <button
                     key={m.id}
+                    type="button"
+                    aria-pressed={active}
                     onClick={() => setMethod(m.id)}
                     style={{ borderColor: m.color, borderWidth: 2 }}
                     className={cn(
@@ -161,22 +183,30 @@ export function WithdrawModal({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground">
+            <Label htmlFor={amountId} className="text-xs text-muted-foreground">
               {t("depositos.withdrawAmount", { currency: currencySymbol })}
-            </label>
+            </Label>
             <Input
+              id={amountId}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
               inputMode="decimal"
+              aria-invalid={exceedsMax}
             />
+            {exceedsMax ? (
+              <p role="alert" className="text-xs text-destructive">
+                {t("capital.withdrawAboveBalance")}
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground">
+            <Label htmlFor={detailsId} className="text-xs text-muted-foreground">
               {t("depositos.withdrawDetails")}
-            </label>
+            </Label>
             <Textarea
+              id={detailsId}
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               placeholder={selectedMethod?.getDetails()}
@@ -184,28 +214,54 @@ export function WithdrawModal({
             />
           </div>
 
-          {penaltyActive && amountNum > 0 ? (
-            <div className="space-y-1.5 rounded-xl border border-warning/40 bg-warning/10 p-4">
-              <p className="text-sm font-bold text-warning">{t("capital.penaltyTitle")}</p>
-              <p className="text-sm text-muted-foreground">
-                {t("capital.penaltyNotice", {
-                  date: formatShortDate(contractEndDate as string),
-                  penalty: penaltyPct,
-                })}
-              </p>
+          {isAmountValid ? (
+            <div
+              className={cn(
+                "space-y-1.5 rounded-xl border p-4",
+                penaltyActive ? "border-warning/40 bg-warning/10" : "border-border bg-secondary/40",
+              )}
+            >
+              {penaltyActive ? (
+                <>
+                  <p className="text-sm font-bold text-warning">{t("capital.penaltyTitle")}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t("capital.penaltyNotice", {
+                      date: formatShortDate(contractEndDate as string),
+                      penalty: penaltyPct,
+                    })}
+                  </p>
+                </>
+              ) : null}
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">{t("capital.grossValue")}</p>
+                <p className="font-semibold">{formatBancaMoney(amountNum, currency)}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {t("capital.penaltyLabel", { penalty: penaltyActive ? penaltyPct : 0 })}
+                </p>
+                <p className={cn("font-semibold", penaltyActive ? "text-warning" : "text-muted-foreground")}>
+                  −{formatBancaMoney(penaltyAmount, currency)}
+                </p>
+              </div>
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">{t("capital.netValue")}</p>
-                <p className="font-semibold text-warning">{formatBancaMoney(netValue, currency)}</p>
+                <p className={cn("font-semibold", penaltyActive ? "text-warning" : "text-foreground")}>
+                  {formatBancaMoney(netValue, currency)}
+                </p>
               </div>
+              {!penaltyActive && contractFinished ? (
+                <p className="text-xs text-muted-foreground">{t("capital.noPenaltyNotice")}</p>
+              ) : null}
             </div>
           ) : null}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2 flex-col sm:flex-col">
-          <Button variant="outline" className="w-full" onClick={onClose} disabled={busy}>
+          <Button type="button" variant="outline" className="w-full" onClick={onClose} disabled={busy}>
             {t("common.cancel")}
           </Button>
-          <Button variant="premium" className="w-full h-[54px]" onClick={handleSubmit} disabled={busy}>
+          <Button type="button" variant="premium" className="w-full h-[54px]" onClick={handleSubmit} disabled={busy || !valid}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("depositos.withdrawCta")}
           </Button>

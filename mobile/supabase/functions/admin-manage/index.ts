@@ -881,6 +881,33 @@ serve(async (req) => {
         accounts: (accounts ?? []).map((a) => ({ ...a, email: emailMap.get(a.user_id) ?? '' })),
       });
     }
+    case 'list_capital_contracts': {
+      // Gestão de banca: contratos criados pelos utilizadores (planos ativos
+      // ou já terminados). O cliente não pode ler isto diretamente — a RLS
+      // capital_contracts_select_own limitaria a leitura ao próprio registo.
+      const { data: contracts, error } = await supabase
+        .from('capital_contracts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) return errorJson(error.message, 500);
+
+      const ids = [...new Set((contracts ?? []).map((c) => c.user_id))];
+      let emailMap = new Map<string, string>();
+      if (ids.length > 0) {
+        const { data: usersData } = await supabase.auth.admin.listUsers();
+        emailMap = new Map(
+          (usersData?.users ?? [])
+            .filter((u) => ids.includes(u.id))
+            .map((u) => [u.id, u.email ?? '']),
+        );
+      }
+
+      const list = contracts ?? [];
+      return json({
+        contracts: list.map((c) => ({ ...c, email: emailMap.get(c.user_id) ?? '' })),
+        active_count: list.filter((c) => c.status === 'active').length,
+      });
+    }
     case 'upsert_capital_account': {
       const { user_id, capital, achieved, currency, total_withdrawn, meta_percent } = body;
       if (!user_id) return errorJson('user_id em falta.');
@@ -1127,13 +1154,20 @@ serve(async (req) => {
         })
         .eq('id', id)
         .eq('status', 'approved')
-        .select('user_id, amount, currency')
+        .select('user_id, amount, currency, net_amount, penalty_amount')
         .maybeSingle();
 
       if (updateErr) return errorJson(updateErr.message, 500);
       if (!transitioned) {
         return errorJson('Levantamento não está aprovado ou já foi pago.', 409);
       }
+
+      // `amount` é o valor BRUTO pedido; `net_amount` é o que o utilizador
+      // recebe (bruto menos a penalidade de levantamento antecipado). O saldo
+      // gerido desce pelo bruto: os 10% são uma taxa da plataforma.
+      const netAmount = transitioned.net_amount != null
+        ? Number(transitioned.net_amount)
+        : Number(transitioned.amount);
 
       // Débito do saldo publicado (best-effort, logado)
       const currency = transitioned.currency === 'aoa' ? 'aoa' : 'usd';
@@ -1158,7 +1192,12 @@ serve(async (req) => {
         }
       }
 
-      return json({ ok: true });
+      return json({
+        ok: true,
+        amount: Number(transitioned.amount),
+        net_amount: netAmount,
+        penalty_amount: Number(transitioned.penalty_amount ?? 0),
+      });
     }
     // ── Revenue Stats ──────────────────────────────────────────────────
     case 'revenue_stats': {

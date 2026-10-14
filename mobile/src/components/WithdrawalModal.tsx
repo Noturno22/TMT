@@ -49,7 +49,7 @@ export function WithdrawalModal({ visible, available, currency, onClose, contrac
     if (!valid || busy || !method) return;
     setBusy(true);
     try {
-      await submitWithdrawalRequest({
+      const requestId = await submitWithdrawalRequest({
         method,
         amount: amountNum,
         currency,
@@ -62,6 +62,7 @@ export function WithdrawalModal({ visible, available, currency, onClose, contrac
         currency,
         status: 'pendente',
         notes: isAoa ? details.trim() : selectedMethod?.label,
+        ...(requestId ? { requestId } : {}),
       });
       setAmount('');
       setDetails('');

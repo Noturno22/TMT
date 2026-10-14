@@ -203,14 +203,6 @@ export default function DepositosScreen() {
       );
       return;
     }
-    void addMovement({
-      type: 'deposit',
-      method: depositModal.method,
-      amount: depositAmount,
-      currency,
-      plan: isCapitalDeposit ? 'capital' : plan,
-      status: 'pendente',
-    });
     // Save receipt server-side for admin review
     if (user) {
       const payload = {
@@ -225,9 +217,10 @@ export default function DepositosScreen() {
       // O upload já foi feito; regista-se a linha no servidor com retry.
       // Se um insert "falhou" mas o registo existe, considera-se sucesso.
       let saved = false;
+      let receiptId: string | null = null;
       for (let attempt = 0; attempt <= 2; attempt++) {
         try {
-          await saveReceipt(payload);
+          receiptId = await saveReceipt(payload);
           saved = true;
           break;
         } catch (err: any) {
@@ -251,6 +244,17 @@ export default function DepositosScreen() {
         );
         return;
       }
+      // Movimento local ligado ao comprovativo, para o trigger de sincronização
+      // propagar a decisão do admin sem depender do fallback.
+      void addMovement({
+        type: 'deposit',
+        method: depositModal.method,
+        amount: depositAmount,
+        currency,
+        plan: isCapitalDeposit ? 'capital' : plan,
+        status: 'pendente',
+        ...(receiptId ? { receiptId } : {}),
+      });
       // Regista o valor pago — ao ativar o premium passa a ser o saldo da
       // gestão de capital (para utilizadores vindos de link de afiliado).
       // Depósitos de capital não são ativação de plano.
@@ -274,8 +278,9 @@ export default function DepositosScreen() {
       return;
     }
     // Save server-side
+    let requestId: string | null = null;
     try {
-      await submitWithdrawalRequest({
+      requestId = await submitWithdrawalRequest({
         method: activeMethod,
         amount,
         currency,
@@ -292,6 +297,7 @@ export default function DepositosScreen() {
       currency,
       status: 'pendente',
       notes: withdrawDetails.trim(),
+      ...(requestId ? { requestId } : {}),
     });
     setWithdrawAmount('');
     setWithdrawDetails('');

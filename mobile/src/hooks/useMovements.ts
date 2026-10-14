@@ -17,6 +17,7 @@ export interface WalletMovement {
   plan?: string;
   status: MovementStatus;
   receiptId?: string;
+  requestId?: string;
   notes?: string;
   createdAt: string;
   updatedAt?: string;
@@ -35,6 +36,7 @@ function toRow(m: WalletMovement, userId: string) {
     plan: m.plan ?? null,
     status: m.status,
     receipt_id: m.receiptId ?? null,
+    request_id: m.requestId ?? null,
     notes: m.notes ?? null,
     created_at: m.createdAt,
     updated_at: m.updatedAt ?? m.createdAt,
@@ -51,6 +53,7 @@ function fromRow(r: Record<string, unknown>): WalletMovement {
     plan: (r.plan as string) ?? undefined,
     status: r.status as MovementStatus,
     receiptId: (r.receipt_id as string) ?? undefined,
+    requestId: (r.request_id as string) ?? undefined,
     notes: (r.notes as string) ?? undefined,
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
@@ -154,11 +157,50 @@ export function useMovements() {
   };
 
   const deleteMovement = async (id: string) => {
+    const target = listRef.current.find((m) => m.id === id);
     const next = listRef.current.filter((m) => m.id !== id);
     await persist(next);
 
-    if (user?.id) {
+    if (user?.id && target) {
       try {
+        // Cancela a linha autoritativa pendente no servidor antes de apagar o
+        // movimento — sem isto o pedido fica "fantasma" e o guard de depósito
+        // (hasPendingDepositRequest) continua a bloquear novos depósitos.
+        if (target.type === 'deposit') {
+          if (target.receiptId) {
+            await supabase
+              .from('payment_receipts')
+              .delete()
+              .eq('id', target.receiptId)
+              .eq('status', 'pending');
+          } else {
+            await supabase
+              .from('payment_receipts')
+              .delete()
+              .eq('user_id', user.id)
+              .eq('status', 'pending')
+              .eq('method', target.method)
+              .eq('amount', target.amount)
+              .eq('currency', target.currency);
+          }
+        } else {
+          if (target.requestId) {
+            await supabase
+              .from('withdrawal_requests')
+              .delete()
+              .eq('id', target.requestId)
+              .eq('status', 'pending');
+          } else {
+            await supabase
+              .from('withdrawal_requests')
+              .delete()
+              .eq('user_id', user.id)
+              .eq('status', 'pending')
+              .eq('method', target.method)
+              .eq('amount', target.amount)
+              .eq('currency', target.currency);
+          }
+        }
         await supabase.from('wallet_movements').delete().eq('id', id);
       } catch { /* local-first: ignore server errors */ }
     }

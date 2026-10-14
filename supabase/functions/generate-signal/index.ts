@@ -271,7 +271,7 @@ interface TechnicalAnalysis {
   bb: { upper: number; middle: number; lower: number };
 }
 
-function analyzeMarket(closes: number[], symbol: string): TechnicalAnalysis {
+function analyzeMarket(closes: number[], symbol: string, inBoom = false): TechnicalAnalysis {
   const config = ASSET_CONFIGS[symbol] || { volatility: 0.001, pipSize: 0.0001, priceDigits: 5 };
   const entry = closes[closes.length - 1];
   const { highs, lows } = generateHighLows(closes, config.volatility);
@@ -464,7 +464,9 @@ function analyzeMarket(closes: number[], symbol: string): TechnicalAnalysis {
   // DECISÃO FINAL — threshold adaptativo baseado em indicadores
   // ═══════════════════════════════════════════════════════════════════════════
   const minIndicators = 3;
-  const minWeightedScore = 6;
+  // Fora dos horários de boom exigimos mais confluência; dentro do boom o
+  // threshold é menor (mais liquidez/volatilidade => melhor probabilidade).
+  const minWeightedScore = inBoom ? 6 : 8;
 
   let signalType: "BUY" | "SELL" | "AGUARDAR";
   let reasons: string[];
@@ -472,20 +474,20 @@ function analyzeMarket(closes: number[], symbol: string): TechnicalAnalysis {
   let stopLoss: number;
   let takeProfit: number;
 
-  if (bullScore.raw >= minIndicators && bullScore.weighted >= minWeightedScore && bullScore.weighted > bearScore.weighted) {
+  if (bullScore.raw >= minIndicators && bullScore.weighted >= minWeightedScore && bullScore.weighted > bearScore.weighted && rsi < 72) {
     signalType = "BUY";
     reasons = bullishSignals.slice(0, 5);
     // Confiança ponderada: mais indicadores = mais confiança
     const ratio = bullScore.weighted / (bullScore.weighted + bearScore.weighted);
     confidence = Math.min(92, Math.round(55 + ratio * 37));
-    stopLoss = entry - atr * 1.8;
+    stopLoss = entry - atr * 1.2;
     takeProfit = entry + atr * 3;
-  } else if (bearScore.raw >= minIndicators && bearScore.weighted >= minWeightedScore && bearScore.weighted > bullScore.weighted) {
+  } else if (bearScore.raw >= minIndicators && bearScore.weighted >= minWeightedScore && bearScore.weighted > bullScore.weighted && rsi > 28) {
     signalType = "SELL";
     reasons = bearishSignals.slice(0, 5);
     const ratio = bearScore.weighted / (bullScore.weighted + bearScore.weighted);
     confidence = Math.min(92, Math.round(55 + ratio * 37));
-    stopLoss = entry + atr * 1.8;
+    stopLoss = entry + atr * 1.2;
     takeProfit = entry - atr * 3;
   } else {
     signalType = "AGUARDAR";
@@ -500,8 +502,8 @@ function analyzeMarket(closes: number[], symbol: string): TechnicalAnalysis {
     takeProfit = entry + atr * 2;
   }
 
-  // RR baseado na confiança
-  const rrMultiplier = confidence >= 80 ? 3 : confidence >= 70 ? 2.5 : 2;
+  // RR mínimo 1:2.2 — TP é sempre maior que o SL (nunca risco > retorno).
+  const rrMultiplier = confidence >= 80 ? 3 : confidence >= 70 ? 2.5 : 2.2;
   if (signalType !== "AGUARDAR") {
     const slDistance = Math.abs(stopLoss - entry);
     if (signalType === "BUY") takeProfit = entry + slDistance * rrMultiplier;
@@ -555,6 +557,27 @@ serve(async (req) => {
 
     const supabase = createClient(PROJECT_URL, SERVICE_ROLE_KEY);
 
+    // Horários de boom ativos (contexto de entrada). Falha na leitura => neutro.
+    let boomWindows: { start: number; end: number; pairs: string[] }[] = [];
+    try {
+      const { data: boomHours } = await supabase
+        .from("boom_hours")
+        .select("time_gmt, pairs")
+        .eq("is_active", true);
+      boomWindows = (boomHours || []).flatMap((b: { time_gmt?: string; pairs?: string[] }) => {
+        const [h, m] = String(b.time_gmt || "").split(":").map(Number);
+        if (!Number.isFinite(h) || !Number.isFinite(m)) return [];
+        const start = h * 60 + m;
+        return [{
+          start,
+          end: start + 45,
+          pairs: (b.pairs || []).map((p) => p.replace("/", "").toUpperCase()),
+        }];
+      });
+    } catch {
+      boomWindows = [];
+    }
+
     const body = await req.json().catch(() => ({}));
     const symbolsToAnalyze = Array.isArray(body) ? body : [body];
     const results = [];
@@ -587,7 +610,11 @@ serve(async (req) => {
       }
 
       const entry = closes[closes.length - 1];
-      const analysis = analyzeMarket(closes, symbol);
+      const minsUtc = new Date().getUTCHours() * 60 + new Date().getUTCMinutes();
+      const inBoom = boomWindows.some(
+        (w) => w.pairs.includes(symbol) && minsUtc >= w.start && minsUtc <= w.end,
+      );
+      const analysis = analyzeMarket(closes, symbol, inBoom);
       const config = ASSET_CONFIGS[symbol];
 
       await supabase

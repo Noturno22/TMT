@@ -7,8 +7,26 @@ import { isAdminUnlocked } from "@/lib/adminGate";
 import * as adminApi from "@/lib/adminApi";
 import { toast } from "sonner";
 import { Layout } from "@/components/layout/Layout";
-import { Flag, RefreshCw, Shield } from "lucide-react";
+import {
+  Banknote,
+  Coins,
+  Flag,
+  Hash,
+  LayoutDashboard,
+  Megaphone,
+  MessagesSquare,
+  Newspaper,
+  ReceiptText,
+  RefreshCw,
+  Shield,
+  TrendingUp,
+  Users,
+  Zap,
+  Clock,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { AdminDashboardTab, type AdminDashboardStats } from "@/components/admin/AdminDashboardTab";
 import { AdminSignalsTab } from "@/components/admin/AdminSignalsTab";
@@ -29,20 +47,20 @@ import { SkeletonList } from "@/components/admin/SkeletonList";
 
 type Tab = "dashboard" | "receipts" | "signals" | "boom" | "boom_times" | "posts" | "users" | "withdrawals" | "capital" | "messaging" | "reports" | "channels" | "announcements";
 
-const TABS: { key: Tab; labelKey: string }[] = [
-  { key: "dashboard", labelKey: "admin.tabDashboard" },
-  { key: "receipts", labelKey: "admin.tabReceipts" },
-  { key: "signals", labelKey: "admin.tabSignals" },
-  { key: "boom", labelKey: "admin.tabBoom" },
-  { key: "boom_times", labelKey: "admin.tabBoomTimes" },
-  { key: "posts", labelKey: "admin.tabPosts" },
-  { key: "users", labelKey: "admin.tabUsers" },
-  { key: "withdrawals", labelKey: "admin.tabWithdrawals" },
-  { key: "capital", labelKey: "admin.tabCapital" },
-  { key: "messaging", labelKey: "admin.tabMessaging" },
-  { key: "reports", labelKey: "admin.tabReports" },
-  { key: "channels", labelKey: "admin.tabChannels" },
-  { key: "announcements", labelKey: "admin.tabAnnouncements" },
+const TABS: { key: Tab; labelKey: string; icon: LucideIcon }[] = [
+  { key: "dashboard", labelKey: "admin.tabDashboard", icon: LayoutDashboard },
+  { key: "receipts", labelKey: "admin.tabReceipts", icon: ReceiptText },
+  { key: "signals", labelKey: "admin.tabSignals", icon: TrendingUp },
+  { key: "boom", labelKey: "admin.tabBoom", icon: Zap },
+  { key: "boom_times", labelKey: "admin.tabBoomTimes", icon: Clock },
+  { key: "posts", labelKey: "admin.tabPosts", icon: Newspaper },
+  { key: "users", labelKey: "admin.tabUsers", icon: Users },
+  { key: "withdrawals", labelKey: "admin.tabWithdrawals", icon: Banknote },
+  { key: "capital", labelKey: "admin.tabCapital", icon: Coins },
+  { key: "messaging", labelKey: "admin.tabMessaging", icon: MessagesSquare },
+  { key: "reports", labelKey: "admin.tabReports", icon: Flag },
+  { key: "channels", labelKey: "admin.tabChannels", icon: Hash },
+  { key: "announcements", labelKey: "admin.tabAnnouncements", icon: Megaphone },
 ];
 
 type AdminRow = Record<string, unknown>;
@@ -217,35 +235,52 @@ export default function Admin() {
             )}
           </div>
 
-          {/* Tabs */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {TABS.map((tb) => (
-              <button
-                key={tb.key}
-                onClick={() => setTab(tb.key)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${tab === tb.key ? "bg-primary text-white" : "bg-secondary text-muted-foreground hover:bg-secondary/70"}`}
-              >
-                {t(tb.labelKey)}
-              </button>
-            ))}
-          </div>
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+            {/* Navegação */}
+            <nav aria-label={t("admin.title")} className="lg:w-60 lg:shrink-0">
+              <div className="flex gap-2 overflow-x-auto pb-1 lg:sticky lg:top-20 lg:flex-col lg:gap-1 lg:overflow-visible lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:p-2 lg:pb-2">
+                {TABS.map((tb) => {
+                  const Icon = tb.icon;
+                  const active = tab === tb.key;
+                  return (
+                    <button
+                      key={tb.key}
+                      onClick={() => setTab(tb.key)}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-colors lg:w-full",
+                        active
+                          ? "bg-primary text-white shadow-sm"
+                          : "bg-secondary text-muted-foreground hover:bg-secondary/70 lg:bg-transparent lg:hover:bg-secondary/60",
+                      )}
+                    >
+                      <Icon className={cn("h-4 w-4 shrink-0", active ? "text-white" : "text-muted-foreground")} />
+                      <span>{t(tb.labelKey)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
 
-          {/* Tab Content */}
-          {tab === "dashboard" && (
-            <AdminDashboardTab stats={stats} busy={busy} run={run} onRefresh={loadData} />
-          )}
-          {tab === "receipts" && <AdminReceiptsTab />}
-          {tab === "signals" && <AdminSignalsTab signals={signals} onRefresh={loadData} />}
-          {tab === "boom" && <AdminBoomHoursTab boomHours={boomHours} onRefresh={loadData} />}
-          {tab === "boom_times" && <AdminBoomTimesTab boomTimes={boomTimes} onRefresh={loadData} />}
-          {tab === "posts" && <AdminComunidadeTab posts={posts} onRefresh={loadData} />}
-          {tab === "users" && <AdminUsersTab usersList={usersList} subsData={subsData} onRefresh={loadData} />}
-          {tab === "withdrawals" && <AdminWithdrawalsTab />}
-          {tab === "capital" && <AdminCapitalTab />}
-          {tab === "messaging" && <AdminMessagingTab />}
-          {tab === "reports" && <AdminReportsTab />}
-          {tab === "channels" && <AdminChannelsTab />}
-          {tab === "announcements" && <AdminAnnouncementsTab />}
+            {/* Conteúdo */}
+            <div className="min-w-0 flex-1">
+              {tab === "dashboard" && (
+                <AdminDashboardTab stats={stats} busy={busy} run={run} onRefresh={loadData} />
+              )}
+              {tab === "receipts" && <AdminReceiptsTab />}
+              {tab === "signals" && <AdminSignalsTab signals={signals} onRefresh={loadData} />}
+              {tab === "boom" && <AdminBoomHoursTab boomHours={boomHours} onRefresh={loadData} />}
+              {tab === "boom_times" && <AdminBoomTimesTab boomTimes={boomTimes} onRefresh={loadData} />}
+              {tab === "posts" && <AdminComunidadeTab posts={posts} onRefresh={loadData} />}
+              {tab === "users" && <AdminUsersTab usersList={usersList} subsData={subsData} onRefresh={loadData} />}
+              {tab === "withdrawals" && <AdminWithdrawalsTab />}
+              {tab === "capital" && <AdminCapitalTab />}
+              {tab === "messaging" && <AdminMessagingTab />}
+              {tab === "reports" && <AdminReportsTab />}
+              {tab === "channels" && <AdminChannelsTab />}
+              {tab === "announcements" && <AdminAnnouncementsTab />}
+            </div>
+          </div>
         </div>
       </section>
 

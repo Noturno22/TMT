@@ -1125,7 +1125,19 @@
   "netValue": "Montant net à recevoir",
   "penaltyNotice": "Ton contrat se termine le {{date}}. Un retrait maintenant applique une pénalité de {{penalty}}% sur le montant demandé.",
   "penaltyTitle": "Retrait anticipé",
-  "viewContract": "Voir le Contrat"
+  "viewContract": "Voir le Contrat",
+   "managedActive": "Ton capital est en cours de gestion",
+   "managedEnded": "La gestion de ton capital a pris fin",
+   "progressMissing": "Reste pour atteindre l'objectif",
+   "grossValue": "Montant brut",
+   "penaltyLabel": "Pénalité ({{penalty}}%)",
+   "noPenaltyNotice": "Contrat terminé — sans pénalité.",
+   "withdrawAboveBalance": "Le montant demandé dépasse le disponible pour le retrait.",
+   "withdrawErrorTitle": "Erreur de retrait",
+   "withdrawErrorMsg": "Impossible d'enregistrer ta demande de retrait. Réessaie.",
+   "recentReports": "Rapports récents",
+   "loadError": "Impossible de charger tes données de capital.",
+   "retry": "Réessayer"
  },
  "depositos": {
   "title": "Dépôts et retraits",

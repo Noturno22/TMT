@@ -1069,7 +1069,19 @@
   "netValue": "Netto-Betrag zu erhalten",
   "penaltyNotice": "Dein Vertrag endet am {{date}}. Eine Auszahlung jetzt zieht eine Strafe von {{penalty}}% auf den angeforderten Betrag nach sich.",
   "penaltyTitle": "Vorzeitige Auszahlung",
-  "viewContract": "Vertrag ansehen"
+  "viewContract": "Vertrag ansehen",
+   "managedActive": "Dein Kapital wird verwaltet",
+   "managedEnded": "Die Verwaltung deines Kapitals ist beendet",
+   "progressMissing": "Verbleibend bis zum Ziel",
+   "grossValue": "Bruttobetrag",
+   "penaltyLabel": "Strafe ({{penalty}}%)",
+   "noPenaltyNotice": "Vertrag beendet — keine Strafe.",
+   "withdrawAboveBalance": "Der angeforderte Betrag übersteigt das verfügbare Guthaben zur Auszahlung.",
+   "withdrawErrorTitle": "Fehler bei der Auszahlung",
+   "withdrawErrorMsg": "Deine Auszahlungsanfrage konnte nicht erfasst werden. Versuche es erneut.",
+   "recentReports": "Aktuelle Berichte",
+   "loadError": "Deine Kapitaldaten konnten nicht geladen werden.",
+   "retry": "Erneut versuchen"
  },
  "banca": {
   "title": "Bankroll-Verwaltung",

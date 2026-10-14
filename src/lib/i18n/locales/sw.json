@@ -1069,7 +1069,19 @@
   "netValue": "Kiasi halisi cha kupokea",
   "penaltyNotice": "Mkataba wako unaisha {{date}}. Kuondoa sasa kunatoza adhabu ya {{penalty}}% kwa kiasi ulichoombaji.",
   "penaltyTitle": "Uondoaji wa mapema",
-  "viewContract": "Ona Mkataba"
+  "viewContract": "Ona Mkataba",
+   "managedActive": "Mtaji wako unasimamiwa",
+   "managedEnded": "Usimamizi wa mtaji wako umemalizika",
+   "progressMissing": "Kilichobaki kufikia lengo",
+   "grossValue": "Kiasi ghafi",
+   "penaltyLabel": "Adhabu ({{penalty}}%)",
+   "noPenaltyNotice": "Mkataba umemalizika — hakuna adhabu.",
+   "withdrawAboveBalance": "Kiasi ulichoombaji kinazidi kile kinachopatikana kwa uondoaji.",
+   "withdrawErrorTitle": "Hitilafu ya uondoaji",
+   "withdrawErrorMsg": "Hatukuweza kusajili ombi lako la uondoaji. Jaribu tena.",
+   "recentReports": "Ripoti za hivi karibuni",
+   "loadError": "Hatukuweza kupakia data yako ya mtaji.",
+   "retry": "Jaribu tena"
  },
  "banca": {
   "title": "Usimamizi wa Mtaji",

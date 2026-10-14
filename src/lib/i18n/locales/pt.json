@@ -1086,7 +1086,19 @@
   "chartTitle": "Evolução do Saldo",
   "penaltyTitle": "Levantamento antecipado",
   "penaltyNotice": "O teu contrato termina a {{date}}. Levantar agora aplica uma penalidade de {{penalty}}% sobre o valor pedido.",
-  "netValue": "Valor líquido a receber"
+  "netValue": "Valor líquido a receber",
+   "managedActive": "A tua banca está a ser gerida",
+   "managedEnded": "A gestão da tua banca terminou",
+   "progressMissing": "Falta para a meta",
+   "grossValue": "Valor bruto",
+   "penaltyLabel": "Penalidade ({{penalty}}%)",
+   "noPenaltyNotice": "Contrato terminado — sem penalidade.",
+   "withdrawAboveBalance": "O valor pedido excede o disponível para levantar.",
+   "withdrawErrorTitle": "Erro no levantamento",
+   "withdrawErrorMsg": "Não foi possível registar o pedido de levantamento. Tenta novamente.",
+   "recentReports": "Relatórios recentes",
+   "loadError": "Não foi possível carregar os teus dados de capital.",
+   "retry": "Tentar novamente"
  },
  "diario": {
   "title": "Diário de Trader",

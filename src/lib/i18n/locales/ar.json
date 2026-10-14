@@ -1125,7 +1125,19 @@
   "netValue": "المبلغ الصافي المستحق",
   "penaltyNotice": "ينتهي عقدك في {{date}}. السحب الآن يطبّق غرامة بنسبة {{penalty}}% على المبلغ المطلوب.",
   "penaltyTitle": "السحب المبكر",
-  "viewContract": "عرض العقد"
+  "viewContract": "عرض العقد",
+   "managedActive": "تتم إدارة رأس مالك",
+   "managedEnded": "انتهت إدارة رأس مالك",
+   "progressMissing": "المتبقي للهدف",
+   "grossValue": "المبلغ الإجمالي",
+   "penaltyLabel": "الغرامة ({{penalty}}%)",
+   "noPenaltyNotice": "انتهى العقد — بدون غرامة.",
+   "withdrawAboveBalance": "المبلغ المطلوب يتجاوز المتاح للسحب.",
+   "withdrawErrorTitle": "خطأ في السحب",
+   "withdrawErrorMsg": "تعذّر تسجيل طلب السحب. حاول مرة أخرى.",
+   "recentReports": "التقارير الحديثة",
+   "loadError": "تعذّر تحميل بيانات رأس مالك.",
+   "retry": "إعادة المحاولة"
  },
  "depositos": {
   "title": "الإيداعات والسحوبات",

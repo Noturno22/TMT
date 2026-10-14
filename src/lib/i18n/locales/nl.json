@@ -520,7 +520,19 @@
   "netValue": "Netto te ontvangen bedrag",
   "penaltyNotice": "Je contract eindigt op {{date}}. Als je nu opneemt, geldt een boete van {{penalty}}% op het gevraagde bedrag.",
   "penaltyTitle": "Vervroegde opname",
-  "viewContract": "Contract bekijken"
+  "viewContract": "Contract bekijken",
+   "managedActive": "Je kapitaal wordt beheerd",
+   "managedEnded": "Het beheer van je kapitaal is beëindigd",
+   "progressMissing": "Resterend tot het doel",
+   "grossValue": "Brutobedrag",
+   "penaltyLabel": "Boete ({{penalty}}%)",
+   "noPenaltyNotice": "Contract beëindigd — geen boete.",
+   "withdrawAboveBalance": "Het gevraagde bedrag overschrijdt het beschikbare saldo om op te nemen.",
+   "withdrawErrorTitle": "Fout bij opname",
+   "withdrawErrorMsg": "Je opnameverzoek kon niet worden geregistreerd. Probeer het opnieuw.",
+   "recentReports": "Recente rapporten",
+   "loadError": "Je kapitaalgegevens konden niet worden geladen.",
+   "retry": "Opnieuw proberen"
  },
  "language": {
   "title": "Taal"

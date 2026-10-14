@@ -1542,7 +1542,19 @@
   "netValue": "Importe neto a recibir",
   "penaltyNotice": "Tu contrato finaliza el {{date}}. Retirar ahora aplica una penalización del {{penalty}}% sobre el importe solicitado.",
   "penaltyTitle": "Retiro anticipado",
-  "viewContract": "Ver Contrato"
+  "viewContract": "Ver Contrato",
+   "managedActive": "Tu capital está siendo gestionado",
+   "managedEnded": "La gestión de tu capital ha finalizado",
+   "progressMissing": "Falta para el objetivo",
+   "grossValue": "Importe bruto",
+   "penaltyLabel": "Penalización ({{penalty}}%)",
+   "noPenaltyNotice": "Contrato finalizado — sin penalización.",
+   "withdrawAboveBalance": "El importe solicitado supera el disponible para retirar.",
+   "withdrawErrorTitle": "Error en el retiro",
+   "withdrawErrorMsg": "No se pudo registrar tu solicitud de retiro. Inténtalo de nuevo.",
+   "recentReports": "Informes recientes",
+   "loadError": "No se pudieron cargar tus datos de capital.",
+   "retry": "Reintentar"
  },
  "store": {
   "title": "Tienda",

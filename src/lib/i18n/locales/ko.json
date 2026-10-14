@@ -520,7 +520,19 @@
   "netValue": "실수령액",
   "penaltyNotice": "계약이 {{date}}에 종료됩니다. 지금 인출하면 요청 금액의 {{penalty}}% 위약금이 부과됩니다.",
   "penaltyTitle": "조기 인출",
-  "viewContract": "계약 보기"
+  "viewContract": "계약 보기",
+   "managedActive": "귀하의 자본이 운용되고 있습니다",
+   "managedEnded": "귀하의 자본 운용이 종료되었습니다",
+   "progressMissing": "목표까지 남은 금액",
+   "grossValue": "총액",
+   "penaltyLabel": "위약금 ({{penalty}}%)",
+   "noPenaltyNotice": "계약 종료 — 위약금 없음.",
+   "withdrawAboveBalance": "요청 금액이 출금 가능 금액을 초과합니다.",
+   "withdrawErrorTitle": "출금 오류",
+   "withdrawErrorMsg": "출금 요청을 등록하지 못했습니다. 다시 시도해 주세요.",
+   "recentReports": "최근 리포트",
+   "loadError": "자본 데이터를 불러오지 못했습니다.",
+   "retry": "다시 시도"
  },
  "language": {
   "title": "언어"

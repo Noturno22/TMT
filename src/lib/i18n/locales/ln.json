@@ -520,7 +520,19 @@
   "netValue": "Motuya ya net ya kozwa",
   "penaltyNotice": "Contrat na yo ekosila na {{date}}. Kobimisa sikoyo esengeli kofuta pénalité ya {{penalty}}% na motuya oyo osengi.",
   "penaltyTitle": "Kobimisa liboso",
-  "viewContract": "Tala Contrat"
+  "viewContract": "Tala Contrat",
+   "managedActive": "Capital na yo ezali kokambama",
+   "managedEnded": "Gestion ya capital na yo esili",
+   "progressMissing": "Oyo etikali mpo na objectif",
+   "grossValue": "Motuya mobimba",
+   "penaltyLabel": "Pénalité ({{penalty}}%)",
+   "noPenaltyNotice": "Contrat esili — pénalité te.",
+   "withdrawAboveBalance": "Motuya oyo osengi eleki oyo ezali mpo na kobimisa.",
+   "withdrawErrorTitle": "Libunga na bobimisi mbongo",
+   "withdrawErrorMsg": "Tokokaki te kokomisa demande ya bobimisi mbongo. Meka lisusu.",
+   "recentReports": "Ba rapports ya sika",
+   "loadError": "Tokokaki te kotia ba données ya capital na yo.",
+   "retry": "Meka lisusu"
  },
  "language": {
   "title": "Lokótá"

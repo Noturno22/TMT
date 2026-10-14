@@ -1125,7 +1125,19 @@
   "netValue": "Importo netto da ricevere",
   "penaltyNotice": "Il tuo contratto termina il {{date}}. Prelevare ora applica una penalità del {{penalty}}% sull'importo richiesto.",
   "penaltyTitle": "Prelievo anticipato",
-  "viewContract": "Vedi Contratto"
+  "viewContract": "Vedi Contratto",
+   "managedActive": "Il tuo capitale è in gestione",
+   "managedEnded": "La gestione del tuo capitale è terminata",
+   "progressMissing": "Manca per l'obiettivo",
+   "grossValue": "Importo lordo",
+   "penaltyLabel": "Penalità ({{penalty}}%)",
+   "noPenaltyNotice": "Contratto terminato — senza penalità.",
+   "withdrawAboveBalance": "L'importo richiesto supera il disponibile per il prelievo.",
+   "withdrawErrorTitle": "Errore nel prelievo",
+   "withdrawErrorMsg": "Impossibile registrare la tua richiesta di prelievo. Riprova.",
+   "recentReports": "Report recenti",
+   "loadError": "Impossibile caricare i tuoi dati di capitale.",
+   "retry": "Riprova"
  },
  "depositos": {
   "title": "Depositi e Prelievi",

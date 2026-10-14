@@ -1125,7 +1125,19 @@
   "netValue": "净收款金额",
   "penaltyNotice": "您的合约将于 {{date}} 结束。现在提款将按申请金额收取 {{penalty}}% 的罚金。",
   "penaltyTitle": "提前提款",
-  "viewContract": "查看合约"
+  "viewContract": "查看合约",
+   "managedActive": "您的资金正在被管理",
+   "managedEnded": "您的资金管理已结束",
+   "progressMissing": "距目标还差",
+   "grossValue": "总金额",
+   "penaltyLabel": "罚金（{{penalty}}%）",
+   "noPenaltyNotice": "合约已结束 — 无罚金。",
+   "withdrawAboveBalance": "请求金额超过可提款余额。",
+   "withdrawErrorTitle": "提款错误",
+   "withdrawErrorMsg": "无法记录您的提款申请。请重试。",
+   "recentReports": "最近报告",
+   "loadError": "无法加载您的资金数据。",
+   "retry": "重试"
  },
  "depositos": {
   "title": "存款与提现",

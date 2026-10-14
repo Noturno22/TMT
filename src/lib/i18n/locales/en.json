@@ -1086,7 +1086,19 @@
   "netValue": "Net amount to receive",
   "penaltyNotice": "Your contract ends on {{date}}. Withdrawing now applies a {{penalty}}% penalty on the requested amount.",
   "penaltyTitle": "Early withdrawal",
-  "viewContract": "View Contract"
+  "viewContract": "View Contract",
+   "managedActive": "Your capital is being managed",
+   "managedEnded": "The management of your capital has ended",
+   "progressMissing": "Remaining to goal",
+   "grossValue": "Gross amount",
+   "penaltyLabel": "Penalty ({{penalty}}%)",
+   "noPenaltyNotice": "Contract ended — no penalty.",
+   "withdrawAboveBalance": "The requested amount exceeds the available balance for withdrawal.",
+   "withdrawErrorTitle": "Withdrawal error",
+   "withdrawErrorMsg": "We couldn't register your withdrawal request. Please try again.",
+   "recentReports": "Recent reports",
+   "loadError": "We couldn't load your capital data.",
+   "retry": "Try again"
  },
  "diario": {
   "title": "Trader's Journal",

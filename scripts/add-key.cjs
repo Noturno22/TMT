@@ -32,14 +32,6 @@ for (const file of files) {
   const before = fs.readFileSync(full, 'utf8');
   const lines = before.split('\n');
 
-  // localiza a chave indentada dentro do bloco pedido
-  const re = new RegExp(`^(\\s*)"${key}"\\s*:`);
-  const at = lines.findIndex((l) => re.test(l));
-  if (at !== -1) {
-    console.log(`  ${file}: ja existe`);
-    continue;
-  }
-
   const blockRe = new RegExp(`^(\\s*)"${prefix}"\\s*:\\s*\\{`);
   const start = lines.findIndex((l) => blockRe.test(l));
   if (start === -1) {
@@ -57,6 +49,14 @@ for (const file of files) {
       else if (ch === '}') depth--;
     }
     if (depth === 0) { end = i; break; }
+  }
+
+  // localiza a chave indentada DENTRO do bloco pedido
+  const re = new RegExp(`^(\\s*)"${key}"\\s*:`);
+  const at = lines.findIndex((l, i) => i > start && i < end && re.test(l));
+  if (at !== -1) {
+    console.log(`  ${file}: ja existe`);
+    continue;
   }
   // insere antes da chave de topo seguinte, dentro do bloco
   let insertAt = end;

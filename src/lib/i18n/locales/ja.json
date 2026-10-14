@@ -1137,7 +1137,9 @@
    "withdrawErrorMsg": "出金リクエストを登録できませんでした。もう一度お試しください。",
    "recentReports": "最近のレポート",
    "loadError": "資本データを読み込めませんでした。",
-   "retry": "再試行"
+   "retry": "再試行",
+   "goalReachedTitle": "目標達成",
+   "goalReachedDesc": "口座が予定の目標に到達しました。おめでとうございます！利益の出金を申請できます。"
  },
  "depositos": {
   "title": "入金と出金",

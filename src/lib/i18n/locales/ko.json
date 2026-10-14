@@ -532,7 +532,9 @@
    "withdrawErrorMsg": "출금 요청을 등록하지 못했습니다. 다시 시도해 주세요.",
    "recentReports": "최근 리포트",
    "loadError": "자본 데이터를 불러오지 못했습니다.",
-   "retry": "다시 시도"
+   "retry": "다시 시도",
+   "goalReachedTitle": "목표 달성",
+   "goalReachedDesc": "계좌가 계획한 목표에 도달했습니다. 축하합니다! 이제 수익 출금을 요청할 수 있습니다."
  },
  "language": {
   "title": "언어"

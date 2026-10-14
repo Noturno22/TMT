@@ -1554,7 +1554,9 @@
    "withdrawErrorMsg": "No se pudo registrar tu solicitud de retiro. Inténtalo de nuevo.",
    "recentReports": "Informes recientes",
    "loadError": "No se pudieron cargar tus datos de capital.",
-   "retry": "Reintentar"
+   "retry": "Reintentar",
+   "goalReachedTitle": "OBJETIVO ALCANZADO",
+   "goalReachedDesc": "Tu cuenta alcanzó la meta planeada. ¡Felicidades! Ya puedes solicitar el retiro de tus ganancias."
  },
  "store": {
   "title": "Tienda",

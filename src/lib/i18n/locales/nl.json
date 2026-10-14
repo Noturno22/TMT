@@ -532,7 +532,9 @@
    "withdrawErrorMsg": "Je opnameverzoek kon niet worden geregistreerd. Probeer het opnieuw.",
    "recentReports": "Recente rapporten",
    "loadError": "Je kapitaalgegevens konden niet worden geladen.",
-   "retry": "Opnieuw proberen"
+   "retry": "Opnieuw proberen",
+   "goalReachedTitle": "DOEL BEREIKT",
+   "goalReachedDesc": "Je account heeft het geplande doel bereikt. Gefeliciteerd! Je kunt nu een opname van je winst aanvragen."
  },
  "language": {
   "title": "Taal"

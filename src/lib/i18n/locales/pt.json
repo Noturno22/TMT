@@ -1098,7 +1098,9 @@
    "withdrawErrorMsg": "Não foi possível registar o pedido de levantamento. Tenta novamente.",
    "recentReports": "Relatórios recentes",
    "loadError": "Não foi possível carregar os teus dados de capital.",
-   "retry": "Tentar novamente"
+   "retry": "Tentar novamente",
+   "goalReachedTitle": "OBJETIVO ALCANÇADO",
+   "goalReachedDesc": "A tua banca atingiu a meta planeada. Parabéns! Podes agora pedir o levantamento dos teus lucros."
  },
  "diario": {
   "title": "Diário de Trader",

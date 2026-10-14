@@ -1137,7 +1137,9 @@
    "withdrawErrorMsg": "无法记录您的提款申请。请重试。",
    "recentReports": "最近报告",
    "loadError": "无法加载您的资金数据。",
-   "retry": "重试"
+   "retry": "重试",
+   "goalReachedTitle": "目标达成",
+   "goalReachedDesc": "你的账户已达计划目标。恭喜！现在可以申请提取利润。"
  },
  "depositos": {
   "title": "存款与提现",

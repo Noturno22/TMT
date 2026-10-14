@@ -1137,7 +1137,9 @@
    "withdrawErrorMsg": "Impossible d'enregistrer ta demande de retrait. Réessaie.",
    "recentReports": "Rapports récents",
    "loadError": "Impossible de charger tes données de capital.",
-   "retry": "Réessayer"
+   "retry": "Réessayer",
+   "goalReachedTitle": "OBJECTIF ATTEINT",
+   "goalReachedDesc": "Ton compte a atteint l'objectif prévu. Félicitations ! Tu peux maintenant demander un retrait de tes profits."
  },
  "depositos": {
   "title": "Dépôts et retraits",

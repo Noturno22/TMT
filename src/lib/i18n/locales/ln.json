@@ -532,7 +532,9 @@
    "withdrawErrorMsg": "Tokokaki te kokomisa demande ya bobimisi mbongo. Meka lisusu.",
    "recentReports": "Ba rapports ya sika",
    "loadError": "Tokokaki te kotia ba données ya capital na yo.",
-   "retry": "Meka lisusu"
+   "retry": "Meka lisusu",
+   "goalReachedTitle": "ELOKO ESILI",
+   "goalReachedDesc": "Kompte na yo ekómi na mokano. Nkembo! Okoki kosɛngɛ kobimisa libongo na yo."
  },
  "language": {
   "title": "Lokótá"

@@ -1098,7 +1098,9 @@
    "withdrawErrorMsg": "We couldn't register your withdrawal request. Please try again.",
    "recentReports": "Recent reports",
    "loadError": "We couldn't load your capital data.",
-   "retry": "Try again"
+   "retry": "Try again",
+   "goalReachedTitle": "GOAL REACHED",
+   "goalReachedDesc": "Your account reached the planned goal. Congratulations! You can now request a withdrawal of your profits."
  },
  "diario": {
   "title": "Trader's Journal",

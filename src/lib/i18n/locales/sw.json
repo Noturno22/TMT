@@ -1081,7 +1081,9 @@
    "withdrawErrorMsg": "Hatukuweza kusajili ombi lako la uondoaji. Jaribu tena.",
    "recentReports": "Ripoti za hivi karibuni",
    "loadError": "Hatukuweza kupakia data yako ya mtaji.",
-   "retry": "Jaribu tena"
+   "retry": "Jaribu tena",
+   "goalReachedTitle": "LENGO LIMEFIKIWA",
+   "goalReachedDesc": "Akaunti yako imefikia lengo lililopangwa. Hongera! Sasa unaweza kuomba kutoa faida yako."
  },
  "banca": {
   "title": "Usimamizi wa Mtaji",

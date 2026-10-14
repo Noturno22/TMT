@@ -1081,7 +1081,9 @@
    "withdrawErrorMsg": "Deine Auszahlungsanfrage konnte nicht erfasst werden. Versuche es erneut.",
    "recentReports": "Aktuelle Berichte",
    "loadError": "Deine Kapitaldaten konnten nicht geladen werden.",
-   "retry": "Erneut versuchen"
+   "retry": "Erneut versuchen",
+   "goalReachedTitle": "ZIEL ERREICHT",
+   "goalReachedDesc": "Dein Konto hat das geplante Ziel erreicht. Herzlichen Glückwunsch! Du kannst jetzt eine Auszahlung deiner Gewinne beantragen."
  },
  "banca": {
   "title": "Bankroll-Verwaltung",

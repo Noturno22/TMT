@@ -1137,7 +1137,9 @@
    "withdrawErrorMsg": "Impossibile registrare la tua richiesta di prelievo. Riprova.",
    "recentReports": "Report recenti",
    "loadError": "Impossibile caricare i tuoi dati di capitale.",
-   "retry": "Riprova"
+   "retry": "Riprova",
+   "goalReachedTitle": "OBIETTIVO RAGGIUNTO",
+   "goalReachedDesc": "Il tuo conto ha raggiunto l'obiettivo previsto. Congratulazioni! Ora puoi richiedere il prelievo dei tuoi profitti."
  },
  "depositos": {
   "title": "Depositi e Prelievi",

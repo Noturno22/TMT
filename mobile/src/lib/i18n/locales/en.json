@@ -742,7 +742,9 @@
     "netValue": "Net amount to receive",
     "penaltyNotice": "Your contract ends on {{date}}. Withdrawing now applies a {{penalty}}% penalty on the requested amount.",
     "penaltyTitle": "Early withdrawal",
-    "viewContract": "View Contract"
+    "viewContract": "View Contract",
+    "grossValue": "Gross amount",
+    "penaltyLabel": "Penalty ({{penalty}}%)"
   },
   "diario": {
     "title": "Trader's Journal",

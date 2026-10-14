@@ -371,7 +371,9 @@
     "netValue": "실수령액",
     "penaltyNotice": "계약이 {{date}}에 종료됩니다. 지금 인출하면 요청 금액의 {{penalty}}% 위약금이 부과됩니다.",
     "penaltyTitle": "조기 인출",
-    "viewContract": "계약 보기"
+    "viewContract": "계약 보기",
+    "grossValue": "총액",
+    "penaltyLabel": "위약금 ({{penalty}}%)"
   },
   "language": {
     "title": "언어"

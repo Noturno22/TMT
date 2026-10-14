@@ -756,7 +756,9 @@
     "netValue": "净收款金额",
     "penaltyNotice": "您的合约将于 {{date}} 结束。现在提款将按申请金额收取 {{penalty}}% 的罚金。",
     "penaltyTitle": "提前提款",
-    "viewContract": "查看合约"
+    "viewContract": "查看合约",
+    "grossValue": "总金额",
+    "penaltyLabel": "罚金（{{penalty}}%）"
   },
   "depositos": {
     "title": "存款与提现",

@@ -756,7 +756,9 @@
     "netValue": "受取額（手数料差引後）",
     "penaltyNotice": "契約は{{date}}に終了します。今すぐ出金すると、請求額に対して{{penalty}}%のペナルティが適用されます。",
     "penaltyTitle": "早期出金",
-    "viewContract": "契約を表示"
+    "viewContract": "契約を表示",
+    "grossValue": "総額",
+    "penaltyLabel": "ペナルティ（{{penalty}}%）"
   },
   "depositos": {
     "title": "入金と出金",

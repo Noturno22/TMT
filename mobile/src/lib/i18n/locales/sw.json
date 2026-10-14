@@ -700,7 +700,9 @@
     "netValue": "Kiasi halisi cha kupokea",
     "penaltyNotice": "Mkataba wako unaisha {{date}}. Kuondoa sasa kunatoza adhabu ya {{penalty}}% kwa kiasi ulichoombaji.",
     "penaltyTitle": "Uondoaji wa mapema",
-    "viewContract": "Ona Mkataba"
+    "viewContract": "Ona Mkataba",
+    "grossValue": "Kiasi ghafi",
+    "penaltyLabel": "Adhabu ({{penalty}}%)"
   },
   "banca": {
     "title": "Usimamizi wa Mtaji",

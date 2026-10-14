@@ -309,6 +309,10 @@
     "tabReports": "Reports",
     "tabChannels": "Canais",
     "tabAnnouncements": "Anúncios",
+    "tabCapital": "Bancas",
+    "managedContracts": "Bancas em gestão",
+    "managedContractsSummary": "{{active}} ativa(s) · {{total}} no total",
+    "noManagedContracts": "Nenhuma banca em gestão.",
     "checkingAccess": "A verificar acesso…",
     "loadingAdmin": "A carregar admin…",
     "restrictedTitle": "Acesso restrito",
@@ -742,7 +746,9 @@
     "chartTitle": "Evolução do Saldo",
     "penaltyTitle": "Levantamento antecipado",
     "penaltyNotice": "O teu contrato termina a {{date}}. Levantar agora aplica uma penalidade de {{penalty}}% sobre o valor pedido.",
-    "netValue": "Valor líquido a receber"
+    "netValue": "Valor líquido a receber",
+    "grossValue": "Valor bruto",
+    "penaltyLabel": "Penalidade ({{penalty}}%)"
   },
   "diario": {
     "title": "Diário de Trader",

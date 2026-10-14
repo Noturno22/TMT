@@ -1165,7 +1165,9 @@
     "netValue": "Importe neto a recibir",
     "penaltyNotice": "Tu contrato finaliza el {{date}}. Retirar ahora aplica una penalización del {{penalty}}% sobre el importe solicitado.",
     "penaltyTitle": "Retiro anticipado",
-    "viewContract": "Ver Contrato"
+    "viewContract": "Ver Contrato",
+    "grossValue": "Importe bruto",
+    "penaltyLabel": "Penalización ({{penalty}}%)"
   },
   "store": {
     "title": "Tienda",

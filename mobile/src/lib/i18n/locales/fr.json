@@ -756,7 +756,9 @@
     "netValue": "Montant net à recevoir",
     "penaltyNotice": "Ton contrat se termine le {{date}}. Un retrait maintenant applique une pénalité de {{penalty}}% sur le montant demandé.",
     "penaltyTitle": "Retrait anticipé",
-    "viewContract": "Voir le Contrat"
+    "viewContract": "Voir le Contrat",
+    "grossValue": "Montant brut",
+    "penaltyLabel": "Pénalité ({{penalty}}%)"
   },
   "depositos": {
     "title": "Dépôts et retraits",

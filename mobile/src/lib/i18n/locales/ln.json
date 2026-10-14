@@ -371,7 +371,9 @@
     "netValue": "Motuya ya net ya kozwa",
     "penaltyNotice": "Contrat na yo ekosila na {{date}}. Kobimisa sikoyo esengeli kofuta pénalité ya {{penalty}}% na motuya oyo osengi.",
     "penaltyTitle": "Kobimisa liboso",
-    "viewContract": "Tala Contrat"
+    "viewContract": "Tala Contrat",
+    "grossValue": "Motuya mobimba",
+    "penaltyLabel": "Pénalité ({{penalty}}%)"
   },
   "language": {
     "title": "Lokótá"

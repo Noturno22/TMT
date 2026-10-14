@@ -756,7 +756,9 @@
     "netValue": "المبلغ الصافي المستحق",
     "penaltyNotice": "ينتهي عقدك في {{date}}. السحب الآن يطبّق غرامة بنسبة {{penalty}}% على المبلغ المطلوب.",
     "penaltyTitle": "السحب المبكر",
-    "viewContract": "عرض العقد"
+    "viewContract": "عرض العقد",
+    "grossValue": "المبلغ الإجمالي",
+    "penaltyLabel": "الغرامة ({{penalty}}%)"
   },
   "depositos": {
     "title": "الإيداعات والسحوبات",

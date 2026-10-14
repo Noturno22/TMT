@@ -756,7 +756,9 @@
     "netValue": "Importo netto da ricevere",
     "penaltyNotice": "Il tuo contratto termina il {{date}}. Prelevare ora applica una penalità del {{penalty}}% sull'importo richiesto.",
     "penaltyTitle": "Prelievo anticipato",
-    "viewContract": "Vedi Contratto"
+    "viewContract": "Vedi Contratto",
+    "grossValue": "Importo lordo",
+    "penaltyLabel": "Penalità ({{penalty}}%)"
   },
   "depositos": {
     "title": "Depositi e Prelievi",

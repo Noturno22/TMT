@@ -700,7 +700,9 @@
     "netValue": "Netto-Betrag zu erhalten",
     "penaltyNotice": "Dein Vertrag endet am {{date}}. Eine Auszahlung jetzt zieht eine Strafe von {{penalty}}% auf den angeforderten Betrag nach sich.",
     "penaltyTitle": "Vorzeitige Auszahlung",
-    "viewContract": "Vertrag ansehen"
+    "viewContract": "Vertrag ansehen",
+    "grossValue": "Bruttobetrag",
+    "penaltyLabel": "Strafe ({{penalty}}%)"
   },
   "banca": {
     "title": "Bankroll-Verwaltung",

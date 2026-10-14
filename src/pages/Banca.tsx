@@ -101,19 +101,6 @@ export default function Banca() {
     void refetchWithdrawals();
   };
 
-  if (!subLoading && !canAccessBanca) {
-    return (
-      <Layout>
-        <section className="container mx-auto max-w-3xl px-4 py-8">
-          <PremiumLock
-            title={t("capital.lockTitle")}
-            description={t("capital.lockDesc")}
-          />
-        </section>
-      </Layout>
-    );
-  }
-
   if (dataLoading) {
     return (
       <Layout>
@@ -183,6 +170,22 @@ export default function Banca() {
 
   const hasManagement = Boolean(account) || capital > 0 || current > 0;
   const managedActive = hasManagement && !contractFinished;
+
+  // Um utilizador com gestão de capital ATIVA vê sempre os seus dados, mesmo sem
+  // subscrição "premium" — a autorização real é do servidor (RLS + edge functions).
+  // O PremiumLock só aparece a quem não tem acesso nem gestão em curso.
+  if (!canAccessBanca && !hasManagement) {
+    return (
+      <Layout>
+        <section className="container mx-auto max-w-3xl px-4 py-8">
+          <PremiumLock
+            title={t("capital.lockTitle")}
+            description={t("capital.lockDesc")}
+          />
+        </section>
+      </Layout>
+    );
+  }
 
   const maxWithdrawable = withdrawable(current);
   const signedMoney = (n: number) => `${n >= 0 ? "+" : "−"}${formatBancaMoney(Math.abs(n), cur)}`;
@@ -574,16 +577,18 @@ export default function Banca() {
 
         <GrowthPlanSection capital={capital} currency={cur} />
 
-        <WithdrawModal
-          available={maxWithdrawable}
-          balanceCurrency={cur}
-          contractEndDate={contract?.end_date}
-          penaltyPct={contract?.penalty_pct}
-          maxAmount={maxWithdrawable}
-          busy={withdrawBusy}
-          onClose={() => setWithdrawOpen(false)}
-          onSubmit={submitWithdrawal}
-        />
+        {withdrawOpen ? (
+          <WithdrawModal
+            available={maxWithdrawable}
+            balanceCurrency={cur}
+            contractEndDate={contract?.end_date}
+            penaltyPct={contract?.penalty_pct}
+            maxAmount={maxWithdrawable}
+            busy={withdrawBusy}
+            onClose={() => setWithdrawOpen(false)}
+            onSubmit={submitWithdrawal}
+          />
+        ) : null}
       </section>
     </Layout>
   );

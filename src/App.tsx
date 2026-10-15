@@ -56,11 +56,11 @@ const App = () => (
           <Toaster />
           <Sonner />
           <LanguageSync />
-          <AiFab />
-          <OnboardingTour />
-          <PremiumWelcomeModal />
           <BrowserRouter>
             <ScrollToTop />
+            <AiFab />
+            <OnboardingTour />
+            <PremiumWelcomeModal />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/analises" element={<Analises />} />

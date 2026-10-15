@@ -1762,4 +1762,40 @@ git commit -m "chore(web): remove dead TemaPage/IdiomaPage placeholder exports"
 
 ## Phase 6 verification results
 
-*(To be filled after Task 6.24 execution)*
+Executado em 2026-10-15 (Task 6.24).
+
+**Ambiente:** `npm run dev` (vite) em `http://localhost:8080`; smoke com Playwright (Chromium, locale `pt-PT`, contexto anónimo). Sem erros de app no console.
+
+**Comandos estáticos:**
+- `npx tsc --noEmit -p tsconfig.app.json` → 0 errors.
+- `npx tsc --noEmit` → 0 errors.
+- `npm run build` → PASS (2m04s; aviso chunk >500 kB: `index-*.js` 2.096,66 kB, baseline conhecido).
+- `npx eslint src/lib/i18n/** src/pages/Tema.tsx src/pages/Idioma.tsx src/components/AiFab.tsx src/components/OnboardingTour.tsx src/components/PremiumWelcomeModal.tsx src/components/LanguageSync.tsx src/hooks/useLanguage.ts src/App.tsx src/main.tsx` → 0 errors.
+
+**Smoke Playwright (17/17 PASS — após implementar os componentes, ver nota):**
+
+| Verificação | Resultado |
+|---|---|
+| `/idioma` lista 14 idiomas com bandeiras | PASS (14) |
+| `/idioma` título inicial em pt ("Idioma") | PASS |
+| `/idioma` troca instantânea para en ("Language") | PASS |
+| `/idioma` `<html lang>` = en | PASS |
+| `/idioma` persiste `tmt_lang=en` | PASS |
+| `/tema` mostra 3 opções (system/dark/light) | PASS |
+| `/tema` aplica classe `light` no `<html>` | PASS |
+| `/tema` persiste `tmt_theme=light` | PASS |
+| `/tema` fundo claro aplicado (CSS vars; body `rgb(255,255,255)`) | PASS |
+| `/suporte-ia` UI em inglês ("AI Support") | PASS |
+| AiFab não aparece para anónimo | PASS |
+| OnboardingTour aparece na 1.ª visita | PASS (1 dialog) |
+| OnboardingTour indicador 1 / 6 | PASS |
+| OnboardingTour chega a 6 / 6 | PASS |
+| OnboardingTour fecha no último passo + persiste `tmt_onboarding_completed_guest=1` | PASS |
+| OnboardingTour não reaparece após reload | PASS |
+| 0 erros de app no console | PASS |
+
+**Nota — 1.ª passagem e correção na mesma sessão:** a 1.ª execução do smoke deu **12/13** (só o onboarding falhava) porque `OnboardingTour.tsx`, `AiFab.tsx` e `PremiumWelcomeModal.tsx` estavam por implementar (stubs `return null`). Foram então implementados conforme as Tasks 6.20/6.21/6.22. Durante o smoke descobriu-se um **bug de integração**: `<AiFab />`/`<OnboardingTour />`/`<PremiumWelcomeModal />` estavam montados **fora** do `<BrowserRouter>` no `App.tsx`; como `AiFab` usa `useLocation()` (e o `PremiumWelcomeModal` usa `<Link>`), a app rebentava (`useLocation() may be used only in the context of a <Router> component`). Corrigido movendo os três para dentro do `<BrowserRouter>` (a seguir a `<ScrollToTop />`). Depois disso o smoke passou a 17/17.
+
+`PremiumCapitalCredit` continua explicitamente adiado (a nota da fase manda saltar no web — o fluxo de referral ainda não existe no web). Os fluxos autenticados (AiFab com sessão iniciada, `PremiumWelcomeModal` para premium) não foram exercitados por falta de credenciais no smoke; validados só por leitura de código + tsc/eslint/build.
+
+**Conclusão:** i18n (14 idiomas, troca instantânea, persistência, `<html lang>`/`dir`), temas (system/light/dark, persistência, CSS vars), onboarding tour (6 passos, persiste por utilizador), AiFab e PremiumWelcomeModal estão implementados e verificados. Fase 6 fechada (exceto `PremiumCapitalCredit`, adiado por design).

@@ -389,7 +389,7 @@ Port from `mobile/src/lib/plans.ts`: `Currency`, `PlanId`, `PaymentMethod`, `WA_
 
 # PHASE 6 — i18n (14 idiomas) + temas light/dark/system + onboarding
 
-**Status: IMPLEMENTADO, POR VERIFICAR.** Esta é a única fase sem registo de verificação. A secção «Phase 6 verification results» do sub-plano `2026-08-31-web-parity-phase6.md` continua com o texto `*(To be filled after Task 6.24 execution)*` — ou seja, **a Task 6.24 (verificação final da fase) nunca foi executada** e as 101 checkboxes do sub-plano estão todas por marcar.
+**Status: DONE.** Ver «Phase 6 verification results» no sub-plano `2026-08-31-web-parity-phase6.md` (Task 6.24 executada em 2026-10-15). i18n (14 idiomas, troca instantânea, persistência, `<html lang>`/`dir`), temas (system/light/dark, CSS vars), onboarding tour (6 passos, persiste por utilizador), AiFab e PremiumWelcomeModal implementados e verificados: `tsc` (app + full) 0 errors, `npm run build` PASS, eslint 0 errors, smoke Playwright **17/17 PASS**. Nota: `AiFab`/`OnboardingTour`/`PremiumWelcomeModal` estavam montados fora do `<BrowserRouter>` e rebentavam a app (`useLocation`); corrigido movendo-os para dentro do Router. `PremiumCapitalCredit` fica adiado por design (fluxo de referral não existe no web).
 
 O que **está** evidenciado no histórico: a extracção de strings foi feita em 7 commits entre 2026-09-08 e 2026-09-13 — `251161d` (signal components, alarm, economics), `b7d7db2` (Planos, Depositos, Banca), `1d78696` (Perfil, Notificacoes, Diario, SuporteIa, DefinicoesBooms, Horarios), `10228d0` (correcções da review da Task 6.14), `f6a01f7` (páginas de comunidade), `6dc70e8` (componentes de comunidade), `6da7c39` (páginas e componentes de admin).
 

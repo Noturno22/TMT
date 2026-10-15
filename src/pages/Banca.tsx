@@ -164,13 +164,14 @@ export default function Banca() {
   const targetValue = capital * (returnPct / 100);
   const progress = progressPct(current, capital, returnPct);
   const missingPct = Math.max(0, 100 - progress);
+  const goalReached = targetValue > 0 && progress >= 100 && !contractFinished;
 
   const latestReport = reports[0] ?? null;
   const latestDailyGain = latestReport ? dailyGain(latestReport) : 0;
   const recentReports = reports.slice(0, 3);
 
   const hasManagement = Boolean(account) || capital > 0 || current > 0;
-  const managedActive = hasManagement && !contractFinished;
+  const managedActive = hasManagement && !contractFinished && !goalReached;
 
   // Um utilizador com gestão de capital ATIVA vê sempre os seus dados, mesmo sem
   // subscrição "premium" — a autorização real é do servidor (RLS + edge functions).
@@ -340,8 +341,8 @@ export default function Banca() {
               {t("capital.currentBalance")}
             </p>
             <StatusPill
-              label={managedActive ? t("capital.active") : t("capital.contractEnded")}
-              color={managedActive ? PROVIDER_COLORS.success : PROVIDER_COLORS.warning}
+              label={goalReached ? t("capital.goalReachedTitle") : managedActive ? t("capital.active") : t("capital.contractEnded")}
+              color={goalReached || managedActive ? PROVIDER_COLORS.success : PROVIDER_COLORS.warning}
             />
           </div>
           <p
@@ -366,14 +367,14 @@ export default function Banca() {
               <div
                 className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
-                  managedActive ? "bg-success/10 text-success" : "bg-warning/15 text-warning",
+                  goalReached || managedActive ? "bg-success/10 text-success" : "bg-warning/15 text-warning",
                 )}
               >
                 <ShieldCheck className="h-[18px] w-[18px]" />
               </div>
               <div className="min-w-0">
                 <p className="font-semibold">
-                  {managedActive ? t("capital.managedActive") : t("capital.managedEnded")}
+                  {goalReached ? t("capital.goalReachedTitle") : managedActive ? t("capital.managedActive") : t("capital.managedEnded")}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
                   {contract ? t(planNameKey[planId]) : t("capital.step2Desc")}
@@ -381,8 +382,8 @@ export default function Banca() {
               </div>
             </div>
             <StatusPill
-              label={managedActive ? t("capital.active") : t("capital.contractEnded")}
-              color={managedActive ? PROVIDER_COLORS.success : PROVIDER_COLORS.warning}
+              label={goalReached ? t("capital.goalReachedTitle") : managedActive ? t("capital.active") : t("capital.contractEnded")}
+              color={goalReached || managedActive ? PROVIDER_COLORS.success : PROVIDER_COLORS.warning}
             />
           </CardContent>
         </Card>
@@ -592,6 +593,7 @@ export default function Banca() {
           achieved={current}
           profitValue={profitValue}
           returnPct={returnPct}
+          goalReached={goalReached}
           onWithdraw={() => setWithdrawOpen(true)}
         />
 

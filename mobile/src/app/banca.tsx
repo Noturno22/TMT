@@ -87,7 +87,6 @@ export default function BancaScreen() {
   const latestDailyGain = latestReport ? dailyGain(latestReport) : 0;
 
   const activeContract = contract && contract.status === 'active' ? contract : null;
-  const managementActive = contract ? contract.status === 'active' && !contractEnded(contract.end_date) : true;
 
   // reports chegam latest-first do hook; o gráfico quer ordem cronológica.
   const chartReports = [...reports].slice(0, 7).reverse();
@@ -103,6 +102,8 @@ export default function BancaScreen() {
   const targetPct = PLAN_RETURN_PCT[planId] ?? metaPercent;
   const targetValue = capital * (targetPct / 100);
   const progress = progressPct(current, capital, targetPct);
+  const goalReached = targetValue > 0 && progress >= 100 && (!contract || !contractEnded(contract.end_date));
+  const managementActive = contract ? (contract.status === 'active' && !contractEnded(contract.end_date) && !goalReached) : (!contract && (Boolean(account) || capital > 0 || current > 0) && !goalReached);
 
   // Depósitos de gestão aprovados na moeda da conta (fonte da verdade do server)
   const depositsNum = deposits
@@ -199,16 +200,16 @@ export default function BancaScreen() {
               <Ionicons
                 name={managementActive ? 'shield-checkmark' : 'shield-outline'}
                 size={13}
-                color={managementActive ? colors.success : colors.warning}
+                color={(goalReached || managementActive) ? colors.success : colors.warning}
               />
-              <AppText variant="small" style={{ color: managementActive ? colors.success : colors.warning }}>
-                {managementActive ? 'A tua banca está a ser gerida' : 'A gestão da tua banca terminou'}
+              <AppText variant="small" style={{ color: (goalReached || managementActive) ? colors.success : colors.warning }}>
+                {goalReached ? t('capital.goalReachedTitle') : managementActive ? 'A tua banca está a ser gerida' : 'A gestão da tua banca terminou'}
               </AppText>
             </View>
           </View>
           <StatusPill
-            label={managementActive ? t('capital.active') : t('capital.contractEnded')}
-            color={managementActive ? colors.success : colors.warning}
+            label={goalReached ? t('capital.goalReachedTitle') : managementActive ? t('capital.active') : t('capital.contractEnded')}
+            color={(goalReached || managementActive) ? colors.success : colors.warning}
           />
         </View>
         <AppText variant="mono" style={[styles.heroValue, { color: isProfit ? colors.text : colors.destructive }]}>
@@ -385,14 +386,15 @@ export default function BancaScreen() {
         )}
       </Card>
 
-      <GrowthPlanSection
-        capital={capital}
-        currency={cur}
-        achieved={current}
-        profitValue={p}
-        returnPct={targetPct}
-        onWithdraw={() => setWithdrawOpen(true)}
-      />
+        <GrowthPlanSection
+          capital={capital}
+          currency={cur}
+          achieved={current}
+          profitValue={p}
+          returnPct={targetPct}
+          goalReached={goalReached}
+          onWithdraw={() => setWithdrawOpen(true)}
+        />
 
       <WithdrawalModal
         visible={withdrawOpen}

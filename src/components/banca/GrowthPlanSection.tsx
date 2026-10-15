@@ -61,6 +61,7 @@ export function GrowthPlanSection({
   achieved,
   profitValue,
   returnPct,
+  goalReached,
   onWithdraw,
 }: {
   capital: number;
@@ -68,6 +69,7 @@ export function GrowthPlanSection({
   achieved?: number;
   profitValue?: number;
   returnPct?: number;
+  goalReached?: boolean;
   onWithdraw?: () => void;
 }) {
   const { t } = useTranslation();
@@ -121,7 +123,9 @@ export function GrowthPlanSection({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-xl font-bold">{t("planoCrescimento.title")}</h2>
-          <Badge className="border-success/30 bg-success/20 text-success">{t("planoCrescimento.planActive")}</Badge>
+          <Badge className="border-success/30 bg-success/20 text-success">
+            {goalReached ? t("capital.goalReachedTitle") : t("planoCrescimento.planActive")}
+          </Badge>
         </div>
         <Card>
           <CardContent className="space-y-3 pt-6">
@@ -138,22 +142,30 @@ export function GrowthPlanSection({
             </div>
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {daysLeft > 0 ? t("capital.contractDaysLeft", { count: daysLeft }) : t("capital.contractEnded")}
+                {goalReached
+                  ? t("capital.goalReachedDesc")
+                  : daysLeft > 0
+                    ? t("capital.contractDaysLeft", { count: daysLeft })
+                    : t("capital.contractEnded")}
               </p>
               <Badge
                 className={
-                  daysLeft > 0
+                  goalReached || daysLeft > 0
                     ? "border-success/30 bg-success/20 text-success"
                     : "border-warning/30 bg-warning/20 text-warning"
                 }
               >
-                {daysLeft > 0 ? t("capital.active") : t("capital.contractEnded")}
+                {goalReached
+                  ? t("capital.goalReachedTitle")
+                  : daysLeft > 0
+                    ? t("capital.active")
+                    : t("capital.contractEnded")}
               </Badge>
             </div>
           </CardContent>
         </Card>
         <Button variant="secondary" disabled className="w-full">
-          {t("planoCrescimento.planActive")}
+          {goalReached ? t("capital.goalReachedTitle") : t("planoCrescimento.planActive")}
         </Button>
       </div>
     );

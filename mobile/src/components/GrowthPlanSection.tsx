@@ -43,6 +43,7 @@ export function GrowthPlanSection({
   achieved,
   profitValue,
   returnPct,
+  goalReached,
   onWithdraw,
 }: {
   capital: number;
@@ -50,6 +51,7 @@ export function GrowthPlanSection({
   achieved?: number;
   profitValue?: number;
   returnPct?: number;
+  goalReached?: boolean;
   onWithdraw?: () => void;
 }) {
   const { t } = useTranslation();
@@ -121,7 +123,7 @@ export function GrowthPlanSection({
       <View style={styles.wrap}>
         <View style={styles.header}>
           <AppText variant="h2">{t('planoCrescimento.title')}</AppText>
-          <Badge color={colors.success} bg={`${colors.success}20`}>{t('planoCrescimento.planActive')}</Badge>
+          <Badge color={colors.success} bg={`${colors.success}20`}>{goalReached ? t('capital.goalReachedTitle') : t('planoCrescimento.planActive')}</Badge>
         </View>
         <Card style={styles.activeCard}>
           <View style={styles.activeRow}>
@@ -136,15 +138,15 @@ export function GrowthPlanSection({
             </View>
           </View>
           <View style={styles.projectRow}>
-            <AppText variant="small" style={{ color: colors.textMuted }}>
-              {daysLeft > 0 ? t('capital.contractDaysLeft', { count: daysLeft }) : t('capital.contractEnded')}
-            </AppText>
-            <Badge color={daysLeft > 0 ? colors.success : colors.warning} bg={`${daysLeft > 0 ? colors.success : colors.warning}20`}>
-              {daysLeft > 0 ? t('capital.active') : t('capital.contractEnded')}
-            </Badge>
+              <AppText variant="small" style={{ color: colors.textMuted }}>
+                {goalReached ? t('capital.goalReachedDesc') : daysLeft > 0 ? t('capital.contractDaysLeft', { count: daysLeft }) : t('capital.contractEnded')}
+              </AppText>
+              <Badge color={(goalReached || daysLeft > 0) ? colors.success : colors.warning} bg={`${(goalReached || daysLeft > 0) ? colors.success : colors.warning}20`}>
+                {goalReached ? t('capital.goalReachedTitle') : daysLeft > 0 ? t('capital.active') : t('capital.contractEnded')}
+              </Badge>
           </View>
         </Card>
-        <AppButton title={t('planoCrescimento.planActive')} variant="secondary" disabled />
+        <AppButton title={goalReached ? t('capital.goalReachedTitle') : t('planoCrescimento.planActive')} variant="secondary" disabled />
       </View>
     );
   }

@@ -29,27 +29,13 @@ interface RatesPayload {
 const VAZIO = { price: "—", change: 0 };
 
 /**
- * Recurso direto a Binance para o caso de o proxy nao devolver o preco
- * do bitcoin. Nao e o caminho normal: quando o proxy responde, o preco
- * vem dai e nao ha aqui nenhum pedido. Existe porque o preco do bitcoin
- * e uma das coisas que os subscritores pagam para ver, e um proxy
- * avariado nao pode deixar o numero em branco.
+ * O preco do bitcoin vem do proxy em /api/rates, que o busca a Binance no
+ * servidor (sem CORS). Nao ha pedido directo do browser: a Binance nao
+ * devolve cabecalhos CORS para este endpoint, pelo que um fetch do cliente
+ * falhava sempre e so sujava a consola. A resiliencia esta no servidor
+ * (fallback da Binance em api/rates) e, aqui, no merge par-a-par abaixo,
+ * que mantem o ultimo valor conhecido quando a fonte nao responde.
  */
-async function fetchBtcFallback(): Promise<{ price: number; change: number } | null> {
-  const res = await fetch(
-    "https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT",
-  );
-  if (!res.ok) return null;
-  const json = (await res.json()) as {
-    lastPrice?: string;
-    priceChangePercent?: string;
-  };
-  const price = Number(json?.lastPrice);
-  if (!Number.isFinite(price) || price <= 0) return null;
-  const change = Number(json?.priceChangePercent);
-  return { price, change: Number.isFinite(change) ? change : 0 };
-}
-
 export function useLivePrices(pairs: string[]) {
   const [prices, setPrices] = useState<Record<string, PriceData>>({});
   const [loading, setLoading] = useState(true);
@@ -66,17 +52,12 @@ export function useLivePrices(pairs: string[]) {
       .then((r) => (r.ok ? (r.json() as Promise<RatesPayload>) : null))
       .catch(() => null);
 
-    // O preco do bitcoin vem no mesmo payload. O pedido directo a
-    // Binance so acontece se o proxy nao o trouxer, porque um proxy
-    // avariado nao pode deixar em branco um dos numeros que os
+    // O preco do bitcoin vem no mesmo payload do proxy em /api/rates.
+    // Quando nao chega, o merge par-a-par abaixo mantem o ultimo valor
+    // conhecido para nao deixar em branco um dos numeros que os
     // subscritores pagam para ver.
     const btcBruto = querBtc ? taxas?.pairs?.["BTC/USD"] : undefined;
-    const btc =
-      btcBruto && Number.isFinite(btcBruto.price)
-        ? btcBruto
-        : querBtc
-          ? await fetchBtcFallback().catch(() => null)
-          : null;
+    const btc = btcBruto && Number.isFinite(btcBruto.price) ? btcBruto : null;
 
     const results: Record<string, PriceData> = {};
     for (const pair of cambiais) {

@@ -18,14 +18,16 @@ import { planNameKey } from "@/components/banca/GrowthPlanSection";
 
 interface ContractCardProps {
   contract: CapitalContract;
+  goalReached?: boolean;
 }
 
-export function ContractCard({ contract }: ContractCardProps) {
+export function ContractCard({ contract, goalReached }: ContractCardProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const daysLeft = daysUntil(contract.end_date);
   const active = contract.status === "active" && daysLeft > 0;
+  const achieved = Boolean(goalReached) && active;
 
   const rows: { label: string; value: string; color?: string }[] = [
     { label: t("capital.contractPlan"), value: t(planNameKey[contract.plan_id]) },
@@ -42,12 +44,16 @@ export function ContractCard({ contract }: ContractCardProps) {
           <p className="font-semibold">{t("capital.contractTitle")}</p>
           <Badge
             className={
-              active
+              achieved || active
                 ? "border-success/30 bg-success/20 text-success"
                 : "border-warning/30 bg-warning/20 text-warning"
             }
           >
-            {active ? t("capital.active") : t("capital.contractEnded")}
+            {achieved
+              ? t("capital.goalReachedTitle")
+              : active
+                ? t("capital.active")
+                : t("capital.contractEnded")}
           </Badge>
         </div>
         {rows.map((row) => (
@@ -58,7 +64,11 @@ export function ContractCard({ contract }: ContractCardProps) {
         ))}
         <div className="flex items-center justify-between pt-1">
           <p className="text-sm text-muted-foreground">
-            {daysLeft > 0 ? t("capital.contractDaysLeft", { count: daysLeft }) : t("capital.contractEnded")}
+            {achieved
+              ? t("capital.goalReachedDesc")
+              : daysLeft > 0
+                ? t("capital.contractDaysLeft", { count: daysLeft })
+                : t("capital.contractEnded")}
           </p>
           <Button variant="ghost" onClick={() => setOpen(true)}>
             {t("capital.viewContract")}

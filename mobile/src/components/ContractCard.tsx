@@ -12,9 +12,10 @@ import { planNameKey } from '@/components/GrowthPlanSection';
 
 interface ContractCardProps {
   contract: CapitalContract;
+  goalReached?: boolean;
 }
 
-export function ContractCard({ contract }: ContractCardProps) {
+export function ContractCard({ contract, goalReached }: ContractCardProps) {
   const { colors } = useTheme();
   const styles = makeStyles(colors);
   const { t } = useTranslation();
@@ -22,8 +23,9 @@ export function ContractCard({ contract }: ContractCardProps) {
 
   const daysLeft = daysUntil(contract.end_date);
   const active = contract.status === 'active' && daysLeft > 0;
-  const badgeColor = active ? colors.success : colors.warning;
-  const badgeLabel = active ? t('capital.active') : t('capital.contractEnded');
+  const achieved = Boolean(goalReached) && active;
+  const badgeColor = achieved || active ? colors.success : colors.warning;
+  const badgeLabel = achieved ? t('capital.goalReachedTitle') : active ? t('capital.active') : t('capital.contractEnded');
 
   const rows: { label: string; value: string; color?: string }[] = [
     { label: t('capital.contractPlan'), value: t(planNameKey[contract.plan_id]) },
@@ -48,7 +50,11 @@ export function ContractCard({ contract }: ContractCardProps) {
         ))}
         <View style={styles.footer}>
           <AppText variant="small" style={{ color: colors.textMuted }}>
-            {daysLeft > 0 ? t('capital.contractDaysLeft', { count: daysLeft }) : t('capital.contractEnded')}
+            {achieved
+              ? t('capital.goalReachedDesc')
+              : daysLeft > 0
+                ? t('capital.contractDaysLeft', { count: daysLeft })
+                : t('capital.contractEnded')}
           </AppText>
           <AppButton
             title={t('capital.viewContract')}

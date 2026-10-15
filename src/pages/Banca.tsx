@@ -437,7 +437,7 @@ export default function Banca() {
           </Card>
         ) : null}
 
-        {contract ? <ContractCard contract={contract} /> : null}
+        {contract ? <ContractCard contract={contract} goalReached={goalReached} /> : null}
 
         <div className="grid grid-cols-2 gap-3">
           {stats.map((s, i) => (

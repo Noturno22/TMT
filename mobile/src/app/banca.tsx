@@ -261,7 +261,7 @@ export default function BancaScreen() {
         </Pressable>
       ) : null}
 
-      {activeContract ? <ContractCard contract={activeContract} /> : null}
+      {activeContract ? <ContractCard contract={activeContract} goalReached={goalReached} /> : null}
 
       <View style={styles.statsGrid}>
         <Card style={styles.statCard}>

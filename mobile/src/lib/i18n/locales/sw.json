@@ -704,7 +704,11 @@
     "grossValue": "Kiasi ghafi",
     "penaltyLabel": "Adhabu ({{penalty}}%)",
     "goalReachedTitle": "LENGO LIMEFIKIWA",
-    "goalReachedDesc": "Akaunti yako imefikia lengo lililopangwa. Hongera! Sasa unaweza kuomba kutoa faida yako."
+    "goalReachedDesc": "Akaunti yako imefikia lengo lililopangwa. Hongera! Sasa unaweza kuomba kutoa faida yako.",
+    "managedActive": "Mtaji wako unasimamiwa",
+    "managedEnded": "Usimamizi wa mtaji wako umemalizika",
+    "progressMissing": "Kilichobaki kufikia lengo",
+    "loadError": "Hatukuweza kupakia data yako ya mtaji."
   },
   "banca": {
     "title": "Usimamizi wa Mtaji",

@@ -760,7 +760,11 @@
     "grossValue": "Importo lordo",
     "penaltyLabel": "Penalità ({{penalty}}%)",
     "goalReachedTitle": "OBIETTIVO RAGGIUNTO",
-    "goalReachedDesc": "Il tuo conto ha raggiunto l'obiettivo previsto. Congratulazioni! Ora puoi richiedere il prelievo dei tuoi profitti."
+    "goalReachedDesc": "Il tuo conto ha raggiunto l'obiettivo previsto. Congratulazioni! Ora puoi richiedere il prelievo dei tuoi profitti.",
+    "managedActive": "Il tuo capitale è in gestione",
+    "managedEnded": "La gestione del tuo capitale è terminata",
+    "progressMissing": "Manca per l'obiettivo",
+    "loadError": "Impossibile caricare i tuoi dati di capitale."
   },
   "depositos": {
     "title": "Depositi e Prelievi",

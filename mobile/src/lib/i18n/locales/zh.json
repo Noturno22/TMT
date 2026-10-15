@@ -760,7 +760,11 @@
     "grossValue": "总金额",
     "penaltyLabel": "罚金（{{penalty}}%）",
     "goalReachedTitle": "目标达成",
-    "goalReachedDesc": "你的账户已达计划目标。恭喜！现在可以申请提取利润。"
+    "goalReachedDesc": "你的账户已达计划目标。恭喜！现在可以申请提取利润。",
+    "managedActive": "您的资金正在被管理",
+    "managedEnded": "您的资金管理已结束",
+    "progressMissing": "距目标还差",
+    "loadError": "无法加载您的资金数据。"
   },
   "depositos": {
     "title": "存款与提现",

@@ -375,7 +375,11 @@
     "grossValue": "총액",
     "penaltyLabel": "위약금 ({{penalty}}%)",
     "goalReachedTitle": "목표 달성",
-    "goalReachedDesc": "계좌가 계획한 목표에 도달했습니다. 축하합니다! 이제 수익 출금을 요청할 수 있습니다."
+    "goalReachedDesc": "계좌가 계획한 목표에 도달했습니다. 축하합니다! 이제 수익 출금을 요청할 수 있습니다.",
+    "managedActive": "귀하의 자본이 운용되고 있습니다",
+    "managedEnded": "귀하의 자본 운용이 종료되었습니다",
+    "progressMissing": "목표까지 남은 금액",
+    "loadError": "자본 데이터를 불러오지 못했습니다."
   },
   "language": {
     "title": "언어"

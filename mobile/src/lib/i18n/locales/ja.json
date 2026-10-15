@@ -760,7 +760,11 @@
     "grossValue": "総額",
     "penaltyLabel": "ペナルティ（{{penalty}}%）",
     "goalReachedTitle": "目標達成",
-    "goalReachedDesc": "口座が予定の目標に到達しました。おめでとうございます！利益の出金を申請できます。"
+    "goalReachedDesc": "口座が予定の目標に到達しました。おめでとうございます！利益の出金を申請できます。",
+    "managedActive": "あなたの資本は運用されています",
+    "managedEnded": "あなたの資本の運用が終了しました",
+    "progressMissing": "目標までの残り",
+    "loadError": "資本データを読み込めませんでした。"
   },
   "depositos": {
     "title": "入金と出金",

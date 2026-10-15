@@ -746,7 +746,11 @@
     "grossValue": "Gross amount",
     "penaltyLabel": "Penalty ({{penalty}}%)",
     "goalReachedTitle": "GOAL REACHED",
-    "goalReachedDesc": "Your account reached the planned goal. Congratulations! You can now request a withdrawal of your profits."
+    "goalReachedDesc": "Your account reached the planned goal. Congratulations! You can now request a withdrawal of your profits.",
+    "managedActive": "Your capital is being managed",
+    "managedEnded": "The management of your capital has ended",
+    "progressMissing": "Remaining to goal",
+    "loadError": "We couldn't load your capital data."
   },
   "diario": {
     "title": "Trader's Journal",

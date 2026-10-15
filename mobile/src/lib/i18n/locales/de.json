@@ -704,7 +704,11 @@
     "grossValue": "Bruttobetrag",
     "penaltyLabel": "Strafe ({{penalty}}%)",
     "goalReachedTitle": "ZIEL ERREICHT",
-    "goalReachedDesc": "Dein Konto hat das geplante Ziel erreicht. Herzlichen Glückwunsch! Du kannst jetzt eine Auszahlung deiner Gewinne beantragen."
+    "goalReachedDesc": "Dein Konto hat das geplante Ziel erreicht. Herzlichen Glückwunsch! Du kannst jetzt eine Auszahlung deiner Gewinne beantragen.",
+    "managedActive": "Dein Kapital wird verwaltet",
+    "managedEnded": "Die Verwaltung deines Kapitals ist beendet",
+    "progressMissing": "Verbleibend bis zum Ziel",
+    "loadError": "Deine Kapitaldaten konnten nicht geladen werden."
   },
   "banca": {
     "title": "Bankroll-Verwaltung",

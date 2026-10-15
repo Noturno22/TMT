@@ -375,7 +375,11 @@
     "grossValue": "Motuya mobimba",
     "penaltyLabel": "Pénalité ({{penalty}}%)",
     "goalReachedTitle": "ELOKO ESILI",
-    "goalReachedDesc": "Kompte na yo ekómi na mokano. Nkembo! Okoki kosɛngɛ kobimisa libongo na yo."
+    "goalReachedDesc": "Kompte na yo ekómi na mokano. Nkembo! Okoki kosɛngɛ kobimisa libongo na yo.",
+    "managedActive": "Capital na yo ezali kokambama",
+    "managedEnded": "Gestion ya capital na yo esili",
+    "progressMissing": "Oyo etikali mpo na objectif",
+    "loadError": "Tokokaki te kotia ba données ya capital na yo."
   },
   "language": {
     "title": "Lokótá"

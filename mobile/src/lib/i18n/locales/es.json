@@ -1169,7 +1169,11 @@
     "grossValue": "Importe bruto",
     "penaltyLabel": "Penalización ({{penalty}}%)",
     "goalReachedTitle": "OBJETIVO ALCANZADO",
-    "goalReachedDesc": "Tu cuenta alcanzó la meta planeada. ¡Felicidades! Ya puedes solicitar el retiro de tus ganancias."
+    "goalReachedDesc": "Tu cuenta alcanzó la meta planeada. ¡Felicidades! Ya puedes solicitar el retiro de tus ganancias.",
+    "managedActive": "Tu capital está siendo gestionado",
+    "managedEnded": "La gestión de tu capital ha finalizado",
+    "progressMissing": "Falta para el objetivo",
+    "loadError": "No se pudieron cargar tus datos de capital."
   },
   "store": {
     "title": "Tienda",

@@ -375,7 +375,11 @@
     "grossValue": "Brutobedrag",
     "penaltyLabel": "Boete ({{penalty}}%)",
     "goalReachedTitle": "DOEL BEREIKT",
-    "goalReachedDesc": "Je account heeft het geplande doel bereikt. Gefeliciteerd! Je kunt nu een opname van je winst aanvragen."
+    "goalReachedDesc": "Je account heeft het geplande doel bereikt. Gefeliciteerd! Je kunt nu een opname van je winst aanvragen.",
+    "managedActive": "Je kapitaal wordt beheerd",
+    "managedEnded": "Het beheer van je kapitaal is beëindigd",
+    "progressMissing": "Resterend tot het doel",
+    "loadError": "Je kapitaalgegevens konden niet worden geladen."
   },
   "language": {
     "title": "Taal"

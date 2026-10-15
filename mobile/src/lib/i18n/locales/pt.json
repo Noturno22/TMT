@@ -750,7 +750,11 @@
     "grossValue": "Valor bruto",
     "penaltyLabel": "Penalidade ({{penalty}}%)",
     "goalReachedTitle": "OBJETIVO ALCANÇADO",
-    "goalReachedDesc": "A tua banca atingiu a meta planeada. Parabéns! Podes agora pedir o levantamento dos teus lucros."
+    "goalReachedDesc": "A tua banca atingiu a meta planeada. Parabéns! Podes agora pedir o levantamento dos teus lucros.",
+    "managedActive": "A tua banca está a ser gerida",
+    "managedEnded": "A gestão da tua banca terminou",
+    "progressMissing": "Falta para a meta",
+    "loadError": "Não foi possível carregar os teus dados de capital."
   },
   "diario": {
     "title": "Diário de Trader",

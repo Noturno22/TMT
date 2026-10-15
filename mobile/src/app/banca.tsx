@@ -73,7 +73,7 @@ export default function BancaScreen() {
     return (
       <Screen>
         <SectionTitle>{t('capital.title')}</SectionTitle>
-        <EmptyState title={t('common.error')} subtitle={'Não conseguimos carregar os teus dados. Tenta novamente.'} />
+        <EmptyState title={t('common.error')} subtitle={t('capital.loadError')} />
       </Screen>
     );
   }
@@ -203,7 +203,7 @@ export default function BancaScreen() {
                 color={(goalReached || managementActive) ? colors.success : colors.warning}
               />
               <AppText variant="small" style={{ color: (goalReached || managementActive) ? colors.success : colors.warning }}>
-                {goalReached ? t('capital.goalReachedTitle') : managementActive ? 'A tua banca está a ser gerida' : 'A gestão da tua banca terminou'}
+                {goalReached ? t('capital.goalReachedTitle') : managementActive ? t('capital.managedActive') : t('capital.managedEnded')}
               </AppText>
             </View>
           </View>
@@ -308,7 +308,7 @@ export default function BancaScreen() {
           </AppText>
         </View>
         <View style={styles.progressLabels}>
-          <AppText variant="small" style={{ color: colors.textMuted }}>Falta para a meta</AppText>
+          <AppText variant="small" style={{ color: colors.textMuted }}>{t('capital.progressMissing')}</AppText>
           <AppText variant="label" style={{ color: colors.warning }}>{Math.round(100 - progress)}%</AppText>
         </View>
       </Card>

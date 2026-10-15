@@ -760,7 +760,11 @@
     "grossValue": "Montant brut",
     "penaltyLabel": "Pénalité ({{penalty}}%)",
     "goalReachedTitle": "OBJECTIF ATTEINT",
-    "goalReachedDesc": "Ton compte a atteint l'objectif prévu. Félicitations ! Tu peux maintenant demander un retrait de tes profits."
+    "goalReachedDesc": "Ton compte a atteint l'objectif prévu. Félicitations ! Tu peux maintenant demander un retrait de tes profits.",
+    "managedActive": "Ton capital est en cours de gestion",
+    "managedEnded": "La gestion de ton capital a pris fin",
+    "progressMissing": "Reste pour atteindre l'objectif",
+    "loadError": "Impossible de charger tes données de capital."
   },
   "depositos": {
     "title": "Dépôts et retraits",

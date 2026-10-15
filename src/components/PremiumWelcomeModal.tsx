@@ -24,10 +24,10 @@ export function PremiumWelcomeModal() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!user || !isPremium || !subscription?.current_period_end) return;
+    if (!user || !isPremium || !subscription?.current_period_end) { setShow(false); return; }
     const key = getStorageKey(subscription.current_period_end);
     try {
-      if (localStorage.getItem(key) !== "1") setShow(true);
+      setShow(localStorage.getItem(key) !== "1");
     } catch { setShow(true); }
   }, [user, isPremium, subscription?.current_period_end]);
 

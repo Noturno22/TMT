@@ -26,16 +26,17 @@ const STEPS = [
 
 export function OnboardingTour() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [step, setStep] = useState(0);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
+    if (loading) return;
     const key = getStorageKey(user?.id);
-    try {
-      if (localStorage.getItem(key) !== "1") setShow(true);
-    } catch { setShow(true); }
-  }, [user?.id]);
+    let completed = false;
+    try { completed = localStorage.getItem(key) === "1"; } catch { completed = false; }
+    setShow(!completed);
+  }, [user?.id, loading]);
 
   const complete = () => {
     setShow(false);

@@ -976,7 +976,8 @@
     "planActive": "✓ Plano Ativo",
     "activate": "Ativar Plano",
     "activateErrorTitle": "Erro ao ativar plano",
-    "activateErrorMsg": "Não foi possível ativar o plano. Tenta novamente."
+    "activateErrorMsg": "Não foi possível ativar o plano. Tenta novamente.",
+    "selectErrorMsg": "Não foi possível guardar a seleção do plano. Tenta novamente."
   },
   "aiErrors": {
     "contact": "Erro ao contactar o suporte. Tenta novamente.",

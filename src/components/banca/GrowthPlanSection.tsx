@@ -92,7 +92,11 @@ export function GrowthPlanSection({
     if (contractActive) return;
     setSelectedId(planId);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ planId }));
-    save({ ...config, planId }).catch(() => {});
+    save({ ...config, planId }).catch(() => {
+      toast.error(t("common.error"), {
+        description: t("planoCrescimento.selectErrorMsg"),
+      });
+    });
   };
 
   const plan = PLANS.find((p) => p.id === selectedId) ?? PLANS[0];

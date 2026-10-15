@@ -954,7 +954,8 @@
     "planActive": "✓ Piano Attivo",
     "activate": "Attiva Piano",
     "activateErrorMsg": "Impossibile attivare il piano. Riprova.",
-    "activateErrorTitle": "Errore nell'attivazione del piano"
+    "activateErrorTitle": "Errore nell'attivazione del piano",
+    "selectErrorMsg": "Impossibile salvare la selezione del piano. Riprova."
   },
   "aiErrors": {
     "contact": "Errore nel contattare il supporto. Riprova.",

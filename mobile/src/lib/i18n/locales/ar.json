@@ -954,7 +954,8 @@
     "planActive": "✓ الخطة نشطة",
     "activate": "تفعيل الخطة",
     "activateErrorMsg": "تعذّر تفعيل الخطة. حاول مرة أخرى.",
-    "activateErrorTitle": "خطأ في تفعيل الخطة"
+    "activateErrorTitle": "خطأ في تفعيل الخطة",
+    "selectErrorMsg": "تعذّر حفظ اختيار الخطة. حاول مرة أخرى."
   },
   "aiErrors": {
     "contact": "خطأ في الاتصال بالدعم. حاول مرة أخرى.",

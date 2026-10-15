@@ -954,7 +954,8 @@
     "planActive": "✓ 计划已激活",
     "activate": "激活计划",
     "activateErrorMsg": "无法激活计划，请重试。",
-    "activateErrorTitle": "激活计划出错"
+    "activateErrorTitle": "激活计划出错",
+    "selectErrorMsg": "无法保存计划选择，请重试。"
   },
   "aiErrors": {
     "contact": "联系支持时出错。请重试。",

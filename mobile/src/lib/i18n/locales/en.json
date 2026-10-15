@@ -972,7 +972,8 @@
     "planActive": "✓ Plan Active",
     "activate": "Activate Plan",
     "activateErrorMsg": "Could not activate the plan. Please try again.",
-    "activateErrorTitle": "Error activating plan"
+    "activateErrorTitle": "Error activating plan",
+    "selectErrorMsg": "Could not save the plan selection. Please try again."
   },
   "aiErrors": {
     "contact": "Error contacting support. Try again.",

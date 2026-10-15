@@ -1335,7 +1335,8 @@
   "planActive": "✓ Plan actief",
   "activate": "Plan activeren",
   "activateErrorMsg": "Het plan kon niet worden geactiveerd. Probeer het opnieuw.",
-  "activateErrorTitle": "Fout bij het activeren van het plan"
+  "activateErrorTitle": "Fout bij het activeren van het plan",
+  "selectErrorMsg": "De planselectie kon niet worden opgeslagen. Probeer het opnieuw."
  },
  "aiErrors": {
   "contact": "Fout bij het contact opnemen met support. Probeer opnieuw.",

@@ -954,7 +954,8 @@
     "planActive": "✓ 플랜 활성",
     "activate": "플랜 활성화",
     "activateErrorMsg": "플랜을 활성화할 수 없습니다. 다시 시도해 주세요.",
-    "activateErrorTitle": "플랜 활성화 오류"
+    "activateErrorTitle": "플랜 활성화 오류",
+    "selectErrorMsg": "플랜 선택을 저장할 수 없습니다. 다시 시도해 주세요."
   },
   "aiErrors": {
     "contact": "지원팀에 연락하는 중 오류가 발생했습니다. 다시 시도하세요.",

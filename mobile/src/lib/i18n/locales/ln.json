@@ -954,7 +954,8 @@
     "planActive": "✓ Plan ya mosala",
     "activate": "Kofungola Plan",
     "activateErrorMsg": "Ekoki te kofungola plan. Meka lisusu.",
-    "activateErrorTitle": "Libunga na kofungola plan"
+    "activateErrorTitle": "Libunga na kofungola plan",
+    "selectErrorMsg": "Ekoki te kobomba moponi ya plan. Meka lisusu."
   },
   "aiErrors": {
     "contact": "Libunga ya kozwa support. Meka lisusu.",

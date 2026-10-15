@@ -1335,7 +1335,8 @@
   "planActive": "✓ Mpango Umewashwa",
   "activate": "Washa Mpango",
   "activateErrorMsg": "Imeshindwa kuwasha mpango. Jaribu tena.",
-  "activateErrorTitle": "Hitilafu wakati wa kuwasha mpango"
+  "activateErrorTitle": "Hitilafu wakati wa kuwasha mpango",
+  "selectErrorMsg": "Imeshindwa kuhifadhi chaguo la mpango. Jaribu tena."
  },
  "aiErrors": {
   "contact": "Hitilafu wakati wa kuwasiliana na msaada. Jaribu tena.",

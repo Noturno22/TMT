@@ -954,7 +954,8 @@
     "planActive": "✓ プラン有効",
     "activate": "プランを有効にする",
     "activateErrorMsg": "プランを有効にできませんでした。もう一度お試しください。",
-    "activateErrorTitle": "プランの有効化エラー"
+    "activateErrorTitle": "プランの有効化エラー",
+    "selectErrorMsg": "プランの選択を保存できませんでした。もう一度お試しください。"
   },
   "aiErrors": {
     "contact": "サポートへの連絡中にエラーが発生しました。もう一度お試しください。",

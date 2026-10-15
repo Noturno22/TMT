@@ -94,7 +94,7 @@ export function GrowthPlanSection({
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ planId }));
       await save({ ...bancaConfigRef.current, planId });
     } catch {
-      Alert.alert(t('common.error'), 'Não foi possível guardar a seleção do plano. Tenta novamente.');
+      Alert.alert(t('common.error'), t('planoCrescimento.selectErrorMsg'));
     }
   };
 

@@ -198,7 +198,7 @@ export default function BancaScreen() {
             <AppText variant="small" style={styles.heroEyebrow}>{t('capital.currentBalance')}</AppText>
             <View style={styles.managedRow}>
               <Ionicons
-                name={managementActive ? 'shield-checkmark' : 'shield-outline'}
+                name={(goalReached || managementActive) ? 'shield-checkmark' : 'shield-outline'}
                 size={13}
                 color={(goalReached || managementActive) ? colors.success : colors.warning}
               />

@@ -1005,6 +1005,147 @@ serve(async (req) => {
       if (error) return errorJson(error.message, 500);
       return json({ reports: data });
     }
+    // ── Pedidos de novo gerenciamento (após o contrato terminar) ─────────
+    case 'list_capital_management_requests': {
+      const { status } = body;
+      let query = supabase
+        .from('capital_management_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (typeof status === 'string' && status) query = query.eq('status', status);
+      const { data, error } = await query;
+      if (error) return errorJson(error.message, 500);
+
+      const ids = [...new Set((data ?? []).map((r) => r.user_id))];
+      let emailMap = new Map<string, string>();
+      if (ids.length > 0) {
+        const { data: usersData } = await supabase.auth.admin.listUsers();
+        emailMap = new Map(
+          (usersData?.users ?? [])
+            .filter((u) => ids.includes(u.id))
+            .map((u) => [u.id, u.email ?? '']),
+        );
+      }
+      return json({
+        requests: (data ?? []).map((r) => ({ ...r, email: emailMap.get(r.user_id) ?? '' })),
+      });
+    }
+    case 'approve_capital_management_request': {
+      const id = typeof body.id === 'string' ? body.id : null;
+      if (!id) return errorJson('id em falta.');
+
+      const { data: req, error: reqErr } = await supabase
+        .from('capital_management_requests')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if (reqErr) return errorJson(reqErr.message, 500);
+      if (!req) return errorJson('Pedido não encontrado.', 404);
+      if (req.status !== 'pending') return errorJson('Pedido já tratado.', 409);
+
+      const monthsByPlan: Record<string, number> = { conservador: 3, equilibrado: 2, agressivo: 1 };
+      const months = monthsByPlan[req.plan_id as string];
+      if (!months) return errorJson('Plano inválido.', 400);
+
+      const today = new Date().toISOString().slice(0, 10);
+      // Expira contratos vencidos para libertar o índice único de contrato ativo.
+      const { error: expErr } = await supabase
+        .from('capital_contracts')
+        .update({ status: 'completed', updated_at: new Date().toISOString() })
+        .eq('user_id', req.user_id)
+        .eq('status', 'active')
+        .lt('end_date', today);
+      if (expErr) return errorJson(expErr.message, 500);
+
+      // Não ativar por cima de um contrato que ainda está a decorrer.
+      const { data: running, error: runErr } = await supabase
+        .from('capital_contracts')
+        .select('id')
+        .eq('user_id', req.user_id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+      if (runErr) return errorJson(runErr.message, 500);
+      if (running) return errorJson('O utilizador já tem um contrato ativo.', 409);
+
+      // Capital inicial = saldo atual da conta na moeda do pedido (0 se não existir).
+      const { data: acc, error: accErr } = await supabase
+        .from('capital_accounts')
+        .select('capital')
+        .eq('user_id', req.user_id)
+        .eq('currency', req.currency)
+        .limit(1)
+        .maybeSingle();
+      if (accErr) return errorJson(accErr.message, 500);
+      const capital = Number(acc?.capital ?? 0);
+
+      const start = new Date();
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + months);
+      const isoDate = (d: Date) => d.toISOString().slice(0, 10);
+
+      const { data: contract, error: ctrErr } = await supabase
+        .from('capital_contracts')
+        .insert({
+          user_id: req.user_id,
+          plan_id: req.plan_id,
+          currency: req.currency,
+          capital_inicial: capital,
+          start_date: isoDate(start),
+          end_date: isoDate(end),
+          months,
+          status: 'active',
+          penalty_pct: 10,
+          terms_version: 'v2',
+        })
+        .select()
+        .single();
+      if (ctrErr) return errorJson(ctrErr.message, 500);
+
+      const { error: updErr } = await supabase
+        .from('capital_management_requests')
+        .update({ status: 'approved', reviewed_by: user.id, reviewed_at: new Date().toISOString() })
+        .eq('id', id);
+      if (updErr) return errorJson(updErr.message, 500);
+
+      await notifyUser(
+        req.user_id,
+        'Novo gerenciamento ativado',
+        'O teu pedido foi aprovado e um novo contrato de gerenciamento está ativo.',
+        { type: 'management_request', requestId: id },
+      );
+
+      return json({ contract });
+    }
+    case 'reject_capital_management_request': {
+      const id = typeof body.id === 'string' ? body.id : null;
+      if (!id) return errorJson('id em falta.');
+
+      const { data: req, error: reqErr } = await supabase
+        .from('capital_management_requests')
+        .select('id, user_id, status')
+        .eq('id', id)
+        .maybeSingle();
+      if (reqErr) return errorJson(reqErr.message, 500);
+      if (!req) return errorJson('Pedido não encontrado.', 404);
+      if (req.status !== 'pending') return errorJson('Pedido já tratado.', 409);
+
+      const { error } = await supabase
+        .from('capital_management_requests')
+        .update({ status: 'rejected', reviewed_by: user.id, reviewed_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) return errorJson(error.message, 500);
+
+      await notifyUser(
+        req.user_id,
+        'Pedido de gerenciamento não aprovado',
+        'O teu pedido de novo gerenciamento não foi aprovado. Fala com o suporte para mais detalhes.',
+        { type: 'management_request', requestId: id },
+      );
+
+      return json({ ok: true });
+    }
     case 'ban_user': {
       const user_id = typeof body.user_id === 'string' ? body.user_id : null;
       if (!user_id) return errorJson('user_id em falta.');

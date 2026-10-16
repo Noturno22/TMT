@@ -53,7 +53,7 @@ function sessionOf(iso: string): string {
   if (m < 1020) return 'NY Tarde';
   if (m < 1050) return 'NY Tarde+';
   if (m < 1115) return 'NY Fechamento';
-  if (m < 1200) return 'Pos-NY';
+  if (m < 1200) return 'Pós-NY';
   if (m < 1295) return 'Noite';
   return 'Asia Night';
 }

@@ -25,7 +25,7 @@ const FOREX_PAIRS = ['EURUSD', 'GBPUSD', 'USDJPY', 'XAUUSD', 'EURGBP', 'USDCHF',
 // Sessoes de liquidez morta: no historico deram ~0% de acerto (0 TP em 9 SL) e
 // enchem a folha de expirados. Nao vale a pena gastar Gemini + Twelve Data aqui.
 // So se aplica ao forex; o crypto negocia 24/7 e nao depende de sessao.
-const DEAD_SESSIONS = new Set(['Asia Night', 'Asia', 'Asia/Europa', 'Pos-NY']);
+const DEAD_SESSIONS = new Set(['Asia Night', 'Asia', 'Asia/Europa', 'Pós-NY']);
 
 const FOREX_PAIR_CONFIG: Record<string, { base: string; quote: string }> = {
   EURUSD: { base: 'EUR', quote: 'USD' },

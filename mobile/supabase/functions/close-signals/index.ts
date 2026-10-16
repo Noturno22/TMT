@@ -4,7 +4,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
-import { decideClose, pipsOf, riskRewardOf } from '../_shared/close-decision.ts';
+import { decideClose, decideCloseFromCandles, pipsOf, riskRewardOf, type CloseOutcome, type Ohlc } from '../_shared/close-decision.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
@@ -124,6 +124,62 @@ function hasKnownSource(symbol: string): boolean {
   return Boolean(FOREX_PAIRS[norm]);
 }
 
+// ── Klines: deteta TP/SL intra-candle ───────────────────────────────────────
+// O preco spot so diz onde o mercado esta no instante em que isto corre. Um
+// TP/SL tocado entre duas execucoes era invisivel. Aqui buscamos as velas desde
+// a ultima verificacao para apanhar esses toques.
+
+const KLINES_WINDOW_MS = 3 * 24 * 60 * 60 * 1000;
+const KLINES_INTERVAL = '5m';
+
+async function fetchCryptoKlines(symbol: string, startMs: number): Promise<Ohlc[]> {
+  const binanceSymbol = CRYPTO_SYMBOLS[normalizeSymbol(symbol)];
+  if (!binanceSymbol) return [];
+  try {
+    const res = await fetch(
+      `https://api.binance.com/api/v3/klines?symbol=${binanceSymbol}&interval=${KLINES_INTERVAL}&startTime=${startMs}&limit=1000`,
+    );
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+    return data
+      .map((k: unknown[]) => ({ t: Number(k[0]), h: Number(k[2]), l: Number(k[3]) }))
+      .filter((c) => Number.isFinite(c.t) && Number.isFinite(c.h) && Number.isFinite(c.l));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchForexKlines(symbol: string, startMs: number): Promise<Ohlc[]> {
+  const tdSymbol = TWELVE_DATA_SYMBOLS[normalizeSymbol(symbol)];
+  if (!tdSymbol || !TWELVE_DATA_KEY) return [];
+  try {
+    const startDate = new Date(startMs).toISOString().slice(0, 16).replace('T', ' ');
+    const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(tdSymbol)}&interval=5min&start_date=${encodeURIComponent(startDate)}&outputsize=1000&apikey=${TWELVE_DATA_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data?.status === 'error' || !Array.isArray(data?.values)) return [];
+    // Twelve Data devolve as velas mais recentes primeiro; invertemos para
+    // ordem cronologica, que e o que o decideCloseFromCandles espera.
+    return data.values
+      .slice()
+      .reverse()
+      .map((v: Record<string, string>) => ({
+        t: Date.parse(`${v.datetime.replace(' ', 'T')}Z`),
+        h: Number(v.high),
+        l: Number(v.low),
+      }))
+      .filter((c: Ohlc) => Number.isFinite(c.t) && Number.isFinite(c.h) && Number.isFinite(c.l));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchKlines(symbol: string, startMs: number): Promise<Ohlc[]> {
+  const norm = normalizeSymbol(symbol);
+  if (CRYPTO_SYMBOLS[norm]) return fetchCryptoKlines(symbol, startMs);
+  return fetchForexKlines(symbol, startMs);
+}
+
 // ── Admin check ─────────────────────────────────────────────────────────────
 
 // O service-role valida-se perguntando ao gateway: so devolve 200 a uma chave
@@ -194,7 +250,79 @@ serve(async (req) => {
 
   for (const signal of signals) {
     const price = await fetchCurrentPrice(signal.symbol);
-    if (price === null) {
+    const entry = Number(signal.entry_price);
+    const sl = Number(signal.stop_loss);
+    const tp = Number(signal.target_price);
+    const type = String(signal.signal_type).toUpperCase();
+    const currentStatus = String(signal.status);
+    const now = new Date();
+    const nowIso = now.toISOString();
+
+    // Janela de velas: desde a ultima verificacao (ou criacao), no maximo 3 dias.
+    const rawStart = signal.last_checked_at
+      ? new Date(signal.last_checked_at).getTime()
+      : signal.created_at
+        ? new Date(signal.created_at).getTime()
+        : now.getTime();
+    const clampMs = now.getTime() - KLINES_WINDOW_MS;
+    const startMs = Number.isFinite(rawStart) && rawStart > clampMs ? rawStart : clampMs;
+
+    // ── SINAL PENDENTE: ativar quando o preco chega perto da entrada ──
+    if (currentStatus === 'pending') {
+      if (price !== null) {
+        const entryPct = entry > 0 ? (Math.abs(price - entry) / entry) * 100 : 999;
+        if (entryPct <= 0.15) {
+          updates.push(
+            supabase
+              .from('signals')
+              .update({ status: 'active', last_checked_at: nowIso })
+              .eq('id', signal.id)
+              .then((res) => {
+                if (!res.error) activated++;
+                return res;
+              }),
+          );
+          continue;
+        }
+      }
+      // Mantem a janela curta enquanto o sinal continua pendente.
+      updates.push(
+        supabase.from('signals').update({ last_checked_at: nowIso }).eq('id', signal.id),
+      );
+      continue;
+    }
+
+    // ── SINAL ATIVO: detetar TP/SL intra-candle a partir das velas ──
+    const candles = await fetchKlines(signal.symbol, startMs);
+    let outcome: CloseOutcome | null = null;
+    let exitPrice: number | null = null;
+
+    if (candles.length > 0) {
+      outcome = decideCloseFromCandles({
+        signalType: type,
+        sl,
+        tp,
+        candles,
+        currentStatus,
+        expiresAt: signal.expires_at,
+        now,
+      });
+      if (outcome === 'tp') exitPrice = tp;
+      else if (outcome === 'sl') exitPrice = sl;
+    } else if (price !== null) {
+      // Sem velas (fonte indisponivel): cai para o preco spot, como antes.
+      outcome = decideClose({
+        signalType: type,
+        price,
+        entry,
+        sl,
+        tp,
+        currentStatus,
+        expiresAt: signal.expires_at,
+        now,
+      });
+      exitPrice = price;
+    } else {
       skipped.push({
         symbol: String(signal.symbol),
         id: signal.id,
@@ -205,49 +333,18 @@ serve(async (req) => {
       continue;
     }
 
-    const entry = Number(signal.entry_price);
-    const sl = Number(signal.stop_loss);
-    const tp = Number(signal.target_price);
-    const type = String(signal.signal_type).toUpperCase();
-    const currentStatus = String(signal.status);
-
-    // ── SINAL PENDENTE: verificar se preço atingiu entry ──
-    if (currentStatus === 'pending') {
-      const diff = Math.abs(price - entry);
-      const entryPct = entry > 0 ? (diff / entry) * 100 : 999;
-
-      // Ativar se preço está dentro de 0.15% do entry
-      if (entryPct <= 0.15) {
-        updates.push(
-          supabase
-            .from('signals')
-            .update({ status: 'active' })
-            .eq('id', signal.id)
-            .then((res) => {
-              if (!res.error) activated++;
-              return res;
-            }),
-        );
-        continue;
-      }
+    if (!outcome) {
+      updates.push(
+        supabase.from('signals').update({ last_checked_at: nowIso }).eq('id', signal.id),
+      );
+      continue;
     }
 
-    const outcome = decideClose({
-      signalType: type,
-      price,
-      entry,
-      sl,
-      tp,
-      currentStatus,
-      expiresAt: signal.expires_at,
-      now: new Date(),
-    });
-    if (!outcome) continue;
-
+    const finalExit = exitPrice ?? price ?? entry;
     updates.push(
       supabase
         .from('signals')
-        .update({ status: outcome })
+        .update({ status: outcome, last_checked_at: nowIso })
         .eq('id', signal.id)
         .then(async (res) => {
           if (!res.error) {
@@ -260,14 +357,14 @@ serve(async (req) => {
               smc_setup: signal.smc_setup || null,
               session_name: null,
               entry_price: entry,
-              exit_price: price,
+              exit_price: finalExit,
               stop_loss: sl,
               target_price: tp,
               result: outcome,
               pips_result: pipsOf(outcome, entry, sl, tp, String(signal.symbol)),
               risk_reward: Math.round(riskRewardOf(entry, sl, tp) * 100) / 100,
               confidence: signal.confidence,
-              tech_score: null,
+              tech_score: signal.probability_score ?? null,
               closed_at: new Date().toISOString(),
             });
           }

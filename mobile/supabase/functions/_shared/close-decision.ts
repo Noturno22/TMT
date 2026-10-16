@@ -56,6 +56,48 @@ export function riskRewardOf(entry: number, sl: number, tp: number): number {
   return Math.abs(tp - entry) / Math.abs(entry - sl || 1);
 }
 
+export interface Ohlc { t: number; h: number; l: number }
+
+/**
+ * Decisao de fecho a partir das velas (high/low) desde a ultima verificacao.
+ * O `close-signals` so ve o preco instantaneo no momento em que corre; um TP/SL
+ * tocado entre duas execucoes era invisivel e o sinal acabava por expirar (nao
+ * contava para a taxa) ou fechava no lado errado. Aqui percorremos as velas por
+ * ordem cronologica e devolvemos o primeiro nivel tocado.
+ *
+ * Se um unico candle tocar o TP e o SL, assumimos SL primeiro: e a leitura
+ * conservadora, e evita inflacionar a taxa de acerto com TPs que talvez nunca
+ * tenham sido atingidos antes do stop.
+ */
+export function decideCloseFromCandles(input: {
+  signalType: string;
+  sl: number;
+  tp: number;
+  candles: Ohlc[];
+  currentStatus: string;
+  expiresAt?: string | null;
+  now: Date;
+}): CloseOutcome | null {
+  const { signalType, sl, tp, candles, currentStatus, expiresAt, now } = input;
+  if (!CLOSABLE_STATUSES.has(currentStatus)) return null;
+
+  if (currentStatus === 'active') {
+    const type = signalType.toUpperCase();
+    for (const c of candles) {
+      if (type === 'BUY') {
+        if (c.l <= sl) return 'sl';
+        if (c.h >= tp) return 'tp';
+      } else if (type === 'SELL') {
+        if (c.h >= sl) return 'sl';
+        if (c.l <= tp) return 'tp';
+      }
+    }
+  }
+
+  if (expiresAt && new Date(expiresAt) < now) return 'expired';
+  return null;
+}
+
 export function pipsOf(outcome: CloseOutcome, entry: number, sl: number, tp: number, symbol: string): number {
   if (outcome === 'expired') return 0;
   const norm = symbol.replace(/[^A-Za-z0-9]/g, '').toUpperCase();

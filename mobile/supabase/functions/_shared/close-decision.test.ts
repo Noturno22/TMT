@@ -1,4 +1,4 @@
-import { decideClose, pipsOf, riskRewardOf, type CloseInput } from './close-decision';
+import { decideClose, decideCloseFromCandles, pipsOf, riskRewardOf, type CloseInput } from './close-decision';
 
 const NOW = new Date('2026-01-15T12:00:00Z');
 
@@ -113,5 +113,69 @@ describe('riskRewardOf', () => {
 
   it('nao divide por zero quando entrada e stop coincidem', () => {
     expect(Number.isFinite(riskRewardOf(1.1, 1.1, 1.12))).toBe(true);
+  });
+});
+
+describe('decideCloseFromCandles', () => {
+  const now = new Date('2026-01-15T12:00:00Z');
+  function candle(t: number, h: number, l: number) {
+    return { t, h, l };
+  }
+  function base(over: Record<string, unknown> = {}) {
+    return {
+      signalType: 'BUY',
+      sl: 1.0950,
+      tp: 1.1100,
+      candles: [] as ReturnType<typeof candle>[],
+      currentStatus: 'active',
+      expiresAt: '2026-01-15T16:00:00Z',
+      now,
+      ...over,
+    };
+  }
+
+  it('BUY fecha em TP quando uma vela toca o alvo (mesmo sem o preco atual o tocar)', () => {
+    expect(decideCloseFromCandles(base({ candles: [candle(1, 1.1120, 1.1000)] }))).toBe('tp');
+  });
+
+  it('BUY fecha em SL quando uma vela toca o stop', () => {
+    expect(decideCloseFromCandles(base({ candles: [candle(1, 1.1050, 1.0940)] }))).toBe('sl');
+  });
+
+  it('vela que toca TP e SL: assume SL primeiro (conservador)', () => {
+    expect(decideCloseFromCandles(base({ candles: [candle(1, 1.1120, 1.0940)] }))).toBe('sl');
+  });
+
+  it('primeira vela por ordem cronologica decide (SL em t1 vence TP em t2)', () => {
+    expect(
+      decideCloseFromCandles(base({ candles: [candle(1, 1.1000, 1.0940), candle(2, 1.1120, 1.1000)] })),
+    ).toBe('sl');
+  });
+
+  it('SELL inverte: high no SL, low no TP', () => {
+    const sell = { signalType: 'SELL', sl: 1.1100, tp: 1.0900 };
+    expect(decideCloseFromCandles(base({ ...sell, candles: [candle(1, 1.1000, 1.0880)] }))).toBe('tp');
+    expect(decideCloseFromCandles(base({ ...sell, candles: [candle(1, 1.1120, 1.0900)] }))).toBe('sl');
+  });
+
+  it('sem tocar em TP nem SL devolve null', () => {
+    expect(decideCloseFromCandles(base({ candles: [candle(1, 1.1050, 1.0980)] }))).toBeNull();
+  });
+
+  it('expira quando a janela passou sem tocar nenhum nivel', () => {
+    expect(
+      decideCloseFromCandles(base({ candles: [candle(1, 1.1050, 1.0980)], expiresAt: '2026-01-15T11:00:00Z' })),
+    ).toBe('expired');
+  });
+
+  it('sinal pending nao fecha por TP/SL, mas expira', () => {
+    expect(decideCloseFromCandles(base({ currentStatus: 'pending', candles: [candle(1, 1.1120, 1.0940)] }))).toBeNull();
+    expect(
+      decideCloseFromCandles(base({ currentStatus: 'pending', expiresAt: '2026-01-15T11:00:00Z' })),
+    ).toBe('expired');
+  });
+
+  it('nao re-fecha em estado terminal', () => {
+    expect(decideCloseFromCandles(base({ currentStatus: 'tp', candles: [candle(1, 1.1120, 1.0940)] }))).toBeNull();
   });
 });

@@ -569,6 +569,7 @@ interface ValidSignal {
   reasons: string[];
   analysis: string;
   smc_setup: string;
+  tech_score?: number;
 }
 
 function parseSignals(text: string, isWeekend: boolean): ValidSignal[] {
@@ -747,6 +748,7 @@ serve(async (req) => {
     if (!candles) return false;
     const conf = validateSignalTechnical(s.symbol, s.signal_type as 'BUY' | 'SELL', s.entry_price, s.stop_loss, s.target_price, candles);
     if (!conf.valid) { console.log(` tech-reject ${s.symbol} ${s.signal_type}: score=${conf.score}`); return false; }
+    s.tech_score = conf.score;
     s.reasons = [...conf.reasons.slice(0, 2), ...s.reasons].slice(0, 3);
     return true;
   });
@@ -774,6 +776,7 @@ serve(async (req) => {
       entry_price: buffered.entry, stop_loss: buffered.sl, target_price: buffered.tp,
       confidence: s.confidence, reasons: s.reasons, analysis: s.analysis,
       smc_setup: s.smc_setup, status, expires_at: nextExpiry(new Date(), s.timeframe),
+      probability_score: s.tech_score ?? null,
     };
   });
 

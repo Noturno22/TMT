@@ -9,9 +9,11 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { WalletCard } from '@/components/WalletCard';
 import { avatarLetter, avatarUrl, contactInfo, displayName, isEmailVerified } from '@/core/format';
 import { Spacing, type Palette } from '@/core/theme';
+import type { BancaConfig } from '@/core/types';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useBanca } from '@/hooks/useBanca';
+import { useCapitalAccount } from '@/hooks/useCapitalAccount';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useTourTarget } from '@/components/tour/registry';
@@ -65,6 +67,16 @@ export default function PerfilScreen() {
   const { profiles, refresh: refreshProfiles } = useProfiles();
   const { isPremium, planTier, canAccessBanca, subscription, loading: subLoading } = useSubscription();
   const { config: banca } = useBanca();
+  const { account } = useCapitalAccount();
+  // Servidor é a fonte da verdade; config local é fallback (offline/ainda sem conta).
+  const walletConfig: BancaConfig = {
+    ...banca,
+    capital: account?.capital ?? banca.capital,
+    achieved: account?.achieved ?? banca.achieved,
+    currency: account?.currency ?? banca.currency,
+    totalWithdrawn: account?.total_withdrawn ?? banca.totalWithdrawn,
+    metaPercent: account?.meta_percent ?? banca.metaPercent,
+  };
   const walletRef = useTourTarget('tour:perfil-wallet');
   const { colors } = useTheme();
   const styles = makeStyles(colors);
@@ -260,7 +272,7 @@ export default function PerfilScreen() {
             }
           />
           {canAccessBanca ? (
-            <WalletCard config={banca} />
+            <WalletCard config={walletConfig} />
           ) : subLoading ? null : (
             <PremiumLock
               compact

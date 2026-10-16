@@ -26,6 +26,10 @@ import { useProfiles } from "@/hooks/useProfiles";
 import { isAdminEmail } from "@/lib/admin";
 import { claimUsername } from "@/lib/usernameAuth";
 import { planLabel, type PlanId } from "@/lib/plans";
+import { useCapitalAccount } from "@/hooks/useCapitalAccount";
+import { formatBancaMoney } from "@/lib/format";
+import { profit as calcProfit } from "@/lib/capital";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 const PLAN_BADGE_LABEL: Record<string, string> = {
@@ -50,6 +54,7 @@ export default function Perfil() {
   const { user, signOut } = useAuth();
   const { tier } = useSubscription();
   const { profiles, refresh } = useProfiles();
+  const { account } = useCapitalAccount();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -202,20 +207,32 @@ export default function Perfil() {
             </CardContent>
           </Card>
 
-          {/* Wallet summary (placeholder — real WalletCard in Phase 2) */}
+          {/* Resumo da carteira — dados reais da gestão de capital (capital_accounts) */}
           <Card className="glass-card mb-6">
             <CardContent className="pt-6 grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">{t("components.walletCard.capital")}</p>
-                <p className="text-sm font-semibold text-muted-foreground">Kz 0,00</p>
+                <p className="text-sm font-semibold">
+                  {account ? formatBancaMoney(account.capital, account.currency) : "—"}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">{t("components.walletCard.profit")}</p>
-                <p className="text-sm font-semibold text-muted-foreground">Kz 0,00</p>
+                <p
+                  className={cn(
+                    "text-sm font-semibold",
+                    account && calcProfit(account.achieved, account.capital) > 0 && "text-success",
+                    account && calcProfit(account.achieved, account.capital) < 0 && "text-destructive",
+                  )}
+                >
+                  {account ? formatBancaMoney(calcProfit(account.achieved, account.capital), account.currency) : "—"}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">{t("components.walletCard.withdrawals")}</p>
-                <p className="text-sm font-semibold text-muted-foreground">{t("components.walletCard.soon")}</p>
+                <p className="text-sm font-semibold">
+                  {account ? formatBancaMoney(account.total_withdrawn, account.currency) : "—"}
+                </p>
               </div>
             </CardContent>
           </Card>

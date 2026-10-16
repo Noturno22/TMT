@@ -131,10 +131,11 @@ Realtime, Storage, Edge Functions.
 `payment_requests` · `payment_receipts` · `withdrawal_requests`
 
 ### Edge Functions
-⚠ Também duplicadas (ver dívida 8). A raiz tem 5 funções, `mobile/supabase/functions/` tem
+⚠ Também duplicadas (ver dívida 8). A raiz tem 4 funções, `mobile/supabase/functions/` tem
 **9** — incluindo `stripe-checkout` e `stripe-webhook`, trazidas da raiz em 2026-10-03. Só
 `generate-signal` (código morto) fica apenas na raiz. O que está deployed é a união das
-duas (confirmar no dashboard qual a versão de cada uma — dívida 8).
+duas (confirmar no dashboard qual a versão de cada uma — dívida 8). A raiz já **não** tem
+`admin-manage` (eliminado em 2026-10-16): a fonte única é o mobile.
 
 | Função | Onde | Papel |
 |---|---|---|
@@ -142,7 +143,7 @@ duas (confirmar no dashboard qual a versão de cada uma — dívida 8).
 | `generate-crypto-signals` | mobile | Motor de análise técnica + IA; é este que o cron chama |
 | `generate-signal` | raiz | Variante mais antiga do motor |
 | `stripe-checkout` · `stripe-webhook` | raiz | Checkout Session (USD/AOA) e sincronização de subscrições |
-| `admin-manage` | ambas | CRUD admin com revalidação de email no servidor |
+| `admin-manage` | mobile | CRUD admin com revalidação de email no servidor (fonte única) |
 | `whatsapp-auth` · `ai-support` · `send-notification` | mobile | Login por WhatsApp, suporte por IA, push |
 | `username-auth` | mobile | NomeÚnico + senha: `create`, `signin`, `claim` — deployed e testada em 2026-10-06 |
 

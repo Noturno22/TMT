@@ -13,6 +13,7 @@ export default tseslint.config(
   {
     ignores: [
       "dist",
+      "scripts",
       "mobile",
       "supabase",
       "**/.expo/**",

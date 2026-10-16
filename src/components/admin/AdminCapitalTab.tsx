@@ -6,14 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
+  approveManagementRequest,
   listCapitalAccounts,
   listCapitalContracts,
   listCapitalReports,
+  listManagementRequests,
   postCapitalReport,
+  rejectManagementRequest,
   upsertCapitalAccount,
   type AdminCapitalAccount,
   type AdminCapitalContract,
   type AdminCapitalReport,
+  type AdminManagementRequest,
 } from "@/lib/adminApi";
 import { formatShortDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -40,6 +44,7 @@ const daysLeft = (endDate: string) => {
 export function AdminCapitalTab() {
   const [accounts, setAccounts] = useState<AdminCapitalAccount[]>([]);
   const [contracts, setContracts] = useState<AdminCapitalContract[]>([]);
+  const [requests, setRequests] = useState<AdminManagementRequest[]>([]);
   const [activeCount, setActiveCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Record<string, Partial<AdminCapitalAccount>>>({});
@@ -49,10 +54,15 @@ export function AdminCapitalTab() {
 
   const load = useCallback(async () => {
     try {
-      const [accs, ctr] = await Promise.all([listCapitalAccounts(), listCapitalContracts()]);
+      const [accs, ctr, reqs] = await Promise.all([
+        listCapitalAccounts(),
+        listCapitalContracts(),
+        listManagementRequests("pending"),
+      ]);
       setAccounts(accs);
       setContracts(ctr.contracts);
       setActiveCount(ctr.activeCount);
+      setRequests(reqs);
     } catch (e: unknown) {
       toast.error("Erro", { description: e instanceof Error ? e.message : "Não foi possível carregar as contas de capital." });
     } finally {
@@ -171,6 +181,48 @@ export function AdminCapitalTab() {
           </div>
         ))}
       </div>
+
+      <Card>
+        <CardContent className="pt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Pedidos de gerenciamento</h3>
+            <span className="text-xs text-muted-foreground">{requests.length} pendente(s)</span>
+          </div>
+          {requests.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">Sem pedidos de gerenciamento.</p>
+          ) : (
+            requests.map((r, idx) => (
+              <div
+                key={r.id}
+                className={cn("flex flex-wrap items-center gap-3 py-2 text-sm", idx > 0 && "border-t border-border")}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{r.email || "—"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {planLabel(r.plan_id)} · {formatShortDate(r.created_at)}
+                    {r.note ? ` · ${r.note}` : ""}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  disabled={busy}
+                  onClick={() => void runAction(() => approveManagementRequest(r.id), "Pedido aprovado")}
+                >
+                  Aprovar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => void runAction(() => rejectManagementRequest(r.id), "Pedido recusado")}
+                >
+                  Rejeitar
+                </Button>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="pt-3">

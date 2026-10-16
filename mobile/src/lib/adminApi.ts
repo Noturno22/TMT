@@ -491,3 +491,58 @@ export async function listCapitalContracts(): Promise<{ contracts: AdminCapitalC
   );
   return { contracts: data.contracts ?? [], activeCount: data.active_count ?? 0 };
 }
+
+// ── Capital Management Requests (pedido de novo gerenciamento) ─────────
+
+export interface ManagementRequest {
+  id: string;
+  user_id: string;
+  plan_id: 'conservador' | 'equilibrado' | 'agressivo';
+  currency: 'usd' | 'aoa';
+  note: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+}
+
+export interface AdminManagementRequest extends ManagementRequest {
+  email: string;
+}
+
+export async function listManagementRequests(status?: string): Promise<AdminManagementRequest[]> {
+  const { requests } = await callAdminFn<{ requests: AdminManagementRequest[] }>(
+    'list_capital_management_requests',
+    { status },
+  );
+  return requests ?? [];
+}
+
+export async function approveManagementRequest(id: string): Promise<void> {
+  await callAdminFn('approve_capital_management_request', { id });
+}
+
+export async function rejectManagementRequest(id: string): Promise<void> {
+  await callAdminFn('reject_capital_management_request', { id });
+}
+
+export async function submitManagementRequest(req: {
+  plan_id: 'conservador' | 'equilibrado' | 'agressivo';
+  currency: 'usd' | 'aoa';
+  note?: string;
+}): Promise<string | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error(i18n.t('adminErrors.notAuthenticated'));
+  const { data, error } = await supabase
+    .from('capital_management_requests')
+    .insert({
+      user_id: user.id,
+      plan_id: req.plan_id,
+      currency: req.currency,
+      note: req.note?.trim() ? req.note.trim() : null,
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+  return data?.id ?? null;
+}

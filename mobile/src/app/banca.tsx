@@ -8,6 +8,7 @@ import { GradientCard } from '@/components/GradientCard';
 import { PremiumLock } from '@/components/PremiumLock';
 import { WithdrawalModal } from '@/components/WithdrawalModal';
 import { GrowthPlanSection } from '@/components/GrowthPlanSection';
+import { ManagementEnded } from '@/components/ManagementEnded';
 import { ContractCard } from '@/components/ContractCard';
 import { CapitalSimulatorCard } from '@/components/CapitalSimulatorCard';
 import { formatBancaMoney, formatShortDate } from '@/core/format';
@@ -21,7 +22,7 @@ import { useCapitalDeposits } from '@/hooks/useCapitalDeposits';
 import { useCapitalContract } from '@/hooks/useCapitalContract';
 import { useWithdrawalRequests } from '@/hooks/useWithdrawalRequests';
 import { MIN_CAPITAL_DEPOSIT, PAYMENT_METHODS } from '@/lib/plans';
-import type { WithdrawalRequest } from '@/core/types';
+import type { CapitalPlanId, WithdrawalRequest } from '@/core/types';
 
 const PLAN_RETURN_PCT: Record<string, number> = {
   conservador: 25,
@@ -87,6 +88,7 @@ export default function BancaScreen() {
   const latestDailyGain = latestReport ? dailyGain(latestReport) : 0;
 
   const activeContract = contract && contract.status === 'active' ? contract : null;
+  const contractFinished = !!contract && !(contract.status === 'active' && !contractEnded(contract.end_date));
 
   // reports chegam latest-first do hook; o gráfico quer ordem cronológica.
   const chartReports = [...reports].slice(0, 7).reverse();
@@ -180,6 +182,25 @@ export default function BancaScreen() {
               params: { amount: String(Math.round(amount * 100) / 100), currency: 'usd' },
             })
           }
+        />
+      </Screen>
+    );
+  }
+
+  if (contractFinished) {
+    return (
+      <Screen>
+        <SectionTitle>{t('capital.title')}</SectionTitle>
+        <AppText variant="muted" style={{ marginBottom: Spacing.md }}>
+          {t('capital.subtitle')}
+        </AppText>
+        <AppText variant="h2" style={{ marginBottom: Spacing.sm }}>{t('capital.endedTitle')}</AppText>
+        <ManagementEnded
+          finalValue={current}
+          capital={capital}
+          currency={cur}
+          profitValue={p}
+          defaultPlanId={planId as CapitalPlanId}
         />
       </Screen>
     );

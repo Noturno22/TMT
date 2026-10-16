@@ -23,6 +23,7 @@ import { CapitalSimulatorCard } from "@/components/banca/CapitalSimulatorCard";
 import { ContractCard } from "@/components/banca/ContractCard";
 import { GoalReached } from "@/components/banca/GoalReached";
 import { GrowthPlanSection, planNameKey } from "@/components/banca/GrowthPlanSection";
+import { ManagementEnded } from "@/components/banca/ManagementEnded";
 import { WithdrawModal } from "@/components/banca/WithdrawModal";
 import { useBanca } from "@/hooks/useBanca";
 import { useCapitalAccount } from "@/hooks/useCapitalAccount";
@@ -289,6 +290,25 @@ export default function Banca() {
             onDeposit={(amount) =>
               navigate(`/depositos?amount=${String(Math.round(amount * 100) / 100)}&currency=usd`)
             }
+          />
+        </section>
+      </Layout>
+    );
+  }
+
+  if (contractFinished) {
+    return (
+      <Layout>
+        <section className="container mx-auto max-w-3xl space-y-4 px-4 py-8">
+          <h1 className="font-display text-2xl font-bold">{t("capital.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("capital.subtitle")}</p>
+          <h2 className="font-display text-xl font-bold">{t("capital.endedTitle")}</h2>
+          <ManagementEnded
+            finalValue={current}
+            capital={capital}
+            currency={cur}
+            profitValue={profitValue}
+            defaultPlanId={planId}
           />
         </section>
       </Layout>

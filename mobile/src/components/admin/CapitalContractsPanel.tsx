@@ -1,10 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { Alert, View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Card, AppText, AppButton, Badge, Spinner } from '@/components/ui';
-import { formatBancaMoney } from '@/core/format';
+import { formatBancaMoney, formatShortDate } from '@/core/format';
 import { daysUntil } from '@/core/capital';
-import { listCapitalContracts, type AdminCapitalContract } from '@/lib/adminApi';
+import {
+  listCapitalContracts,
+  listManagementRequests,
+  approveManagementRequest,
+  rejectManagementRequest,
+  type AdminCapitalContract,
+  type AdminManagementRequest,
+} from '@/lib/adminApi';
 import { Spacing, type Palette } from '@/core/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -28,17 +35,20 @@ export function CapitalContractsPanel() {
   const styles = makeStyles(colors);
   const { t } = useTranslation();
   const [contracts, setContracts] = useState<AdminCapitalContract[]>([]);
+  const [requests, setRequests] = useState<AdminManagementRequest[]>([]);
   const [activeCount, setActiveCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setError(null);
-      const data = await listCapitalContracts();
+      const [data, reqs] = await Promise.all([listCapitalContracts(), listManagementRequests('pending')]);
       setContracts(data.contracts);
       setActiveCount(data.activeCount);
+      setRequests(reqs);
     } catch (e) {
       setError(e instanceof Error ? e.message : t('common.error'));
     } finally {
@@ -57,6 +67,18 @@ export function CapitalContractsPanel() {
   const statusColor = (s: AdminCapitalContract['status']) =>
     s === 'active' ? colors.success : s === 'completed' ? colors.primary : colors.destructive;
 
+  const act = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    try {
+      await fn();
+      await load();
+    } catch (e) {
+      Alert.alert(t('common.error'), e instanceof Error ? e.message : t('common.error'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (loading) return <Spinner label={t('capital.loading')} />;
 
   if (error) {
@@ -74,6 +96,45 @@ export function CapitalContractsPanel() {
       contentContainerStyle={{ paddingBottom: Spacing.xl }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
+      <Card style={styles.card}>
+        <View style={styles.headerRow}>
+          <AppText variant="label">{t('admin.managementRequests')}</AppText>
+          <AppText variant="small" style={styles.label}>{requests.length}</AppText>
+        </View>
+
+        {requests.length === 0 ? (
+          <AppText variant="muted" style={styles.center}>{t('admin.noManagementRequests')}</AppText>
+        ) : (
+          requests.map((r) => (
+            <View key={r.id} style={styles.itemRow}>
+              <View style={styles.itemMain}>
+                <View style={styles.emailRow}>
+                  <AppText variant="label" numberOfLines={1} style={{ flex: 1 }}>{r.email || '—'}</AppText>
+                  <Badge color={colors.warning}>{planLabel(r.plan_id)}</Badge>
+                </View>
+                <AppText variant="small" style={styles.label}>
+                  {formatShortDate(r.created_at)}{r.note ? ` · ${r.note}` : ''}
+                </AppText>
+                <View style={styles.actionsRow}>
+                  <AppButton
+                    title={t('admin.receiptApprove')}
+                    variant="primary"
+                    onPress={() => act(() => approveManagementRequest(r.id))}
+                    disabled={busy}
+                  />
+                  <AppButton
+                    title={t('admin.receiptReject')}
+                    variant="outline"
+                    onPress={() => act(() => rejectManagementRequest(r.id))}
+                    disabled={busy}
+                  />
+                </View>
+              </View>
+            </View>
+          ))
+        )}
+      </Card>
+
       <Card style={styles.card}>
         <View style={styles.headerRow}>
           <AppText variant="label">{t('admin.managedContracts')}</AppText>
@@ -112,7 +173,7 @@ export function CapitalContractsPanel() {
 const makeStyles = (c: Palette) =>
   StyleSheet.create({
     list: { flex: 1 },
-    card: { padding: Spacing.md },
+    card: { padding: Spacing.md, marginBottom: Spacing.md },
     headerRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -126,6 +187,7 @@ const makeStyles = (c: Palette) =>
     },
     itemMain: { gap: 2 },
     emailRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+    actionsRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.xs },
     label: { color: c.textMuted },
     errorBox: { padding: Spacing.lg, gap: Spacing.md },
     center: { textAlign: 'center', marginVertical: Spacing.md },

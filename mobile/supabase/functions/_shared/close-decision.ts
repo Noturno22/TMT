@@ -98,6 +98,52 @@ export function decideCloseFromCandles(input: {
   return null;
 }
 
+/**
+ * Replay de um sinal ja expirado: reconstroi o que teria acontecido ao percorrer
+ * as velas desde a criacao. O motor antigo so via o preco spot a cada 30 min, por
+ * isso a maioria dos sinais que tocaram TP/SL intra-candle acabavam por expirar e
+ * nao contavam para a taxa de acerto. Aqui:
+ *   1. procuramos a vela de ativacao (o preco tocou a entrada dentro da mesma
+ *      tolerancia de 0.15% que o close-signals usa em tempo real);
+ *   2. a partir dessa vela procuramos TP/SL, por ordem cronologica e com SL
+ *      primeiro no mesmo candle (leitura conservadora);
+ *   3. se a entrada nunca foi tocada nao houve trade, logo mantem-se expirado.
+ * A tolerancia de ativacao e reconstruida a partir do range da vela, ja que nao
+ * ha um registo de quando o sinal mudou de pending para active.
+ */
+export function replayCloseFromCandles(input: {
+  signalType: string;
+  entry: number;
+  sl: number;
+  tp: number;
+  candles: Ohlc[];
+}): CloseOutcome {
+  const { signalType, entry, sl, tp, candles } = input;
+  const type = signalType.toUpperCase();
+  if (!(entry > 0) || !(sl > 0) || !(tp > 0)) return 'expired';
+
+  const tol = entry * 0.0015;
+  const lowBound = entry - tol;
+  const highBound = entry + tol;
+  let activated = false;
+
+  for (const c of candles) {
+    if (!activated) {
+      if (!(c.l <= highBound && c.h >= lowBound)) continue;
+      activated = true;
+    }
+    if (type === 'BUY') {
+      if (c.l <= sl) return 'sl';
+      if (c.h >= tp) return 'tp';
+    } else if (type === 'SELL') {
+      if (c.h >= sl) return 'sl';
+      if (c.l <= tp) return 'tp';
+    }
+  }
+
+  return 'expired';
+}
+
 export function pipsOf(outcome: CloseOutcome, entry: number, sl: number, tp: number, symbol: string): number {
   if (outcome === 'expired') return 0;
   const norm = symbol.replace(/[^A-Za-z0-9]/g, '').toUpperCase();

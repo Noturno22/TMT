@@ -1,4 +1,4 @@
-import { decideClose, decideCloseFromCandles, pipsOf, riskRewardOf, type CloseInput } from './close-decision';
+import { decideClose, decideCloseFromCandles, replayCloseFromCandles, pipsOf, riskRewardOf, type CloseInput } from './close-decision';
 
 const NOW = new Date('2026-01-15T12:00:00Z');
 
@@ -177,5 +177,71 @@ describe('decideCloseFromCandles', () => {
 
   it('nao re-fecha em estado terminal', () => {
     expect(decideCloseFromCandles(base({ currentStatus: 'tp', candles: [candle(1, 1.1120, 1.0940)] }))).toBeNull();
+  });
+});
+
+describe('replayCloseFromCandles', () => {
+  function candle(t: number, h: number, l: number) {
+    return { t, h, l };
+  }
+  function base(over: Record<string, unknown> = {}) {
+    return {
+      signalType: 'BUY',
+      entry: 1.1000,
+      sl: 1.0950,
+      tp: 1.1100,
+      candles: [] as ReturnType<typeof candle>[],
+      ...over,
+    };
+  }
+
+  it('expira se a entrada nunca foi tocada (nao houve trade)', () => {
+    expect(
+      replayCloseFromCandles(base({ candles: [candle(1, 1.1200, 1.1150), candle(2, 1.1300, 1.1200)] })),
+    ).toBe('expired');
+  });
+
+  it('BUY: ativa ao tocar a entrada e fecha em TP', () => {
+    expect(
+      replayCloseFromCandles(base({ candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1120, 1.1000)] })),
+    ).toBe('tp');
+  });
+
+  it('BUY: ativa e fecha em SL', () => {
+    expect(
+      replayCloseFromCandles(base({ candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1000, 1.0940)] })),
+    ).toBe('sl');
+  });
+
+  it('ativa e fica expirado se nao tocar TP nem SL', () => {
+    expect(
+      replayCloseFromCandles(base({ candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1050, 1.0980)] })),
+    ).toBe('expired');
+  });
+
+  it('na mesma vela de ativacao, SL vence TP (conservador)', () => {
+    expect(replayCloseFromCandles(base({ candles: [candle(1, 1.1120, 1.0940)] }))).toBe('sl');
+  });
+
+  it('ignora velas antes da ativacao para efeitos de TP/SL', () => {
+    // Vela 1 toca TP mas a entrada so e tocada na vela 2, pelo que o TP nao conta.
+    expect(
+      replayCloseFromCandles(base({ candles: [candle(1, 1.1150, 1.1050), candle(2, 1.1010, 1.0990)] })),
+    ).toBe('expired');
+  });
+
+  it('SELL: ativa e fecha em TP (low) / SL (high)', () => {
+    const sell = { signalType: 'SELL', entry: 1.1000, sl: 1.1100, tp: 1.0900 };
+    expect(
+      replayCloseFromCandles(base({ ...sell, candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1000, 1.0850)] })),
+    ).toBe('tp');
+    expect(
+      replayCloseFromCandles(base({ ...sell, candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1150, 1.0990)] })),
+    ).toBe('sl');
+  });
+
+  it('niveis invalidos mantêm expirado', () => {
+    expect(replayCloseFromCandles(base({ entry: 0, candles: [candle(1, 1.1120, 1.0940)] }))).toBe('expired');
+    expect(replayCloseFromCandles(base({ sl: 0, candles: [candle(1, 1.1120, 1.0940)] }))).toBe('expired');
   });
 });

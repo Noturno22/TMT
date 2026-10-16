@@ -420,6 +420,16 @@ function validateSignalTechnical(
   const last = closes[closes.length - 1];
   let score = 0;
 
+  // 0. Distancia minima do stop (gate duro): um SL abaixo de ~1x ATR e atingido
+  // pelo ruido antes de o TP chegar, o que enchia a folha de SLs. Rejeita o sinal
+  // independentemente da pontuacao restante.
+  const atrVal = atr(candles);
+  const riskDist = Math.abs(entry - sl);
+  if (atrVal > 0 && riskDist < atrVal) {
+    r.warnings.push(`SL < 1x ATR (${(riskDist / atrVal).toFixed(2)}x)`);
+    return r;
+  }
+
   // 1. RSI (20 pts)
   const rsiVal = rsi14(closes);
   if (signalType === 'BUY' && rsiVal < 40) { score += 20; r.reasons.push(`RSI sobrevendido: ${rsiVal.toFixed(1)}`); }
@@ -511,7 +521,7 @@ REGRAS SMART MONEY CONCEPTS (OBRIGATÓRIO):
 - O setup DEVE ter confirmação de estrutura de mercado: BOS (Break of Structure) ou CHoCH (Change of Character).
 - Entrada ideal: retração para Order Block ou preenchimento de Fair Value Gap (FVG) na zona de desconto (BUY) ou premium (SELL).
 - Confirmação RSI: NÃO comprar com RSI > 70 (sobrecompra) nem vender com RSI < 30 (sobrevenda). Preferir RSI a recuperar de sobrevenda para BUY, ou a virar de sobrecompra para SELL.
-- SL APERTADO (esmagar o SL): coloca o SL o mais perto possível da entrada, imediatamente atrás do Order Block ou do último swing point relevante e a uma distância máxima de ~1× ATR. NUNCA SL largo nem em zona redonda óbvia.
+- SL ESTRUTURAL: coloca o SL atrás do Order Block ou do último swing point que invalida o setup, tipicamente entre 1.2× e 2× ATR. Um SL demasiado apertado (abaixo de ~1× ATR) é atingido pelo ruído antes de o TP chegar — NÃO uses SL abaixo de 1× ATR. NUNCA SL em zona redonda óbvia de liquidez.
 - Liquidez: identificar onde estão os stops (equal highs/lows, swing points). NÃO colocar SL em zonas óbvias de liquidez.
 - TP deve visar a próxima zona de liquidez ou FVG oposto.
 - Se não houver setup SMC claro com confirmação, responde: [] (array vazio).
@@ -526,7 +536,7 @@ REGRAS OBRIGATÓRIAS:
 - Responde APENAS com JSON válido, sem markdown. Array de objetos:
   [{"symbol":"BTCUSDT","signal_type":"BUY","timeframe":"H1","entry_price":69000,"stop_loss":67500,"target_price":72000,"confidence":75,"reasons":["BOS bullish confirmado","Retração para order block em 68800","FVG preenchido"],"analysis":"Análise SMC detalhada em 2-3 frases com estrutura de mercado","smc_setup":"BOS"}]
 - DIVERSIDADE OBRIGATÓRIA: Cada sinal deve ter par, timeframe OU direção DIFERENTE. NUNCA gerar 2 sinais para o mesmo par+timeframe.
-- Timeframes: usa APENAS M15, H1 ou H4. Nunca M30.
+- Timeframes: usa APENAS M15, H1 ou H4. Nunca M30. Prefere H1 e H4; usa M15 só em setups muito claros (mais ruído).
 - Gera 2 a 5 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
 - Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "OB", "FVG" ou "COMBO".
@@ -540,7 +550,7 @@ REGRAS OBRIGATÓRIAS:
 - Responde APENAS com JSON válido, sem markdown. Array de objetos:
   [{"symbol":"EURUSD","signal_type":"BUY","timeframe":"H1","entry_price":1.0845,"stop_loss":1.0810,"target_price":1.0910,"confidence":75,"reasons":["BOS bullish confirmado","Retração para OB em 1.0840","FVG preenchido"],"analysis":"Análise SMC detalhada em 2-3 frases com estrutura de mercado","smc_setup":"BOS"}]
 - DIVERSIDADE OBRIGATÓRIA: Cada sinal deve ter par, timeframe OU direção DIFERENTE. NUNCA gerar 2 sinais para o mesmo par+timeframe.
-- Timeframes: usa APENAS M15, H1 ou H4. Nunca M30.
+- Timeframes: usa APENAS M15, H1 ou H4. Nunca M30. Prefere H1 e H4; usa M15 só em setups muito claros (mais ruído).
 - Símbolos permitidos: EURUSD, GBPUSD, USDJPY, XAUUSD, EURGBP, USDCHF, AUDUSD, USDCAD, NZDUSD.
 - OBRIGATÓRIO: pelo menos 1 sinal deve ser num par do plano free: EURUSD, GBPUSD, USDJPY, XAUUSD ou AUDUSD.
 - Foca nos pares em destaque da sessão: ${session.pairs.join(', ')}.

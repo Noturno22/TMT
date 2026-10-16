@@ -455,7 +455,9 @@
     "roleUpdated": "Função do utilizador atualizada",
     "expiryUpdated": "Expiração da subscrição atualizada",
     "statExpiring": "Expira em Breve",
-    "statPendingReceipts": "Comprovativos Pendentes"
+    "statPendingReceipts": "Comprovativos Pendentes",
+    "managementRequests": "Pedidos de gerenciamento",
+    "noManagementRequests": "Sem pedidos de gerenciamento."
   },
   "adminErrors": {
     "load": "Erro ao carregar sinais",
@@ -754,7 +756,22 @@
     "managedActive": "A tua banca está a ser gerida",
     "managedEnded": "A gestão da tua banca terminou",
     "progressMissing": "Falta para a meta",
-    "loadError": "Não foi possível carregar os teus dados de capital."
+    "loadError": "Não foi possível carregar os teus dados de capital.",
+    "endedTitle": "Gerenciamento terminado",
+    "endedDesc": "O teu contrato de gestão de capital terminou.",
+    "newManagementTitle": "Pedir novo gerenciamento",
+    "newManagementDesc": "Escolhe um plano e envia um pedido à nossa equipa. Vão analisar e ativar um novo gerenciamento.",
+    "newManagementNote": "Nota (opcional)",
+    "newManagementNotePlaceholder": "Alguma preferência ou observação",
+    "newManagementCta": "Enviar pedido",
+    "requestPending": "Pedido em análise",
+    "requestPendingDesc": "O teu pedido de novo gerenciamento foi enviado e está a ser analisado pela equipa.",
+    "requestApproved": "Pedido aprovado",
+    "requestRejected": "Pedido recusado",
+    "requestSentTitle": "Pedido enviado",
+    "requestSentMsg": "A equipa vai analisar o teu pedido de novo gerenciamento.",
+    "requestErrorTitle": "Erro no pedido",
+    "requestErrorMsg": "Não foi possível enviar o pedido. Tenta novamente."
   },
   "diario": {
     "title": "Diário de Trader",

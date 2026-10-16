@@ -534,7 +534,22 @@
    "loadError": "Je kapitaalgegevens konden niet worden geladen.",
    "retry": "Opnieuw proberen",
    "goalReachedTitle": "DOEL BEREIKT",
-   "goalReachedDesc": "Je account heeft het geplande doel bereikt. Gefeliciteerd! Je kunt nu een opname van je winst aanvragen."
+   "goalReachedDesc": "Je account heeft het geplande doel bereikt. Gefeliciteerd! Je kunt nu een opname van je winst aanvragen.",
+  "endedTitle": "Beheer beëindigd",
+  "endedDesc": "Je kapitaalbeheercontract is beëindigd.",
+  "newManagementTitle": "Nieuw beheer aanvragen",
+  "newManagementDesc": "Kies een plan en stuur een aanvraag naar ons team. Zij beoordelen het en activeren nieuw beheer.",
+  "newManagementNote": "Notitie (optioneel)",
+  "newManagementNotePlaceholder": "Een voorkeur of opmerking",
+  "newManagementCta": "Aanvraag versturen",
+  "requestPending": "Aanvraag in behandeling",
+  "requestPendingDesc": "Je aanvraag voor nieuw beheer is verzonden en wordt door het team beoordeeld.",
+  "requestApproved": "Aanvraag goedgekeurd",
+  "requestRejected": "Aanvraag afgewezen",
+  "requestSentTitle": "Aanvraag verzonden",
+  "requestSentMsg": "Het team beoordeelt je aanvraag voor nieuw beheer.",
+  "requestErrorTitle": "Aanvraagfout",
+  "requestErrorMsg": "De aanvraag kon niet worden verzonden. Probeer het opnieuw."
  },
  "language": {
   "title": "Taal"
@@ -854,7 +869,9 @@
   "withdrawalMarkedPaid": "Gemarkeerd als betaald!",
   "withdrawalMarkPaid": "Als betaald markeren",
   "withdrawalPaid": "Betaald",
-  "withdrawalSearchPlaceholder": "Zoeken op methode of valuta..."
+  "withdrawalSearchPlaceholder": "Zoeken op methode of valuta...",
+  "managementRequests": "Beheeraanvragen",
+  "noManagementRequests": "Geen beheeraanvragen."
  },
  "adminErrors": {
   "load": "Fout bij het laden van signalen",

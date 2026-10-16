@@ -534,7 +534,22 @@
    "loadError": "자본 데이터를 불러오지 못했습니다.",
    "retry": "다시 시도",
    "goalReachedTitle": "목표 달성",
-   "goalReachedDesc": "계좌가 계획한 목표에 도달했습니다. 축하합니다! 이제 수익 출금을 요청할 수 있습니다."
+   "goalReachedDesc": "계좌가 계획한 목표에 도달했습니다. 축하합니다! 이제 수익 출금을 요청할 수 있습니다.",
+  "endedTitle": "관리가 종료되었습니다",
+  "endedDesc": "귀하의 자본 관리 계약이 종료되었습니다.",
+  "newManagementTitle": "새 관리 신청",
+  "newManagementDesc": "플랜을 선택하고 팀에 신청서를 보내세요. 팀이 검토 후 새 관리를 활성화합니다.",
+  "newManagementNote": "메모(선택)",
+  "newManagementNotePlaceholder": "희망 사항 또는 비고",
+  "newManagementCta": "신청 보내기",
+  "requestPending": "검토 중인 신청",
+  "requestPendingDesc": "새 관리 신청이 전송되어 팀이 검토하고 있습니다.",
+  "requestApproved": "신청 승인됨",
+  "requestRejected": "신청 거부됨",
+  "requestSentTitle": "신청 전송됨",
+  "requestSentMsg": "팀이 새 관리 신청을 검토합니다.",
+  "requestErrorTitle": "신청 오류",
+  "requestErrorMsg": "신청을 보낼 수 없습니다. 다시 시도해 주세요."
  },
  "language": {
   "title": "언어"
@@ -854,7 +869,9 @@
   "withdrawalMarkedPaid": "결제 완료로 표시되었습니다!",
   "withdrawalMarkPaid": "결제 완료로 표시",
   "withdrawalPaid": "결제 완료",
-  "withdrawalSearchPlaceholder": "수단이나 통화로 검색..."
+  "withdrawalSearchPlaceholder": "수단이나 통화로 검색...",
+  "managementRequests": "관리 신청",
+  "noManagementRequests": "관리 신청이 없습니다."
  },
  "adminErrors": {
   "load": "신호를 불러오는 중 오류 발생",

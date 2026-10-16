@@ -731,7 +731,9 @@
   "setExpirationNone": "A subscrição não expirará mais.",
   "setExpirationDaysMsg": "A subscrição expirará em {{days}} dias.",
   "idLabel": "ID",
-  "premiumBadge": "⭐ PREMIUM"
+  "premiumBadge": "⭐ PREMIUM",
+  "managementRequests": "Pedidos de gerenciamento",
+  "noManagementRequests": "Sem pedidos de gerenciamento."
  },
  "adminErrors": {
   "load": "Erro ao carregar sinais",
@@ -1100,7 +1102,22 @@
    "loadError": "Não foi possível carregar os teus dados de capital.",
    "retry": "Tentar novamente",
    "goalReachedTitle": "OBJETIVO ALCANÇADO",
-   "goalReachedDesc": "A tua banca atingiu a meta planeada. Parabéns! Podes agora pedir o levantamento dos teus lucros."
+   "goalReachedDesc": "A tua banca atingiu a meta planeada. Parabéns! Podes agora pedir o levantamento dos teus lucros.",
+  "endedTitle": "Gerenciamento terminado",
+  "endedDesc": "O teu contrato de gestão de capital terminou.",
+  "newManagementTitle": "Pedir novo gerenciamento",
+  "newManagementDesc": "Escolhe um plano e envia um pedido à nossa equipa. Vão analisar e ativar um novo gerenciamento.",
+  "newManagementNote": "Nota (opcional)",
+  "newManagementNotePlaceholder": "Alguma preferência ou observação",
+  "newManagementCta": "Enviar pedido",
+  "requestPending": "Pedido em análise",
+  "requestPendingDesc": "O teu pedido de novo gerenciamento foi enviado e está a ser analisado pela equipa.",
+  "requestApproved": "Pedido aprovado",
+  "requestRejected": "Pedido recusado",
+  "requestSentTitle": "Pedido enviado",
+  "requestSentMsg": "A equipa vai analisar o teu pedido de novo gerenciamento.",
+  "requestErrorTitle": "Erro no pedido",
+  "requestErrorMsg": "Não foi possível enviar o pedido. Tenta novamente."
  },
  "diario": {
   "title": "Diário de Trader",

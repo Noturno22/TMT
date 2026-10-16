@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "تم تحديده كمدفوع!",
   "withdrawalMarkPaid": "تحديد كمدفوع",
   "withdrawalPaid": "مدفوع",
-  "withdrawalSearchPlaceholder": "ابحث بالطريقة أو العملة..."
+  "withdrawalSearchPlaceholder": "ابحث بالطريقة أو العملة...",
+  "managementRequests": "طلبات الإدارة",
+  "noManagementRequests": "لا توجد طلبات إدارة."
  },
  "adminErrors": {
   "load": "خطأ في تحميل الإشارات",
@@ -1139,7 +1141,22 @@
    "loadError": "تعذّر تحميل بيانات رأس مالك.",
    "retry": "إعادة المحاولة",
    "goalReachedTitle": "تم تحقيق الهدف",
-   "goalReachedDesc": "وصل حسابك إلى الهدف المخطط له. تهانينا! يمكنك الآن طلب سحب أرباحك."
+   "goalReachedDesc": "وصل حسابك إلى الهدف المخطط له. تهانينا! يمكنك الآن طلب سحب أرباحك.",
+  "endedTitle": "انتهت الإدارة",
+  "endedDesc": "انتهى عقد إدارة رأس المال الخاص بك.",
+  "newManagementTitle": "طلب إدارة جديدة",
+  "newManagementDesc": "اختر خطة وأرسل طلبًا إلى فريقنا. سيراجعون الطلب ويُفعّلون إدارة جديدة.",
+  "newManagementNote": "ملاحظة (اختياري)",
+  "newManagementNotePlaceholder": "أي تفضيل أو ملاحظة",
+  "newManagementCta": "إرسال الطلب",
+  "requestPending": "الطلب قيد المراجعة",
+  "requestPendingDesc": "تم إرسال طلبك لإدارة جديدة والفريق يراجعه.",
+  "requestApproved": "تمت الموافقة على الطلب",
+  "requestRejected": "تم رفض الطلب",
+  "requestSentTitle": "تم إرسال الطلب",
+  "requestSentMsg": "سيراجع الفريق طلبك لإدارة جديدة.",
+  "requestErrorTitle": "خطأ في الطلب",
+  "requestErrorMsg": "تعذّر إرسال الطلب. حاول مرة أخرى."
  },
  "depositos": {
   "title": "الإيداعات والسحوبات",

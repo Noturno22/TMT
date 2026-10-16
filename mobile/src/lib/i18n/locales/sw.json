@@ -465,7 +465,9 @@
     "roleUpdated": "Jukumo la mtumiaji limeasasishwa",
     "expiryUpdated": "Mwisho wa usajili umeasasishwa",
     "statExpiring": "Inaisha Karibuni",
-    "statPendingReceipts": "Risiti Zinazosubiri"
+    "statPendingReceipts": "Risiti Zinazosubiri",
+    "managementRequests": "Maombi ya usimamizi",
+    "noManagementRequests": "Hakuna maombi ya usimamizi."
   },
   "adminErrors": {
     "load": "Hitilafu wakati wa kupakia ishara",
@@ -708,7 +710,22 @@
     "managedActive": "Mtaji wako unasimamiwa",
     "managedEnded": "Usimamizi wa mtaji wako umemalizika",
     "progressMissing": "Kilichobaki kufikia lengo",
-    "loadError": "Hatukuweza kupakia data yako ya mtaji."
+    "loadError": "Hatukuweza kupakia data yako ya mtaji.",
+    "endedTitle": "Usimamizi umekamilika",
+    "endedDesc": "Mkataba wako wa usimamizi wa mtaji umekamilika.",
+    "newManagementTitle": "Omba usimamizi mpya",
+    "newManagementDesc": "Chagua mpango na utume ombi kwa timu yetu. Wataukagua na kuamsha usimamizi mpya.",
+    "newManagementNote": "Dokezo (hiari)",
+    "newManagementNotePlaceholder": "Upendeleo au maoni yoyote",
+    "newManagementCta": "Tuma ombi",
+    "requestPending": "Ombi linakaguliwa",
+    "requestPendingDesc": "Ombi lako la usimamizi mpya limetumwa na linakaguliwa na timu.",
+    "requestApproved": "Ombi limeidhinishwa",
+    "requestRejected": "Ombi limekataliwa",
+    "requestSentTitle": "Ombi limetumwa",
+    "requestSentMsg": "Timu itakagua ombi lako la usimamizi mpya.",
+    "requestErrorTitle": "Hitilafu ya ombi",
+    "requestErrorMsg": "Imeshindwa kutuma ombi. Jaribu tena."
   },
   "banca": {
     "title": "Usimamizi wa Mtaji",

@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "支払い済みにしました！",
   "withdrawalMarkPaid": "支払い済みにする",
   "withdrawalPaid": "支払い済み",
-  "withdrawalSearchPlaceholder": "方法または通貨で検索..."
+  "withdrawalSearchPlaceholder": "方法または通貨で検索...",
+  "managementRequests": "管理の申請",
+  "noManagementRequests": "管理の申請はありません。"
  },
  "adminErrors": {
   "load": "シグナルの読み込みエラー",
@@ -1139,7 +1141,22 @@
    "loadError": "資本データを読み込めませんでした。",
    "retry": "再試行",
    "goalReachedTitle": "目標達成",
-   "goalReachedDesc": "口座が予定の目標に到達しました。おめでとうございます！利益の出金を申請できます。"
+   "goalReachedDesc": "口座が予定の目標に到達しました。おめでとうございます！利益の出金を申請できます。",
+  "endedTitle": "管理が終了しました",
+  "endedDesc": "あなたの資金管理契約は終了しました。",
+  "newManagementTitle": "新しい管理を申請",
+  "newManagementDesc": "プランを選び、チームに申請を送信してください。チームが審査し、新しい管理を有効にします。",
+  "newManagementNote": "メモ（任意）",
+  "newManagementNotePlaceholder": "希望や備考",
+  "newManagementCta": "申請を送信",
+  "requestPending": "申請を審査中",
+  "requestPendingDesc": "新しい管理の申請が送信され、チームが審査しています。",
+  "requestApproved": "申請が承認されました",
+  "requestRejected": "申請が拒否されました",
+  "requestSentTitle": "申請を送信しました",
+  "requestSentMsg": "チームが新しい管理の申請を審査します。",
+  "requestErrorTitle": "申請エラー",
+  "requestErrorMsg": "申請を送信できませんでした。もう一度お試しください。"
  },
  "depositos": {
   "title": "入金と出金",

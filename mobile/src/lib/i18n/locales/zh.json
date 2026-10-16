@@ -465,7 +465,9 @@
     "roleUpdated": "用户角色已更新",
     "expiryUpdated": "订阅到期时间已更新",
     "statExpiring": "即将到期",
-    "statPendingReceipts": "待审核凭证"
+    "statPendingReceipts": "待审核凭证",
+    "managementRequests": "管理申请",
+    "noManagementRequests": "没有管理申请。"
   },
   "adminErrors": {
     "load": "加载信号出错",
@@ -764,7 +766,22 @@
     "managedActive": "您的资金正在被管理",
     "managedEnded": "您的资金管理已结束",
     "progressMissing": "距目标还差",
-    "loadError": "无法加载您的资金数据。"
+    "loadError": "无法加载您的资金数据。",
+    "endedTitle": "管理已结束",
+    "endedDesc": "你的资金管理合约已结束。",
+    "newManagementTitle": "申请新的管理",
+    "newManagementDesc": "选择一个计划并向我们的团队发送申请。他们会审核并激活新的管理。",
+    "newManagementNote": "备注（可选）",
+    "newManagementNotePlaceholder": "任何偏好或说明",
+    "newManagementCta": "发送申请",
+    "requestPending": "申请审核中",
+    "requestPendingDesc": "你的新管理申请已发送，团队正在审核。",
+    "requestApproved": "申请已批准",
+    "requestRejected": "申请已被拒绝",
+    "requestSentTitle": "申请已发送",
+    "requestSentMsg": "团队将审核你的新管理申请。",
+    "requestErrorTitle": "申请错误",
+    "requestErrorMsg": "无法发送申请，请重试。"
   },
   "depositos": {
     "title": "存款与提现",

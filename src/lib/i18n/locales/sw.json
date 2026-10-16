@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "Alama imewekwa: imelipwa!",
   "withdrawalMarkPaid": "Weka alama: imelipwa",
   "withdrawalPaid": "Imelipwa",
-  "withdrawalSearchPlaceholder": "Tafuta kwa njia au sarafu..."
+  "withdrawalSearchPlaceholder": "Tafuta kwa njia au sarafu...",
+  "managementRequests": "Maombi ya usimamizi",
+  "noManagementRequests": "Hakuna maombi ya usimamizi."
  },
  "adminErrors": {
   "load": "Hitilafu wakati wa kupakia ishara",
@@ -1083,7 +1085,22 @@
    "loadError": "Hatukuweza kupakia data yako ya mtaji.",
    "retry": "Jaribu tena",
    "goalReachedTitle": "LENGO LIMEFIKIWA",
-   "goalReachedDesc": "Akaunti yako imefikia lengo lililopangwa. Hongera! Sasa unaweza kuomba kutoa faida yako."
+   "goalReachedDesc": "Akaunti yako imefikia lengo lililopangwa. Hongera! Sasa unaweza kuomba kutoa faida yako.",
+  "endedTitle": "Usimamizi umekamilika",
+  "endedDesc": "Mkataba wako wa usimamizi wa mtaji umekamilika.",
+  "newManagementTitle": "Omba usimamizi mpya",
+  "newManagementDesc": "Chagua mpango na utume ombi kwa timu yetu. Wataukagua na kuamsha usimamizi mpya.",
+  "newManagementNote": "Dokezo (hiari)",
+  "newManagementNotePlaceholder": "Upendeleo au maoni yoyote",
+  "newManagementCta": "Tuma ombi",
+  "requestPending": "Ombi linakaguliwa",
+  "requestPendingDesc": "Ombi lako la usimamizi mpya limetumwa na linakaguliwa na timu.",
+  "requestApproved": "Ombi limeidhinishwa",
+  "requestRejected": "Ombi limekataliwa",
+  "requestSentTitle": "Ombi limetumwa",
+  "requestSentMsg": "Timu itakagua ombi lako la usimamizi mpya.",
+  "requestErrorTitle": "Hitilafu ya ombi",
+  "requestErrorMsg": "Imeshindwa kutuma ombi. Jaribu tena."
  },
  "banca": {
   "title": "Usimamizi wa Mtaji",

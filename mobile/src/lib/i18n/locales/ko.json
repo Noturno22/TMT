@@ -379,7 +379,22 @@
     "managedActive": "귀하의 자본이 운용되고 있습니다",
     "managedEnded": "귀하의 자본 운용이 종료되었습니다",
     "progressMissing": "목표까지 남은 금액",
-    "loadError": "자본 데이터를 불러오지 못했습니다."
+    "loadError": "자본 데이터를 불러오지 못했습니다.",
+    "endedTitle": "관리가 종료되었습니다",
+    "endedDesc": "귀하의 자본 관리 계약이 종료되었습니다.",
+    "newManagementTitle": "새 관리 신청",
+    "newManagementDesc": "플랜을 선택하고 팀에 신청서를 보내세요. 팀이 검토 후 새 관리를 활성화합니다.",
+    "newManagementNote": "메모(선택)",
+    "newManagementNotePlaceholder": "희망 사항 또는 비고",
+    "newManagementCta": "신청 보내기",
+    "requestPending": "검토 중인 신청",
+    "requestPendingDesc": "새 관리 신청이 전송되어 팀이 검토하고 있습니다.",
+    "requestApproved": "신청 승인됨",
+    "requestRejected": "신청 거부됨",
+    "requestSentTitle": "신청 전송됨",
+    "requestSentMsg": "팀이 새 관리 신청을 검토합니다.",
+    "requestErrorTitle": "신청 오류",
+    "requestErrorMsg": "신청을 보낼 수 없습니다. 다시 시도해 주세요."
   },
   "language": {
     "title": "언어"
@@ -549,7 +564,9 @@
     "roleUpdated": "사용자 권한이 업데이트되었습니다",
     "expiryUpdated": "구독 만료일이 업데이트되었습니다",
     "statExpiring": "곧 만료",
-    "statPendingReceipts": "대기 중인 영수증"
+    "statPendingReceipts": "대기 중인 영수증",
+    "managementRequests": "관리 신청",
+    "noManagementRequests": "관리 신청이 없습니다."
   },
   "adminErrors": {
     "load": "신호를 불러오는 중 오류 발생",

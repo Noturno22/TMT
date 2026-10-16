@@ -465,7 +465,9 @@
     "roleUpdated": "Rol del usuario actualizado",
     "expiryUpdated": "Expiración de la suscripción actualizada",
     "statExpiring": "Expira Pronto",
-    "statPendingReceipts": "Comprobantes Pendentes"
+    "statPendingReceipts": "Comprobantes Pendentes",
+    "managementRequests": "Solicitudes de gestión",
+    "noManagementRequests": "Sin solicitudes de gestión."
   },
   "adminErrors": {
     "load": "Error al cargar señales",
@@ -1174,7 +1176,22 @@
     "managedActive": "Tu capital está siendo gestionado",
     "managedEnded": "La gestión de tu capital ha finalizado",
     "progressMissing": "Falta para el objetivo",
-    "loadError": "No se pudieron cargar tus datos de capital."
+    "loadError": "No se pudieron cargar tus datos de capital.",
+    "endedTitle": "Gestión finalizada",
+    "endedDesc": "Tu contrato de gestión de capital ha finalizado.",
+    "newManagementTitle": "Solicitar nueva gestión",
+    "newManagementDesc": "Elige un plan y envía una solicitud a nuestro equipo. La revisarán y activarán una nueva gestión.",
+    "newManagementNote": "Nota (opcional)",
+    "newManagementNotePlaceholder": "Alguna preferencia u observación",
+    "newManagementCta": "Enviar solicitud",
+    "requestPending": "Solicitud en revisión",
+    "requestPendingDesc": "Tu solicitud de nueva gestión se ha enviado y el equipo la está revisando.",
+    "requestApproved": "Solicitud aprobada",
+    "requestRejected": "Solicitud rechazada",
+    "requestSentTitle": "Solicitud enviada",
+    "requestSentMsg": "El equipo revisará tu solicitud de nueva gestión.",
+    "requestErrorTitle": "Error en la solicitud",
+    "requestErrorMsg": "No se pudo enviar la solicitud. Inténtalo de nuevo."
   },
   "store": {
     "title": "Tienda",

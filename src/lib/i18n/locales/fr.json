@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "Marqué comme payé !",
   "withdrawalMarkPaid": "Marquer Payé",
   "withdrawalPaid": "Payé",
-  "withdrawalSearchPlaceholder": "Rechercher par méthode ou devise..."
+  "withdrawalSearchPlaceholder": "Rechercher par méthode ou devise...",
+  "managementRequests": "Demandes de gestion",
+  "noManagementRequests": "Aucune demande de gestion."
  },
  "adminErrors": {
   "load": "Erreur lors du chargement des signaux",
@@ -1139,7 +1141,22 @@
    "loadError": "Impossible de charger tes données de capital.",
    "retry": "Réessayer",
    "goalReachedTitle": "OBJECTIF ATTEINT",
-   "goalReachedDesc": "Ton compte a atteint l'objectif prévu. Félicitations ! Tu peux maintenant demander un retrait de tes profits."
+   "goalReachedDesc": "Ton compte a atteint l'objectif prévu. Félicitations ! Tu peux maintenant demander un retrait de tes profits.",
+  "endedTitle": "Gestion terminée",
+  "endedDesc": "Ton contrat de gestion de capital est terminé.",
+  "newManagementTitle": "Demander une nouvelle gestion",
+  "newManagementDesc": "Choisis un plan et envoie une demande à notre équipe. Elle l'examinera et activera une nouvelle gestion.",
+  "newManagementNote": "Note (facultatif)",
+  "newManagementNotePlaceholder": "Une préférence ou une remarque",
+  "newManagementCta": "Envoyer la demande",
+  "requestPending": "Demande en cours d'examen",
+  "requestPendingDesc": "Ta demande de nouvelle gestion a été envoyée et est en cours d'examen par l'équipe.",
+  "requestApproved": "Demande approuvée",
+  "requestRejected": "Demande refusée",
+  "requestSentTitle": "Demande envoyée",
+  "requestSentMsg": "L'équipe examinera ta demande de nouvelle gestion.",
+  "requestErrorTitle": "Erreur de demande",
+  "requestErrorMsg": "Impossible d'envoyer la demande. Réessaie."
  },
  "depositos": {
   "title": "Dépôts et retraits",

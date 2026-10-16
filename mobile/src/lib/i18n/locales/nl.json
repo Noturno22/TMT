@@ -379,7 +379,22 @@
     "managedActive": "Je kapitaal wordt beheerd",
     "managedEnded": "Het beheer van je kapitaal is beëindigd",
     "progressMissing": "Resterend tot het doel",
-    "loadError": "Je kapitaalgegevens konden niet worden geladen."
+    "loadError": "Je kapitaalgegevens konden niet worden geladen.",
+    "endedTitle": "Beheer beëindigd",
+    "endedDesc": "Je kapitaalbeheercontract is beëindigd.",
+    "newManagementTitle": "Nieuw beheer aanvragen",
+    "newManagementDesc": "Kies een plan en stuur een aanvraag naar ons team. Zij beoordelen het en activeren nieuw beheer.",
+    "newManagementNote": "Notitie (optioneel)",
+    "newManagementNotePlaceholder": "Een voorkeur of opmerking",
+    "newManagementCta": "Aanvraag versturen",
+    "requestPending": "Aanvraag in behandeling",
+    "requestPendingDesc": "Je aanvraag voor nieuw beheer is verzonden en wordt door het team beoordeeld.",
+    "requestApproved": "Aanvraag goedgekeurd",
+    "requestRejected": "Aanvraag afgewezen",
+    "requestSentTitle": "Aanvraag verzonden",
+    "requestSentMsg": "Het team beoordeelt je aanvraag voor nieuw beheer.",
+    "requestErrorTitle": "Aanvraagfout",
+    "requestErrorMsg": "De aanvraag kon niet worden verzonden. Probeer het opnieuw."
   },
   "language": {
     "title": "Taal"
@@ -549,7 +564,9 @@
     "roleUpdated": "Rol van gebruiker bijgewerkt",
     "expiryUpdated": "Vervaldatum abonnement bijgewerkt",
     "statExpiring": "Vervalt binnenkort",
-    "statPendingReceipts": "Betalingsbewijzen in behandeling"
+    "statPendingReceipts": "Betalingsbewijzen in behandeling",
+    "managementRequests": "Beheeraanvragen",
+    "noManagementRequests": "Geen beheeraanvragen."
   },
   "adminErrors": {
     "load": "Fout bij het laden van signalen",

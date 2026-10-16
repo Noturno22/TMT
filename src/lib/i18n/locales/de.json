@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "Als bezahlt markiert!",
   "withdrawalMarkPaid": "Als bezahlt markieren",
   "withdrawalPaid": "Bezahlt",
-  "withdrawalSearchPlaceholder": "Nach Methode oder Währung suchen..."
+  "withdrawalSearchPlaceholder": "Nach Methode oder Währung suchen...",
+  "managementRequests": "Verwaltungsanfragen",
+  "noManagementRequests": "Keine Verwaltungsanfragen."
  },
  "adminErrors": {
   "load": "Fehler beim Laden der Signale",
@@ -1083,7 +1085,22 @@
    "loadError": "Deine Kapitaldaten konnten nicht geladen werden.",
    "retry": "Erneut versuchen",
    "goalReachedTitle": "ZIEL ERREICHT",
-   "goalReachedDesc": "Dein Konto hat das geplante Ziel erreicht. Herzlichen Glückwunsch! Du kannst jetzt eine Auszahlung deiner Gewinne beantragen."
+   "goalReachedDesc": "Dein Konto hat das geplante Ziel erreicht. Herzlichen Glückwunsch! Du kannst jetzt eine Auszahlung deiner Gewinne beantragen.",
+  "endedTitle": "Verwaltung beendet",
+  "endedDesc": "Dein Kapitalverwaltungsvertrag ist beendet.",
+  "newManagementTitle": "Neue Verwaltung anfordern",
+  "newManagementDesc": "Wähle einen Plan und sende eine Anfrage an unser Team. Es prüft sie und aktiviert eine neue Verwaltung.",
+  "newManagementNote": "Notiz (optional)",
+  "newManagementNotePlaceholder": "Eine Präferenz oder Anmerkung",
+  "newManagementCta": "Anfrage senden",
+  "requestPending": "Anfrage in Prüfung",
+  "requestPendingDesc": "Deine Anfrage für eine neue Verwaltung wurde gesendet und wird vom Team geprüft.",
+  "requestApproved": "Anfrage genehmigt",
+  "requestRejected": "Anfrage abgelehnt",
+  "requestSentTitle": "Anfrage gesendet",
+  "requestSentMsg": "Das Team prüft deine Anfrage für eine neue Verwaltung.",
+  "requestErrorTitle": "Anfragefehler",
+  "requestErrorMsg": "Die Anfrage konnte nicht gesendet werden. Versuche es erneut."
  },
  "banca": {
   "title": "Bankroll-Verwaltung",

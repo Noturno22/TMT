@@ -465,7 +465,9 @@
     "roleUpdated": "Ruolo dell'utente aggiornato",
     "expiryUpdated": "Scadenza dell'abbonamento aggiornata",
     "statExpiring": "Scade a breve",
-    "statPendingReceipts": "Ricevute in attesa"
+    "statPendingReceipts": "Ricevute in attesa",
+    "managementRequests": "Richieste di gestione",
+    "noManagementRequests": "Nessuna richiesta di gestione."
   },
   "adminErrors": {
     "load": "Errore nel caricamento dei segnali",
@@ -764,7 +766,22 @@
     "managedActive": "Il tuo capitale è in gestione",
     "managedEnded": "La gestione del tuo capitale è terminata",
     "progressMissing": "Manca per l'obiettivo",
-    "loadError": "Impossibile caricare i tuoi dati di capitale."
+    "loadError": "Impossibile caricare i tuoi dati di capitale.",
+    "endedTitle": "Gestione terminata",
+    "endedDesc": "Il tuo contratto di gestione del capitale è terminato.",
+    "newManagementTitle": "Richiedi nuova gestione",
+    "newManagementDesc": "Scegli un piano e invia una richiesta al nostro team. La esamineranno e attiveranno una nuova gestione.",
+    "newManagementNote": "Nota (facoltativa)",
+    "newManagementNotePlaceholder": "Qualche preferenza o osservazione",
+    "newManagementCta": "Invia richiesta",
+    "requestPending": "Richiesta in esame",
+    "requestPendingDesc": "La tua richiesta di nuova gestione è stata inviata ed è in esame da parte del team.",
+    "requestApproved": "Richiesta approvata",
+    "requestRejected": "Richiesta rifiutata",
+    "requestSentTitle": "Richiesta inviata",
+    "requestSentMsg": "Il team esaminerà la tua richiesta di nuova gestione.",
+    "requestErrorTitle": "Errore richiesta",
+    "requestErrorMsg": "Impossibile inviare la richiesta. Riprova."
   },
   "depositos": {
     "title": "Depositi e Prelievi",

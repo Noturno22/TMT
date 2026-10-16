@@ -534,7 +534,22 @@
    "loadError": "Tokokaki te kotia ba données ya capital na yo.",
    "retry": "Meka lisusu",
    "goalReachedTitle": "ELOKO ESILI",
-   "goalReachedDesc": "Kompte na yo ekómi na mokano. Nkembo! Okoki kosɛngɛ kobimisa libongo na yo."
+   "goalReachedDesc": "Kompte na yo ekómi na mokano. Nkembo! Okoki kosɛngɛ kobimisa libongo na yo.",
+  "endedTitle": "Bokambi esilisi",
+  "endedDesc": "Kondira ya yo ya bokambi ya mosolo esilisi.",
+  "newManagementTitle": "Sengela bokambi ya sika",
+  "newManagementDesc": "Pona plan mpe tinda bosenga na ekipi na biso. Bakotalela mpe bakofungola bokambi ya sika.",
+  "newManagementNote": "Nsango (soki olingi)",
+  "newManagementNotePlaceholder": "Elingi to likebisi",
+  "newManagementCta": "Tinda bosenga",
+  "requestPending": "Bosenga ezali kotalelama",
+  "requestPendingDesc": "Bosenga na yo ya bokambi ya sika etindami mpe ekipi ezali kotalela.",
+  "requestApproved": "Bosenga endimami",
+  "requestRejected": "Bosenga eboyami",
+  "requestSentTitle": "Bosenga etindami",
+  "requestSentMsg": "Ekipi ekotalela bosenga na yo ya bokambi ya sika.",
+  "requestErrorTitle": "Libunga ya bosenga",
+  "requestErrorMsg": "Ekoki te kotinda bosenga. Meka lisusu."
  },
  "language": {
   "title": "Lokótá"
@@ -854,7 +869,9 @@
   "withdrawalMarkedPaid": "Ekombolami lokola ebokali!",
   "withdrawalMarkPaid": "Kombolya Ebokali",
   "withdrawalPaid": "Ebokali",
-  "withdrawalSearchPlaceholder": "Koluka na nzela to mbongo..."
+  "withdrawalSearchPlaceholder": "Koluka na nzela to mbongo...",
+  "managementRequests": "Basenga ya bokambi",
+  "noManagementRequests": "Basenga ya bokambi ezali te."
  },
  "adminErrors": {
   "load": "Libunga ya kotia ba signaux",

@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "Отмечено как оплаченное!",
   "withdrawalMarkPaid": "Отметить оплаченным",
   "withdrawalPaid": "Оплачено",
-  "withdrawalSearchPlaceholder": "Поиск по способу или валюте..."
+  "withdrawalSearchPlaceholder": "Поиск по способу или валюте...",
+  "managementRequests": "Запросы на управление",
+  "noManagementRequests": "Нет запросов на управление."
  },
  "adminErrors": {
   "load": "Ошибка загрузки сигналов",
@@ -1139,7 +1141,22 @@
    "loadError": "Не удалось загрузить данные вашего капитала.",
    "retry": "Повторить",
    "goalReachedTitle": "ЦЕЛЬ ДОСТИГНУТА",
-   "goalReachedDesc": "Ваш счёт достиг запланированной цели. Поздравляем! Теперь вы можете запросить вывод прибыли."
+   "goalReachedDesc": "Ваш счёт достиг запланированной цели. Поздравляем! Теперь вы можете запросить вывод прибыли.",
+  "endedTitle": "Управление завершено",
+  "endedDesc": "Ваш договор управления капиталом завершён.",
+  "newManagementTitle": "Запросить новое управление",
+  "newManagementDesc": "Выберите план и отправьте запрос нашей команде. Она рассмотрит его и активирует новое управление.",
+  "newManagementNote": "Примечание (необязательно)",
+  "newManagementNotePlaceholder": "Пожелание или замечание",
+  "newManagementCta": "Отправить запрос",
+  "requestPending": "Запрос на рассмотрении",
+  "requestPendingDesc": "Ваш запрос на новое управление отправлен и рассматривается командой.",
+  "requestApproved": "Запрос одобрен",
+  "requestRejected": "Запрос отклонён",
+  "requestSentTitle": "Запрос отправлен",
+  "requestSentMsg": "Команда рассмотрит ваш запрос на новое управление.",
+  "requestErrorTitle": "Ошибка запроса",
+  "requestErrorMsg": "Не удалось отправить запрос. Попробуйте ещё раз."
  },
  "depositos": {
   "title": "Депозиты и вывод средств",

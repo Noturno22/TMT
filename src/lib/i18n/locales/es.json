@@ -770,7 +770,9 @@
   "withdrawalMarkedPaid": "¡Marcado como pagado!",
   "withdrawalMarkPaid": "Marcar Pago",
   "withdrawalPaid": "Pago",
-  "withdrawalSearchPlaceholder": "Buscar por método o moneda..."
+  "withdrawalSearchPlaceholder": "Buscar por método o moneda...",
+  "managementRequests": "Solicitudes de gestión",
+  "noManagementRequests": "Sin solicitudes de gestión."
  },
  "adminErrors": {
   "load": "Error al cargar señales",
@@ -1557,7 +1559,22 @@
    "loadError": "No se pudieron cargar tus datos de capital.",
    "retry": "Reintentar",
    "goalReachedTitle": "OBJETIVO ALCANZADO",
-   "goalReachedDesc": "Tu cuenta alcanzó la meta planeada. ¡Felicidades! Ya puedes solicitar el retiro de tus ganancias."
+   "goalReachedDesc": "Tu cuenta alcanzó la meta planeada. ¡Felicidades! Ya puedes solicitar el retiro de tus ganancias.",
+  "endedTitle": "Gestión finalizada",
+  "endedDesc": "Tu contrato de gestión de capital ha finalizado.",
+  "newManagementTitle": "Solicitar nueva gestión",
+  "newManagementDesc": "Elige un plan y envía una solicitud a nuestro equipo. La revisarán y activarán una nueva gestión.",
+  "newManagementNote": "Nota (opcional)",
+  "newManagementNotePlaceholder": "Alguna preferencia u observación",
+  "newManagementCta": "Enviar solicitud",
+  "requestPending": "Solicitud en revisión",
+  "requestPendingDesc": "Tu solicitud de nueva gestión se ha enviado y el equipo la está revisando.",
+  "requestApproved": "Solicitud aprobada",
+  "requestRejected": "Solicitud rechazada",
+  "requestSentTitle": "Solicitud enviada",
+  "requestSentMsg": "El equipo revisará tu solicitud de nueva gestión.",
+  "requestErrorTitle": "Error en la solicitud",
+  "requestErrorMsg": "No se pudo enviar la solicitud. Inténtalo de nuevo."
  },
  "store": {
   "title": "Tienda",

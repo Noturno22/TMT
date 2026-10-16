@@ -465,7 +465,9 @@
     "roleUpdated": "ユーザーの権限を更新しました",
     "expiryUpdated": "サブスクリプションの有効期限を更新しました",
     "statExpiring": "まもなく期限切れ",
-    "statPendingReceipts": "保留中の領収書"
+    "statPendingReceipts": "保留中の領収書",
+    "managementRequests": "管理の申請",
+    "noManagementRequests": "管理の申請はありません。"
   },
   "adminErrors": {
     "load": "シグナルの読み込みエラー",
@@ -764,7 +766,22 @@
     "managedActive": "あなたの資本は運用されています",
     "managedEnded": "あなたの資本の運用が終了しました",
     "progressMissing": "目標までの残り",
-    "loadError": "資本データを読み込めませんでした。"
+    "loadError": "資本データを読み込めませんでした。",
+    "endedTitle": "管理が終了しました",
+    "endedDesc": "あなたの資金管理契約は終了しました。",
+    "newManagementTitle": "新しい管理を申請",
+    "newManagementDesc": "プランを選び、チームに申請を送信してください。チームが審査し、新しい管理を有効にします。",
+    "newManagementNote": "メモ（任意）",
+    "newManagementNotePlaceholder": "希望や備考",
+    "newManagementCta": "申請を送信",
+    "requestPending": "申請を審査中",
+    "requestPendingDesc": "新しい管理の申請が送信され、チームが審査しています。",
+    "requestApproved": "申請が承認されました",
+    "requestRejected": "申請が拒否されました",
+    "requestSentTitle": "申請を送信しました",
+    "requestSentMsg": "チームが新しい管理の申請を審査します。",
+    "requestErrorTitle": "申請エラー",
+    "requestErrorMsg": "申請を送信できませんでした。もう一度お試しください。"
   },
   "depositos": {
     "title": "入金と出金",

@@ -731,7 +731,9 @@
   "idLabel": "ID",
   "premiumBadge": "⭐ PREMIUM",
   "gateLockedDesc": "This area is protected by an access code.",
-  "gateLockedTitle": "Protected area"
+  "gateLockedTitle": "Protected area",
+  "managementRequests": "Management requests",
+  "noManagementRequests": "No management requests."
  },
  "adminErrors": {
   "load": "Error loading signals",
@@ -1100,7 +1102,22 @@
    "loadError": "We couldn't load your capital data.",
    "retry": "Try again",
    "goalReachedTitle": "GOAL REACHED",
-   "goalReachedDesc": "Your account reached the planned goal. Congratulations! You can now request a withdrawal of your profits."
+   "goalReachedDesc": "Your account reached the planned goal. Congratulations! You can now request a withdrawal of your profits.",
+  "endedTitle": "Management ended",
+  "endedDesc": "Your capital management contract has ended.",
+  "newManagementTitle": "Request new management",
+  "newManagementDesc": "Choose a plan and send a request to our team. They will review it and activate new management.",
+  "newManagementNote": "Note (optional)",
+  "newManagementNotePlaceholder": "Any preference or remark",
+  "newManagementCta": "Send request",
+  "requestPending": "Request under review",
+  "requestPendingDesc": "Your new management request has been sent and is being reviewed by the team.",
+  "requestApproved": "Request approved",
+  "requestRejected": "Request declined",
+  "requestSentTitle": "Request sent",
+  "requestSentMsg": "The team will review your new management request.",
+  "requestErrorTitle": "Request error",
+  "requestErrorMsg": "Could not send the request. Please try again."
  },
  "diario": {
   "title": "Trader's Journal",

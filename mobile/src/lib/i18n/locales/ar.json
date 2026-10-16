@@ -465,7 +465,9 @@
     "roleUpdated": "تم تحديث دور المستخدم",
     "expiryUpdated": "تم تحديث انتهاء الاشتراك",
     "statExpiring": "ينتهي قريباً",
-    "statPendingReceipts": "إثباتات الدفع المعلقة"
+    "statPendingReceipts": "إثباتات الدفع المعلقة",
+    "managementRequests": "طلبات الإدارة",
+    "noManagementRequests": "لا توجد طلبات إدارة."
   },
   "adminErrors": {
     "load": "خطأ في تحميل الإشارات",
@@ -764,7 +766,22 @@
     "managedActive": "تتم إدارة رأس مالك",
     "managedEnded": "انتهت إدارة رأس مالك",
     "progressMissing": "المتبقي للهدف",
-    "loadError": "تعذّر تحميل بيانات رأس مالك."
+    "loadError": "تعذّر تحميل بيانات رأس مالك.",
+    "endedTitle": "انتهت الإدارة",
+    "endedDesc": "انتهى عقد إدارة رأس المال الخاص بك.",
+    "newManagementTitle": "طلب إدارة جديدة",
+    "newManagementDesc": "اختر خطة وأرسل طلبًا إلى فريقنا. سيراجعون الطلب ويُفعّلون إدارة جديدة.",
+    "newManagementNote": "ملاحظة (اختياري)",
+    "newManagementNotePlaceholder": "أي تفضيل أو ملاحظة",
+    "newManagementCta": "إرسال الطلب",
+    "requestPending": "الطلب قيد المراجعة",
+    "requestPendingDesc": "تم إرسال طلبك لإدارة جديدة والفريق يراجعه.",
+    "requestApproved": "تمت الموافقة على الطلب",
+    "requestRejected": "تم رفض الطلب",
+    "requestSentTitle": "تم إرسال الطلب",
+    "requestSentMsg": "سيراجع الفريق طلبك لإدارة جديدة.",
+    "requestErrorTitle": "خطأ في الطلب",
+    "requestErrorMsg": "تعذّر إرسال الطلب. حاول مرة أخرى."
   },
   "depositos": {
     "title": "الإيداعات والسحوبات",

@@ -1018,15 +1018,13 @@ serve(async (req) => {
       if (error) return errorJson(error.message, 500);
 
       const ids = [...new Set((data ?? []).map((r) => r.user_id))];
-      let emailMap = new Map<string, string>();
-      if (ids.length > 0) {
-        const { data: usersData } = await supabase.auth.admin.listUsers();
-        emailMap = new Map(
-          (usersData?.users ?? [])
-            .filter((u) => ids.includes(u.id))
-            .map((u) => [u.id, u.email ?? '']),
-        );
-      }
+      const emailMap = new Map<string, string>();
+      await Promise.all(
+        ids.map(async (uid) => {
+          const { data: u } = await supabase.auth.admin.getUserById(uid);
+          emailMap.set(uid, u?.user?.email ?? '');
+        }),
+      );
       return json({
         requests: (data ?? []).map((r) => ({ ...r, email: emailMap.get(r.user_id) ?? '' })),
       });
@@ -1080,10 +1078,15 @@ serve(async (req) => {
       if (accErr) return errorJson(accErr.message, 500);
       const capital = Number(acc?.capital ?? 0);
 
-      const start = new Date();
-      const end = new Date(start);
-      end.setMonth(end.getMonth() + months);
+      // Espelha a semântica do Postgres (date + interval 'N months'), que faz clamp
+      // ao último dia do mês quando o dia não existe (ex.: 31 Jan + 1 mês = 28 Fev).
       const isoDate = (d: Date) => d.toISOString().slice(0, 10);
+      const start = new Date();
+      const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + months, 1));
+      const lastDayOfMonth = new Date(
+        Date.UTC(end.getUTCFullYear(), end.getUTCMonth() + 1, 0),
+      ).getUTCDate();
+      end.setUTCDate(Math.min(start.getUTCDate(), lastDayOfMonth));
 
       const { data: contract, error: ctrErr } = await supabase
         .from('capital_contracts')

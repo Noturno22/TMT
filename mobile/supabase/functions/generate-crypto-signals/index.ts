@@ -39,10 +39,6 @@ function isWeekendUtc(now = new Date()): boolean {
   return day === 0 || day === 6;
 }
 
-function getActivePairs(): readonly string[] {
-  return isWeekendUtc() ? CRYPTO_PAIRS : FOREX_PAIRS;
-}
-
 // ── Session detection (WAT = UTC+1) ─────────────────────────────────────────
 
 interface SessionInfo {
@@ -415,7 +411,7 @@ function validateSignalTechnical(
   symbol: string, signalType: 'BUY' | 'SELL', entry: number, sl: number, tp: number, candles: Candle[],
 ): TechConfirmation {
   const r: TechConfirmation = { valid: false, score: 0, reasons: [], warnings: [] };
-  if (candles.length < 20) { r.warnings.push('Dados insuficientes'); r.valid = true; r.score = 50; return r; }
+  if (candles.length < 20) { r.warnings.push('Dados insuficientes'); r.score = 0; return r; }
   const closes = candles.map((c) => c.c);
   const last = closes[closes.length - 1];
   let score = 0;
@@ -479,7 +475,7 @@ function validateSignalTechnical(
   if (orderBlocks.some((o) => entry >= o.low && entry <= o.high)) { score += 5; r.reasons.push('Entrada em Order Block'); }
 
   r.score = Math.min(100, score);
-  r.valid = r.score >= 45;
+  r.valid = r.score >= 55;
   return r;
 }
 
@@ -525,7 +521,7 @@ REGRAS SMART MONEY CONCEPTS (OBRIGATÓRIO):
 - Liquidez: identificar onde estão os stops (equal highs/lows, swing points). NÃO colocar SL em zonas óbvias de liquidez.
 - TP deve visar a próxima zona de liquidez ou FVG oposto.
 - Se não houver setup SMC claro com confirmação, responde: [] (array vazio).
-- OBRIGATÓRIO: R:R mínimo 1:2 — o TP tem de estar pelo menos ao DOBRO da distância do SL. Qualidade > quantidade. Melhor 1 sinal forte que 3 fracos.
+- OBRIGATÓRIO: R:R mínimo 1:1.5 — o TP deve apontar para o próximo nível de liquidez/estrutura oposta, com pelo menos 1.5× a distância do SL. NÃO estiques o TP artificialmente só para subir o R:R: um TP inalcançável expira sem tocar e conta como derrota. Qualidade > quantidade. Melhor 1 sinal forte que 3 fracos.
 - Prefere entradas durante os horários de boom (maior liquidez e volatilidade); evita horas mortas de baixa liquidez.
 `;
 
@@ -537,7 +533,7 @@ REGRAS OBRIGATÓRIAS:
   [{"symbol":"BTCUSDT","signal_type":"BUY","timeframe":"H1","entry_price":69000,"stop_loss":67500,"target_price":72000,"confidence":75,"reasons":["BOS bullish confirmado","Retração para order block em 68800","FVG preenchido"],"analysis":"Análise SMC detalhada em 2-3 frases com estrutura de mercado","smc_setup":"BOS"}]
 - DIVERSIDADE OBRIGATÓRIA: Cada sinal deve ter par, timeframe OU direção DIFERENTE. NUNCA gerar 2 sinais para o mesmo par+timeframe.
 - Timeframes: usa APENAS M15, H1 ou H4. Nunca M30. Prefere H1 e H4; usa M15 só em setups muito claros (mais ruído).
-- Gera 2 a 5 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
+- Gera 1 a 4 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
 - Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "OB", "FVG" ou "COMBO".
 ${smcRules}
@@ -554,7 +550,7 @@ REGRAS OBRIGATÓRIAS:
 - Símbolos permitidos: EURUSD, GBPUSD, USDJPY, XAUUSD, EURGBP, USDCHF, AUDUSD, USDCAD, NZDUSD.
 - OBRIGATÓRIO: pelo menos 1 sinal deve ser num par do plano free: EURUSD, GBPUSD, USDJPY, XAUUSD ou AUDUSD.
 - Foca nos pares em destaque da sessão: ${session.pairs.join(', ')}.
-- Gera 2 a 5 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
+- Gera 1 a 4 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
 - entry_price, stop_loss, target_price com a precisão normal do par (5 casas para forex, 2 para XAU).
 - Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "OB", "FVG" ou "COMBO".
@@ -633,7 +629,7 @@ function parseSignals(text: string, isWeekend: boolean): ValidSignal[] {
     const risk = Math.abs(entry - sl);
     const reward = Math.abs(tp - entry);
     const rr = risk > 0 ? reward / risk : 0;
-    if (risk === 0 || rr < 2.0) continue;
+    if (risk === 0 || rr < 1.5) continue;
     const reasons = Array.isArray(r.reasons)
       ? r.reasons.filter((x): x is string => typeof x === 'string' && x.trim().length > 0).slice(0, 3)
       : [];
@@ -667,8 +663,11 @@ serve(async (req) => {
   if (!geminiApiKey) return errorJson('GEMINI_API_KEY não configurada.', 500);
 
   const weekend = isWeekendUtc();
-  const pairs = getActivePairs();
   const session = detectSession(new Date());
+  // So busca os pares em destaque da sessao: menos vela, menos credito Twelve Data
+  // por execucao, e sinal so num par com liquidez activa agora.
+  const sessionForexPairs = FOREX_PAIRS.filter((p) => session.pairs.includes(p));
+  const pairs = weekend ? CRYPTO_PAIRS : (sessionForexPairs.length > 0 ? sessionForexPairs : FOREX_PAIRS);
 
   // 1. Fetch existing active signals for deduplication
   let existingSymbols: string[] = [];

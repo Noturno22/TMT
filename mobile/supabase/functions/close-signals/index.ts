@@ -4,7 +4,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
-import { decideClose, decideCloseFromCandles, pipsOf, riskRewardOf, type CloseOutcome, type Ohlc } from '../_shared/close-decision.ts';
+import { decideCloseFromCandles, pipsOf, riskRewardOf, type CloseOutcome, type Ohlc } from '../_shared/close-decision.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
@@ -142,7 +142,7 @@ async function fetchCryptoKlines(symbol: string, startMs: number): Promise<Ohlc[
     const data = await res.json();
     if (!Array.isArray(data)) return [];
     return data
-      .map((k: unknown[]) => ({ t: Number(k[0]), h: Number(k[2]), l: Number(k[3]) }))
+      .map((k: unknown[]) => ({ t: Number(k[0]), h: Number(k[2]), l: Number(k[3]), c: Number(k[4]) }))
       .filter((c) => Number.isFinite(c.t) && Number.isFinite(c.h) && Number.isFinite(c.l));
   } catch {
     return [];
@@ -167,6 +167,7 @@ async function fetchForexKlines(symbol: string, startMs: number): Promise<Ohlc[]
         t: Date.parse(`${v.datetime.replace(' ', 'T')}Z`),
         h: Number(v.high),
         l: Number(v.low),
+        c: Number(v.close),
       }))
       .filter((c: Ohlc) => Number.isFinite(c.t) && Number.isFinite(c.h) && Number.isFinite(c.l));
   } catch {
@@ -249,7 +250,6 @@ serve(async (req) => {
   const skipped: { symbol: string; id: string; motivo: string }[] = [];
 
   for (const signal of signals) {
-    const price = await fetchCurrentPrice(signal.symbol);
     const entry = Number(signal.entry_price);
     const sl = Number(signal.stop_loss);
     const tp = Number(signal.target_price);
@@ -268,7 +268,10 @@ serve(async (req) => {
     const startMs = Number.isFinite(rawStart) && rawStart > clampMs ? rawStart : clampMs;
 
     // ── SINAL PENDENTE: ativar quando o preco chega perto da entrada ──
+    // O preco spot so e preciso aqui. Um sinal ja ativo decide-se pelas velas,
+    // por isso pedir o spot para ele seria um credito Twelve Data a mais.
     if (currentStatus === 'pending') {
+      const price = await fetchCurrentPrice(signal.symbol);
       if (price !== null) {
         const entryPct = entry > 0 ? (Math.abs(price - entry) / entry) * 100 : 999;
         if (entryPct <= 0.15) {
@@ -294,35 +297,7 @@ serve(async (req) => {
 
     // ── SINAL ATIVO: detetar TP/SL intra-candle a partir das velas ──
     const candles = await fetchKlines(signal.symbol, startMs);
-    let outcome: CloseOutcome | null = null;
-    let exitPrice: number | null = null;
-
-    if (candles.length > 0) {
-      outcome = decideCloseFromCandles({
-        signalType: type,
-        sl,
-        tp,
-        candles,
-        currentStatus,
-        expiresAt: signal.expires_at,
-        now,
-      });
-      if (outcome === 'tp') exitPrice = tp;
-      else if (outcome === 'sl') exitPrice = sl;
-    } else if (price !== null) {
-      // Sem velas (fonte indisponivel): cai para o preco spot, como antes.
-      outcome = decideClose({
-        signalType: type,
-        price,
-        entry,
-        sl,
-        tp,
-        currentStatus,
-        expiresAt: signal.expires_at,
-        now,
-      });
-      exitPrice = price;
-    } else {
+    if (candles.length === 0) {
       skipped.push({
         symbol: String(signal.symbol),
         id: signal.id,
@@ -333,6 +308,15 @@ serve(async (req) => {
       continue;
     }
 
+    const outcome: CloseOutcome | null = decideCloseFromCandles({
+      signalType: type,
+      sl,
+      tp,
+      candles,
+      currentStatus,
+      expiresAt: signal.expires_at,
+      now,
+    });
     if (!outcome) {
       updates.push(
         supabase.from('signals').update({ last_checked_at: nowIso }).eq('id', signal.id),
@@ -340,7 +324,11 @@ serve(async (req) => {
       continue;
     }
 
-    const finalExit = exitPrice ?? price ?? entry;
+    let exitPrice: number;
+    if (outcome === 'tp') exitPrice = tp;
+    else if (outcome === 'sl') exitPrice = sl;
+    else exitPrice = candles[candles.length - 1].c ?? entry;
+
     updates.push(
       supabase
         .from('signals')
@@ -357,7 +345,7 @@ serve(async (req) => {
               smc_setup: signal.smc_setup || null,
               session_name: null,
               entry_price: entry,
-              exit_price: finalExit,
+              exit_price: exitPrice,
               stop_loss: sl,
               target_price: tp,
               result: outcome,

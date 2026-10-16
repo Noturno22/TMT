@@ -56,7 +56,7 @@ export function riskRewardOf(entry: number, sl: number, tp: number): number {
   return Math.abs(tp - entry) / Math.abs(entry - sl || 1);
 }
 
-export interface Ohlc { t: number; h: number; l: number }
+export interface Ohlc { t: number; h: number; l: number; c?: number }
 
 /**
  * Decisao de fecho a partir das velas (high/low) desde a ultima verificacao.

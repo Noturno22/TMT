@@ -21,7 +21,7 @@ interface PlanOpt {
   icon: keyof typeof Ionicons.glyphMap;
 }
 
-const makePlans = (c: Palette): PlanOpt[] => [
+const PLANS: PlanOpt[] = [
   { id: 'conservador', nameKey: 'planoCrescimento.conservative', descKey: 'planoCrescimento.conservativeDesc', returnPct: 25, icon: 'leaf' },
   { id: 'equilibrado', nameKey: 'planoCrescimento.balanced', descKey: 'planoCrescimento.balancedDesc', returnPct: 20, icon: 'analytics' },
   { id: 'agressivo', nameKey: 'planoCrescimento.aggressive', descKey: 'planoCrescimento.aggressiveDesc', returnPct: 15, icon: 'rocket' },
@@ -46,7 +46,6 @@ export function ManagementEnded({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = makeStyles(colors);
-  const plans = makePlans(colors);
   const { request, loading, submit } = useManagementRequest();
   const [selectedId, setSelectedId] = useState<CapitalPlanId>(defaultPlanId);
   const [note, setNote] = useState('');
@@ -126,7 +125,7 @@ export function ManagementEnded({
           <AppText variant="small" style={{ color: colors.textMuted }}>{t('capital.newManagementDesc')}</AppText>
 
           <View style={styles.plans}>
-            {plans.map((p) => {
+            {PLANS.map((p) => {
               const selected = p.id === selectedId;
               const color = PLAN_COLOR(colors, p.id);
               return (

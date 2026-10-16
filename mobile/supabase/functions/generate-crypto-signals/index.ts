@@ -22,6 +22,11 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 const CRYPTO_PAIRS = ['BTCUSDT', 'ETHUSDT'] as const;
 const FOREX_PAIRS = ['EURUSD', 'GBPUSD', 'USDJPY', 'XAUUSD', 'EURGBP', 'USDCHF', 'AUDUSD', 'USDCAD', 'NZDUSD'] as const;
 
+// Sessoes de liquidez morta: no historico deram ~0% de acerto (0 TP em 9 SL) e
+// enchem a folha de expirados. Nao vale a pena gastar Gemini + Twelve Data aqui.
+// So se aplica ao forex; o crypto negocia 24/7 e nao depende de sessao.
+const DEAD_SESSIONS = new Set(['Asia Night', 'Asia', 'Asia/Europa', 'Pos-NY']);
+
 const FOREX_PAIR_CONFIG: Record<string, { base: string; quote: string }> = {
   EURUSD: { base: 'EUR', quote: 'USD' },
   GBPUSD: { base: 'GBP', quote: 'USD' },
@@ -520,6 +525,7 @@ REGRAS SMART MONEY CONCEPTS (OBRIGATÓRIO):
 - SL ESTRUTURAL: coloca o SL atrás do Order Block ou do último swing point que invalida o setup, tipicamente entre 1.2× e 2× ATR. Um SL demasiado apertado (abaixo de ~1× ATR) é atingido pelo ruído antes de o TP chegar — NÃO uses SL abaixo de 1× ATR. NUNCA SL em zona redonda óbvia de liquidez.
 - Liquidez: identificar onde estão os stops (equal highs/lows, swing points). NÃO colocar SL em zonas óbvias de liquidez.
 - TP deve visar a próxima zona de liquidez ou FVG oposto.
+- Order Block ISOLADO não é setup: uma entrada numa OB só conta se houver BOS ou CHoCH a confirmar a estrutura; nesse caso classifica como "COMBO". NUNCA uses "OB" sozinho.
 - Se não houver setup SMC claro com confirmação, responde: [] (array vazio).
 - OBRIGATÓRIO: R:R mínimo 1:1.5 — o TP deve apontar para o próximo nível de liquidez/estrutura oposta, com pelo menos 1.5× a distância do SL. NÃO estiques o TP artificialmente só para subir o R:R: um TP inalcançável expira sem tocar e conta como derrota. Qualidade > quantidade. Melhor 1 sinal forte que 3 fracos.
 - Prefere entradas durante os horários de boom (maior liquidez e volatilidade); evita horas mortas de baixa liquidez.
@@ -535,7 +541,7 @@ REGRAS OBRIGATÓRIAS:
 - Timeframes: usa APENAS M15, H1 ou H4. Nunca M30. Prefere H1 e H4; usa M15 só em setups muito claros (mais ruído).
 - Gera 1 a 4 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
-- Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "OB", "FVG" ou "COMBO".
+- Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "FVG" ou "COMBO".
 ${smcRules}
 Dados de mercado abaixo.`;
   }
@@ -553,7 +559,7 @@ REGRAS OBRIGATÓRIAS:
 - Gera 1 a 4 sinais APENAS de alta confiança. Se não houver setup SMC claro, responde: [] (array vazio).
 - Confiança mínima: 55. Máxima: 95. NÃO confianças de 100.
 - entry_price, stop_loss, target_price com a precisão normal do par (5 casas para forex, 2 para XAU).
-- Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "OB", "FVG" ou "COMBO".
+- Campo "smc_setup" deve indicar o tipo de setup: "BOS", "CHoCH", "FVG" ou "COMBO".
 ${smcRules}
 Dados de mercado abaixo.`;
 }
@@ -638,6 +644,9 @@ function parseSignals(text: string, isWeekend: boolean): ValidSignal[] {
     const validSetups = ['BOS', 'CHoCH', 'OB', 'FVG', 'COMBO'];
     const smcSetup = typeof r.smc_setup === 'string' && validSetups.includes(r.smc_setup.toUpperCase())
       ? r.smc_setup.toUpperCase() : 'COMBO';
+    // OB isolado e o pior setup do historico (0 TP em 14 SL): nao entra. Uma OB
+    // confirmada por estrutura tem de vir classificada como COMBO (ver prompt).
+    if (smcSetup === 'OB') continue;
     out.push({
       symbol,
       signal_type: type,
@@ -668,6 +677,12 @@ serve(async (req) => {
   // por execucao, e sinal so num par com liquidez activa agora.
   const sessionForexPairs = FOREX_PAIRS.filter((p) => session.pairs.includes(p));
   const pairs = weekend ? CRYPTO_PAIRS : (sessionForexPairs.length > 0 ? sessionForexPairs : FOREX_PAIRS);
+
+  // Sessoes de baixa liquidez (so forex): nao gerar.
+  if (!weekend && DEAD_SESSIONS.has(session.name)) {
+    console.log(`[generate] sessao ${session.name} de baixa liquidez: sem geracao`);
+    return json({ signals: [], session: session.name, motivo: 'sessao de baixa liquidez' });
+  }
 
   // 1. Fetch existing active signals for deduplication
   let existingSymbols: string[] = [];

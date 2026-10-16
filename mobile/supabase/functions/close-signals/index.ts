@@ -4,7 +4,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
-import { decideCloseFromCandles, pipsOf, riskRewardOf, type CloseOutcome, type Ohlc } from '../_shared/close-decision.ts';
+import { decideCloseFromCandles, decideFromWindow, pipsOf, riskRewardOf, type CloseOutcome, type Ohlc } from '../_shared/close-decision.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
@@ -267,98 +267,113 @@ serve(async (req) => {
     const clampMs = now.getTime() - KLINES_WINDOW_MS;
     const startMs = Number.isFinite(rawStart) && rawStart > clampMs ? rawStart : clampMs;
 
-    // ── SINAL PENDENTE: ativar quando o preco chega perto da entrada ──
-    // O preco spot so e preciso aqui. Um sinal ja ativo decide-se pelas velas,
-    // por isso pedir o spot para ele seria um credito Twelve Data a mais.
+    let outcome: CloseOutcome | null = null;
+    let exitPrice: number | null = null;
+    let activate = false;
+
     if (currentStatus === 'pending') {
-      const price = await fetchCurrentPrice(signal.symbol);
-      if (price !== null) {
-        const entryPct = entry > 0 ? (Math.abs(price - entry) / entry) * 100 : 999;
-        if (entryPct <= 0.15) {
-          updates.push(
-            supabase
-              .from('signals')
-              .update({ status: 'active', last_checked_at: nowIso })
-              .eq('id', signal.id)
-              .then((res) => {
-                if (!res.error) activated++;
-                return res;
-              }),
-          );
-          continue;
+      // ── SINAL PENDENTE ── Decide pela janela de velas, nao pelo spot do
+      // instante: assim apanha a vela que tocou a entrada mesmo que o preco ja
+      // tenha voltado. Se tocou a entrada e ja houve TP/SL, fecha de vez; se
+      // tocou mas continua em curso, ativa; se nunca tocou, mantem pending.
+      const candles = await fetchKlines(signal.symbol, startMs);
+      if (candles.length > 0) {
+        const d = decideFromWindow({ signalType: type, entry, sl, tp, candles });
+        if (d.activated && d.outcome === 'tp') { outcome = 'tp'; exitPrice = tp; }
+        else if (d.activated && d.outcome === 'sl') { outcome = 'sl'; exitPrice = sl; }
+        else if (d.activated) { activate = true; }
+      } else {
+        // Sem velas (fonte indisponivel): fallback ao spot, como antes.
+        const price = await fetchCurrentPrice(signal.symbol);
+        if (price !== null) {
+          const entryPct = entry > 0 ? (Math.abs(price - entry) / entry) * 100 : 999;
+          if (entryPct <= 0.15) { activate = true; }
+        } else {
+          skipped.push({
+            symbol: String(signal.symbol),
+            id: signal.id,
+            motivo: hasKnownSource(signal.symbol)
+              ? 'as fontes de preco nao responderam'
+              : 'nao ha fonte de preco para este simbolo',
+          });
         }
       }
-      // Mantem a janela curta enquanto o sinal continua pendente.
-      updates.push(
-        supabase.from('signals').update({ last_checked_at: nowIso }).eq('id', signal.id),
-      );
-      continue;
-    }
-
-    // ── SINAL ATIVO: detetar TP/SL intra-candle a partir das velas ──
-    const candles = await fetchKlines(signal.symbol, startMs);
-    if (candles.length === 0) {
-      skipped.push({
-        symbol: String(signal.symbol),
-        id: signal.id,
-        motivo: hasKnownSource(signal.symbol)
-          ? 'as fontes de preco nao responderam'
-          : 'nao ha fonte de preco para este simbolo',
+    } else {
+      // ── SINAL ATIVO ── detetar TP/SL intra-candle a partir das velas.
+      const candles = await fetchKlines(signal.symbol, startMs);
+      if (candles.length === 0) {
+        skipped.push({
+          symbol: String(signal.symbol),
+          id: signal.id,
+          motivo: hasKnownSource(signal.symbol)
+            ? 'as fontes de preco nao responderam'
+            : 'nao ha fonte de preco para este simbolo',
+        });
+        continue;
+      }
+      outcome = decideCloseFromCandles({
+        signalType: type,
+        sl,
+        tp,
+        candles,
+        currentStatus,
+        expiresAt: signal.expires_at,
+        now,
       });
-      continue;
+      if (outcome === 'tp') exitPrice = tp;
+      else if (outcome === 'sl') exitPrice = sl;
+      else if (outcome === 'expired') exitPrice = candles[candles.length - 1].c ?? entry;
     }
 
-    const outcome: CloseOutcome | null = decideCloseFromCandles({
-      signalType: type,
-      sl,
-      tp,
-      candles,
-      currentStatus,
-      expiresAt: signal.expires_at,
-      now,
-    });
-    if (!outcome) {
+    if (outcome) {
+      const finalExit = exitPrice ?? entry;
+      updates.push(
+        supabase
+          .from('signals')
+          .update({ status: outcome, last_checked_at: nowIso })
+          .eq('id', signal.id)
+          .then(async (res) => {
+            if (!res.error) {
+              closed++;
+              await supabase.from('signal_outcomes').insert({
+                signal_id: signal.id,
+                symbol: signal.symbol,
+                timeframe: signal.timeframe,
+                signal_type: signal.signal_type,
+                smc_setup: signal.smc_setup || null,
+                session_name: null,
+                entry_price: entry,
+                exit_price: finalExit,
+                stop_loss: sl,
+                target_price: tp,
+                result: outcome,
+                pips_result: pipsOf(outcome, entry, sl, tp, String(signal.symbol)),
+                risk_reward: Math.round(riskRewardOf(entry, sl, tp) * 100) / 100,
+                confidence: signal.confidence,
+                tech_score: signal.probability_score ?? null,
+                closed_at: new Date().toISOString(),
+              });
+            }
+            return res;
+          }),
+      );
+    } else if (activate) {
+      updates.push(
+        supabase
+          .from('signals')
+          .update({ status: 'active', last_checked_at: nowIso })
+          .eq('id', signal.id)
+          .then((res) => {
+            if (!res.error) activated++;
+            return res;
+          }),
+      );
+    } else {
+      // Mantem a janela curta enquanto o sinal continua pending/ativo.
       updates.push(
         supabase.from('signals').update({ last_checked_at: nowIso }).eq('id', signal.id),
       );
-      continue;
     }
-
-    let exitPrice: number;
-    if (outcome === 'tp') exitPrice = tp;
-    else if (outcome === 'sl') exitPrice = sl;
-    else exitPrice = candles[candles.length - 1].c ?? entry;
-
-    updates.push(
-      supabase
-        .from('signals')
-        .update({ status: outcome, last_checked_at: nowIso })
-        .eq('id', signal.id)
-        .then(async (res) => {
-          if (!res.error) {
-            closed++;
-            await supabase.from('signal_outcomes').insert({
-              signal_id: signal.id,
-              symbol: signal.symbol,
-              timeframe: signal.timeframe,
-              signal_type: signal.signal_type,
-              smc_setup: signal.smc_setup || null,
-              session_name: null,
-              entry_price: entry,
-              exit_price: exitPrice,
-              stop_loss: sl,
-              target_price: tp,
-              result: outcome,
-              pips_result: pipsOf(outcome, entry, sl, tp, String(signal.symbol)),
-              risk_reward: Math.round(riskRewardOf(entry, sl, tp) * 100) / 100,
-              confidence: signal.confidence,
-              tech_score: signal.probability_score ?? null,
-              closed_at: new Date().toISOString(),
-            });
-          }
-          return res;
-        }),
-    );
   }
 
   await Promise.all(updates);

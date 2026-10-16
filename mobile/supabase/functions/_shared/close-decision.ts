@@ -99,28 +99,26 @@ export function decideCloseFromCandles(input: {
 }
 
 /**
- * Replay de um sinal ja expirado: reconstroi o que teria acontecido ao percorrer
- * as velas desde a criacao. O motor antigo so via o preco spot a cada 30 min, por
- * isso a maioria dos sinais que tocaram TP/SL intra-candle acabavam por expirar e
- * nao contavam para a taxa de acerto. Aqui:
- *   1. procuramos a vela de ativacao (o preco tocou a entrada dentro da mesma
- *      tolerancia de 0.15% que o close-signals usa em tempo real);
- *   2. a partir dessa vela procuramos TP/SL, por ordem cronologica e com SL
- *      primeiro no mesmo candle (leitura conservadora);
- *   3. se a entrada nunca foi tocada nao houve trade, logo mantem-se expirado.
- * A tolerancia de ativacao e reconstruida a partir do range da vela, ja que nao
- * ha um registo de quando o sinal mudou de pending para active.
+ * Percorre a janela de velas a partir de um sinal ainda por entrar (pending):
+ *   1. procura a vela de ativacao — o preco tocou a entrada dentro da tolerancia
+ *      de 0.15% (16 pips num par de 1.08), medida pelo range da vela e nao pelo
+ *      spot instantaneo (que so via o preco no instante de cada execucao);
+ *   2. a partir dessa vela procura TP/SL, por ordem cronologica e com SL primeiro
+ *      no mesmo candle (leitura conservadora).
+ * Devolve sempre se a entrada chegou a ser tocada, para o close-signals poder
+ * distinguir "ainda nao entrou" (continua pending) de "entrou e ja fechou".
  */
-export function replayCloseFromCandles(input: {
+export interface WindowDecision { outcome: CloseOutcome; activated: boolean }
+
+export function decideFromWindow(input: {
   signalType: string;
   entry: number;
   sl: number;
   tp: number;
   candles: Ohlc[];
-}): CloseOutcome {
+}): WindowDecision {
   const { signalType, entry, sl, tp, candles } = input;
   const type = signalType.toUpperCase();
-  if (!(entry > 0) || !(sl > 0) || !(tp > 0)) return 'expired';
 
   const tol = entry * 0.0015;
   const lowBound = entry - tol;
@@ -133,15 +131,34 @@ export function replayCloseFromCandles(input: {
       activated = true;
     }
     if (type === 'BUY') {
-      if (c.l <= sl) return 'sl';
-      if (c.h >= tp) return 'tp';
+      if (c.l <= sl) return { outcome: 'sl', activated };
+      if (c.h >= tp) return { outcome: 'tp', activated };
     } else if (type === 'SELL') {
-      if (c.h >= sl) return 'sl';
-      if (c.l <= tp) return 'tp';
+      if (c.h >= sl) return { outcome: 'sl', activated };
+      if (c.l <= tp) return { outcome: 'tp', activated };
     }
   }
 
-  return 'expired';
+  return { outcome: 'expired', activated };
+}
+
+/**
+ * Replay de um sinal ja expirado: reconstroi o que teria acontecido ao percorrer
+ * as velas desde a criacao. O motor antigo so via o preco spot a cada 30 min, por
+ * isso a maioria dos sinais que tocaram TP/SL intra-candle acabavam por expirar e
+ * nao contavam para a taxa de acerto. Mantem-se o nome para o backfill; a logica
+ * vive em decideFromWindow.
+ */
+export function replayCloseFromCandles(input: {
+  signalType: string;
+  entry: number;
+  sl: number;
+  tp: number;
+  candles: Ohlc[];
+}): CloseOutcome {
+  const { signalType, entry, sl, tp, candles } = input;
+  if (!(entry > 0) || !(sl > 0) || !(tp > 0)) return 'expired';
+  return decideFromWindow({ signalType, entry, sl, tp, candles }).outcome;
 }
 
 export function pipsOf(outcome: CloseOutcome, entry: number, sl: number, tp: number, symbol: string): number {

@@ -1,4 +1,4 @@
-import { decideClose, decideCloseFromCandles, replayCloseFromCandles, pipsOf, riskRewardOf, type CloseInput } from './close-decision';
+import { decideClose, decideCloseFromCandles, decideFromWindow, replayCloseFromCandles, pipsOf, riskRewardOf, type CloseInput } from './close-decision';
 
 const NOW = new Date('2026-01-15T12:00:00Z');
 
@@ -243,5 +243,67 @@ describe('replayCloseFromCandles', () => {
   it('niveis invalidos mantêm expirado', () => {
     expect(replayCloseFromCandles(base({ entry: 0, candles: [candle(1, 1.1120, 1.0940)] }))).toBe('expired');
     expect(replayCloseFromCandles(base({ sl: 0, candles: [candle(1, 1.1120, 1.0940)] }))).toBe('expired');
+  });
+});
+
+describe('decideFromWindow', () => {
+  function candle(t: number, h: number, l: number) {
+    return { t, h, l };
+  }
+  function base(over: Record<string, unknown> = {}) {
+    return {
+      signalType: 'BUY',
+      entry: 1.1000,
+      sl: 1.0950,
+      tp: 1.1100,
+      candles: [] as ReturnType<typeof candle>[],
+      ...over,
+    };
+  }
+
+  it('nao ativado: entrada nunca tocada → activated false, expirado', () => {
+    expect(
+      decideFromWindow(base({ candles: [candle(1, 1.1200, 1.1150)] })),
+    ).toEqual({ outcome: 'expired', activated: false });
+  });
+
+  it('ativado e fechado em TP', () => {
+    expect(
+      decideFromWindow(base({ candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1120, 1.1000)] })),
+    ).toEqual({ outcome: 'tp', activated: true });
+  });
+
+  it('ativado e fechado em SL', () => {
+    expect(
+      decideFromWindow(base({ candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1000, 1.0940)] })),
+    ).toEqual({ outcome: 'sl', activated: true });
+  });
+
+  // A distincao que o close-signals precisa: tocou a entrada mas ainda nao
+  // fechou → ativa o sinal. Se nunca tocou → continua pending.
+  it('ativado sem fechar: activated true mas expirado', () => {
+    expect(
+      decideFromWindow(base({ candles: [candle(1, 1.1010, 1.0990), candle(2, 1.1050, 1.0980)] })),
+    ).toEqual({ outcome: 'expired', activated: true });
+  });
+
+  it('na mesma vela de ativacao, SL vence TP (conservador)', () => {
+    expect(decideFromWindow(base({ candles: [candle(1, 1.1120, 1.0940)] }))).toEqual({
+      outcome: 'sl',
+      activated: true,
+    });
+  });
+
+  it('tolerancia de 0.15%: vela que roca a entrada ativa', () => {
+    // Entry 1.1000, tolerancia 0.15% → highBound 1.10165. Vela com high 1.1014 ativa.
+    expect(decideFromWindow(base({ candles: [candle(1, 1.1014, 1.1012)] }))).toEqual({
+      outcome: 'expired',
+      activated: true,
+    });
+    // Vela inteiramente acima do highBound nunca toca a entrada.
+    expect(decideFromWindow(base({ candles: [candle(1, 1.1030, 1.1020)] }))).toEqual({
+      outcome: 'expired',
+      activated: false,
+    });
   });
 });

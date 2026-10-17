@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { AppButton, AppText, EmptyState, Screen } from '@/components/ui';
+import { AdSlot } from '@/components/AdSlot';
 import { ChannelCard } from '@/components/community/ChannelCard';
 import { ChannelPickerModal } from '@/components/community/ChannelPickerModal';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
@@ -271,6 +272,7 @@ export default function ComunidadeScreen() {
         onSelect={camera.sendToChannel}
         onCancel={camera.cancel}
       />
+      <AdSlot />
     </Screen>
   );
 }

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Filter, Search, TrendingUp, TrendingDown, Minus, ExternalLink, RefreshCw, Lock, Crown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { SignalCard } from "@/components/signals/SignalCard";
 import { TradingViewChart } from "@/components/signals/TradingViewChart";
 import { PremiumLock } from "@/components/signals/PremiumLock";
@@ -393,6 +394,7 @@ export default function Analises() {
         </div>
 
         <PlanUpsellModal open={upsellOpen} onOpenChange={setUpsellOpen} />
+        <AdSlot />
       </div>
     </Layout>
   );

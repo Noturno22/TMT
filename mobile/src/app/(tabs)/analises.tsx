@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppText, Badge, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
+import { AdSlot } from '@/components/AdSlot';
 import { OptionMenu } from '@/components/OptionMenu';
 import { SignalCard } from '@/components/SignalCard';
 import { TradingViewChart } from '@/components/TradingViewChart';
@@ -381,6 +382,7 @@ export default function AnalisesScreen() {
         )}
           </>
         )}
+      <AdSlot />
       </ScrollView>
       <PlanUpsellModal visible={upsell !== null} what={upsell ?? ''} onClose={() => setUpsell(null)} />
     </Screen>

@@ -2,6 +2,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-n
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { EmptyState, Screen, Spinner } from '@/components/ui';
+import { AdSlot } from '@/components/AdSlot';
 import { AnnouncementCard } from '@/components/AnnouncementCard';
 import { BoomHourCard, boomHourStatus } from '@/components/BoomHourCard';
 import { ChannelSignals } from '@/components/ChannelSignals';
@@ -162,6 +163,7 @@ export default function InicioScreen() {
             ))}
           </>
         )}
+      <AdSlot />
       </ScrollView>
     </Screen>
   );

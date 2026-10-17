@@ -13,6 +13,7 @@ import { PairRoomCard } from "@/components/community/PairRoomCard";
 import { SocialFeed } from "@/components/community/social/SocialFeed";
 import { WorkspaceSection } from "@/components/community/WorkspaceSection";
 import { Layout } from "@/components/layout/Layout";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { useChannels } from "@/hooks/useChannels";
 import { useConversations } from "@/hooks/useConversations";
 import { useProfiles } from "@/hooks/useProfiles";
@@ -289,6 +290,7 @@ export default function Comunidade() {
           />
         </div>
       </section>
+      <AdSlot />
     </Layout>
   );
 }

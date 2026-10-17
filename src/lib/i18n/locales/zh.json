@@ -1,4 +1,7 @@
 {
+ "ads": {
+  "placeholder": "广告位"
+ },
  "common": {
   "loading": "正在加载…",
   "cancel": "取消",

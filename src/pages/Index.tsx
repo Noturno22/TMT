@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Sparkles, TrendingUp, Brain, Shield, Crown, ChevronRight, BarChart3, Zap, Target, Flame, Activity, Calendar, Users, Download, Play, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { SignalCard } from "@/components/signals/SignalCard";
 import { HeroSignalTerminal } from "@/components/home/HeroSignalTerminal";
 import { GuidedTour } from "@/components/tour/GuidedTour";
@@ -424,6 +425,7 @@ export default function Index() {
       </section>
 
       <GuidedTour />
+      <AdSlot />
     </Layout>
   );
 }

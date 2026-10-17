@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Clock, Target, BarChart3, Trophy, AlertTriangle, Coins, Scale, Activity } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { useHistory } from "@/hooks/useHistory";
 import { ALL_PAIRS } from "@/lib/gating";
 
@@ -235,6 +236,7 @@ export default function Historico() {
           )}
         </div>
       </section>
+      <AdSlot />
     </Layout>
   );
 }

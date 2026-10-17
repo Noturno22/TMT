@@ -1,4 +1,7 @@
 {
+ "ads": {
+  "placeholder": "Рекламное место"
+ },
  "common": {
   "loading": "Загрузка…",
   "cancel": "Отмена",

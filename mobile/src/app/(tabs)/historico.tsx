@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Badge, EmptyState, Screen, SectionTitle, Spinner } from '@/components/ui';
+import { AdSlot } from '@/components/AdSlot';
 import { useHistory } from '@/hooks/useHistory';
 import { useTheme } from '@/hooks/useTheme';
 import { formatShortDate, formatDateTimeWAT } from '@/core/format';
@@ -185,6 +186,7 @@ export default function HistoricoScreen() {
           );
         })
       )}
+      <AdSlot />
     </Screen>
   );
 }

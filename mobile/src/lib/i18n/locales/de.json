@@ -1,4 +1,7 @@
 {
+  "ads": {
+    "placeholder": "Werbeanzeige"
+  },
   "common": {
     "loading": "Wird geladen…",
     "cancel": "Abbrechen",

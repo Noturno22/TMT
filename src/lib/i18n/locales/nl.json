@@ -1,4 +1,7 @@
 {
+ "ads": {
+  "placeholder": "Advertentieruimte"
+ },
  "common": {
   "loading": "Laden…",
   "cancel": "Annuleren",

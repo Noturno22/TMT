@@ -24,6 +24,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Layout } from "@/components/layout/Layout";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { Button } from "@/components/ui/button";
 import { useStoreProducts, type StoreCategory, type StoreProduct } from "@/hooks/useStoreProducts";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -480,6 +481,7 @@ export default function Loja() {
           </div>
         </div>
       ) : null}
+      <AdSlot />
     </Layout>
   );
 }

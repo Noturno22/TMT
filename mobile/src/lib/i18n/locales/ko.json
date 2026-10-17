@@ -1,4 +1,7 @@
 {
+  "ads": {
+    "placeholder": "광고 영역"
+  },
   "common": {
     "loading": "불러오는 중…",
     "cancel": "취소",

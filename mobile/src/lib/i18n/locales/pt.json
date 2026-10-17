@@ -1,4 +1,7 @@
 {
+  "ads": {
+    "placeholder": "Espaço publicitário"
+  },
   "premiumWelcome": {
     "title": "Bem-vindo ao Premium!",
     "body": "O teu plano está ativo. Agora tens o TMT completo nas tuas mãos.",

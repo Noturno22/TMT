@@ -1,4 +1,7 @@
 {
+ "ads": {
+  "placeholder": "Advertisement"
+ },
  "premiumWelcome": {
   "title": "Welcome to Premium!",
   "body": "Your plan is active. The full TMT experience is now in your hands.",

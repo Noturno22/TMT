@@ -1,4 +1,7 @@
 {
+  "ads": {
+    "placeholder": "مساحة إعلانية"
+  },
   "common": {
     "loading": "جارٍ التحميل…",
     "cancel": "إلغاء",

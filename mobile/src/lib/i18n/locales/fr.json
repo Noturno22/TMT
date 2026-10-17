@@ -1,4 +1,7 @@
 {
+  "ads": {
+    "placeholder": "Espace publicitaire"
+  },
   "common": {
     "loading": "Chargement…",
     "cancel": "Annuler",

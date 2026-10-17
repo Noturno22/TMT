@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppButton, AppText, EmptyState, Screen } from '@/components/ui';
+import { AdSlot } from '@/components/AdSlot';
 import { Animated, AnimatedPressable, FadeInDown } from '@/lib/animations';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useStoreProducts, type StoreCategory, type StoreProduct } from '@/hooks/useStoreProducts';
@@ -348,6 +349,7 @@ export default function LojaScreen() {
             </View>
           )}
         </View>
+        <AdSlot />
       </ScrollView>
 
       <Modal visible={selectedItem !== null} transparent animationType="slide" onRequestClose={closeItem}>

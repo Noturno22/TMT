@@ -35,20 +35,29 @@ async function fetchHistory(): Promise<{ signals: HistorySignal[]; stats: Histor
       };
     });
 
-  // Estatísticas consideram apenas sinais realmente fechados (TP/SL)
-  const decided = mapped.filter((s) => s.result !== 'expired');
-  const tpCount = decided.filter((s) => s.result === 'tp').length;
-  const slCount = decided.filter((s) => s.result === 'sl').length;
+  // A taxa de acerto e o profit factor olham apenas para os sinais decididos
+  // (TP/SL): um expirado nao ganhou nem perdeu. O expectancy e a media de pips
+  // por trade decidido.
+  const tpCount = mapped.filter((s) => s.result === 'tp').length;
+  const slCount = mapped.filter((s) => s.result === 'sl').length;
+  const expiredCount = mapped.filter((s) => s.result === 'expired').length;
+  const decided = tpCount + slCount;
   const totalPips = mapped.reduce((sum, s) => sum + s.profitPips, 0);
+  const grossProfit = mapped.filter((s) => s.result === 'tp').reduce((sum, s) => sum + s.profitPips, 0);
+  const grossLoss = Math.abs(mapped.filter((s) => s.result === 'sl').reduce((sum, s) => sum + s.profitPips, 0));
+  const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : (grossProfit > 0 ? Infinity : 0);
 
   return {
     signals: mapped,
     stats: {
-      total: decided.length,
+      total: mapped.length,
       tp: tpCount,
       sl: slCount,
-      winRate: decided.length > 0 ? Math.round((tpCount / decided.length) * 100) : 0,
+      expired: expiredCount,
+      winRate: decided > 0 ? Math.round((tpCount / decided) * 100) : 0,
       totalPips: round1(totalPips),
+      profitFactor: Number.isFinite(profitFactor) ? round1(profitFactor) : Infinity,
+      expectancy: decided > 0 ? round1(totalPips / decided) : 0,
     },
   };
 }
@@ -70,12 +79,8 @@ export function useHistory() {
         onEvent: (payload: any) => {
           const newStatus = payload?.new?.status;
           const oldStatus = payload?.old?.status;
-          if (
-            newStatus === 'tp' ||
-            newStatus === 'sl' ||
-            oldStatus === 'tp' ||
-            oldStatus === 'sl'
-          ) {
+          const closed = (st?: string) => st === 'tp' || st === 'sl' || st === 'expired';
+          if (closed(newStatus) || closed(oldStatus)) {
             queryClient.invalidateQueries({ queryKey: ['history'] });
           }
         },
@@ -85,7 +90,7 @@ export function useHistory() {
 
   return {
     signals: data?.signals ?? [],
-    stats: data?.stats ?? { total: 0, tp: 0, sl: 0, winRate: 0, totalPips: 0 },
+    stats: data?.stats ?? { total: 0, tp: 0, sl: 0, expired: 0, winRate: 0, totalPips: 0, profitFactor: 0, expectancy: 0 },
     loading,
     refetch,
   };

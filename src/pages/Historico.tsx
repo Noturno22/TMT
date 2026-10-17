@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Clock, Target, BarChart3, Trophy, AlertTriangle, Coins } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Target, BarChart3, Trophy, AlertTriangle, Coins, Scale, Activity } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { useHistory } from "@/hooks/useHistory";
 import { ALL_PAIRS } from "@/lib/gating";
@@ -51,6 +51,29 @@ export default function Historico() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
+                className="glass-card p-5"
+              >
+                <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center mb-3`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
+                <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
+                <p className={`font-display text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Métricas de qualidade */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+            {[
+              { icon: Clock, label: t("historico.expiredLabel"), value: displayStats.expired, color: "text-muted-foreground", bg: "bg-muted/20" },
+              { icon: Scale, label: t("historico.profitFactor"), value: displayStats.profitFactor === Infinity ? "∞" : displayStats.profitFactor.toFixed(2), color: displayStats.profitFactor >= 1 ? "text-success" : "text-destructive", bg: displayStats.profitFactor >= 1 ? "bg-success/10" : "bg-destructive/10" },
+              { icon: Activity, label: t("historico.expectancy"), value: `${displayStats.expectancy >= 0 ? "+" : ""}${displayStats.expectancy}`, color: displayStats.expectancy >= 0 ? "text-success" : "text-destructive", bg: displayStats.expectancy >= 0 ? "bg-success/10" : "bg-destructive/10" },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + i * 0.1 }}
                 className="glass-card p-5"
               >
                 <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center mb-3`}>
@@ -188,14 +211,18 @@ export default function Historico() {
                         <td className="p-4 font-mono text-sm text-success">{signal.takeProfit.toFixed(5)}</td>
                         <td className="p-4">
                           <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${
-                            signal.result === "tp" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                            signal.result === "tp"
+                              ? "bg-success/10 text-success"
+                              : signal.result === "expired"
+                                ? "bg-muted/20 text-muted-foreground"
+                                : "bg-destructive/10 text-destructive"
                           }`}>
-                            {signal.result === "tp" ? t("historico.tpShort") : t("historico.slShort")}
+                            {signal.result === "tp" ? t("historico.tpShort") : signal.result === "expired" ? t("historico.expiredShort") : t("historico.slShort")}
                           </span>
                         </td>
                         <td className="p-4">
-                          <span className={`font-mono text-sm font-semibold ${signal.profitPips >= 0 ? "text-success" : "text-destructive"}`}>
-                            {signal.profitPips >= 0 ? "+" : ""}{signal.profitPips}
+                          <span className={`font-mono text-sm font-semibold ${signal.result === "expired" ? "text-muted-foreground" : signal.profitPips >= 0 ? "text-success" : "text-destructive"}`}>
+                            {signal.result === "expired" ? "—" : `${signal.profitPips >= 0 ? "+" : ""}${signal.profitPips}`}
                           </span>
                         </td>
                         <td className="p-4 text-xs text-muted-foreground">{formatDate(signal.date)}</td>

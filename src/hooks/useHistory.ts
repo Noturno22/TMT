@@ -11,7 +11,7 @@ export interface HistorySignal {
   entry: number;
   stopLoss: number;
   takeProfit: number;
-  result: "tp" | "sl";
+  result: "tp" | "sl" | "expired";
   date: string;
   profitPips: number;
 }
@@ -20,8 +20,11 @@ export interface HistoryStats {
   total: number;
   tp: number;
   sl: number;
+  expired: number;
   winRate: number;
   totalPips: number;
+  profitFactor: number;
+  expectancy: number;
 }
 
 function formatSymbol(symbol: string): string {
@@ -42,9 +45,9 @@ function calcPips(entry: number, tp: number, sl: number, status: string, symbol:
   else if (isBtc) pipMultiplier = 1;
   else pipMultiplier = 10000;
 
-  return status === "tp"
-    ? Math.abs(tp - entry) * pipMultiplier
-    : -Math.abs(entry - sl) * pipMultiplier;
+  if (status === "tp") return Math.abs(tp - entry) * pipMultiplier;
+  if (status === "sl") return -Math.abs(entry - sl) * pipMultiplier;
+  return 0;
 }
 
 interface HistoryResult {
@@ -69,7 +72,7 @@ async function fetchHistory(): Promise<HistoryResult> {
   const { data, error } = await supabase
     .from("signals")
     .select("*")
-    .in("status", ["tp", "sl"])
+    .in("status", ["tp", "sl", "expired"])
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -80,7 +83,8 @@ async function fetchHistory(): Promise<HistoryResult> {
     const tp = Number(row.target_price) || 0;
     const sl = Number(row.stop_loss) || 0;
     const symbol = row.symbol || "";
-    const profitPips = calcPips(entry, tp, sl, row.status, symbol);
+    const result = (row.status === "tp" || row.status === "sl") ? row.status : "expired";
+    const profitPips = calcPips(entry, tp, sl, result, symbol);
 
     return {
       id: String(row.id),
@@ -89,25 +93,38 @@ async function fetchHistory(): Promise<HistoryResult> {
       type: row.signal_type?.toUpperCase() as "BUY" | "SELL" | "AGUARDAR",
       confidence: Number(row.confidence) || 50,
       entry, stopLoss: sl, takeProfit: tp,
-      result: row.status as "tp" | "sl",
+      result,
       date: row.created_at ?? new Date().toISOString(),
       profitPips: Math.round(profitPips * 10) / 10,
     };
   });
 
-  const tpCount = mapped.filter(s => s.result === "tp").length;
-  const slCount = mapped.filter(s => s.result === "sl").length;
+  return { signals: mapped, stats: computeStats(mapped) };
+}
+
+// A taxa de acerto e o profit factor olham apenas para os sinais decididos (TP/SL):
+// um expirado nao ganhou nem perdeu. O expectancy e a media de pips por trade
+// decidido, o valor esperado por entrada.
+export function computeStats(mapped: HistorySignal[]): HistoryStats {
+  const tpCount = mapped.filter((s) => s.result === "tp").length;
+  const slCount = mapped.filter((s) => s.result === "sl").length;
+  const expiredCount = mapped.filter((s) => s.result === "expired").length;
+  const decided = tpCount + slCount;
+
   const totalPips = mapped.reduce((sum, s) => sum + s.profitPips, 0);
+  const grossProfit = mapped.filter((s) => s.result === "tp").reduce((sum, s) => sum + s.profitPips, 0);
+  const grossLoss = Math.abs(mapped.filter((s) => s.result === "sl").reduce((sum, s) => sum + s.profitPips, 0));
+  const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : (grossProfit > 0 ? Infinity : 0);
 
   return {
-    signals: mapped,
-    stats: {
-      total: mapped.length,
-      tp: tpCount,
-      sl: slCount,
-      winRate: mapped.length > 0 ? Math.round((tpCount / mapped.length) * 100) : 0,
-      totalPips: Math.round(totalPips * 10) / 10,
-    },
+    total: mapped.length,
+    tp: tpCount,
+    sl: slCount,
+    expired: expiredCount,
+    winRate: decided > 0 ? Math.round((tpCount / decided) * 100) : 0,
+    totalPips: Math.round(totalPips * 10) / 10,
+    profitFactor: Number.isFinite(profitFactor) ? Math.round(profitFactor * 100) / 100 : Infinity,
+    expectancy: decided > 0 ? Math.round((totalPips / decided) * 10) / 10 : 0,
   };
 }
 
@@ -130,7 +147,8 @@ export function useHistory() {
         (payload) => {
           const newStatus = (payload.new as { status?: string } | null)?.status;
           const oldStatus = (payload.old as { status?: string } | null)?.status;
-          if (newStatus === "tp" || newStatus === "sl" || oldStatus === "tp" || oldStatus === "sl") {
+          const closed = (s?: string) => s === "tp" || s === "sl" || s === "expired";
+          if (closed(newStatus) || closed(oldStatus)) {
             queryClient.invalidateQueries({ queryKey: ["history"] });
           }
         }
@@ -142,7 +160,7 @@ export function useHistory() {
 
   return {
     signals: data?.signals ?? [],
-    stats: data?.stats ?? { total: 0, tp: 0, sl: 0, winRate: 0, totalPips: 0 },
+    stats: data?.stats ?? { total: 0, tp: 0, sl: 0, expired: 0, winRate: 0, totalPips: 0, profitFactor: 0, expectancy: 0 },
     loading,
   };
 }

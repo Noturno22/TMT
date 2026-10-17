@@ -42,8 +42,11 @@ export interface HistoryStats {
   total: number;
   tp: number;
   sl: number;
+  expired: number;
   winRate: number;
   totalPips: number;
+  profitFactor: number;
+  expectancy: number;
 }
 
 export interface Subscription {

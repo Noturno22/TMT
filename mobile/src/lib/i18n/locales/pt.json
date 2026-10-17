@@ -110,6 +110,9 @@
     "tpHit": "✅ TAKE PROFIT",
     "slHit": "❌ STOP LOSS",
     "expired": "Expirado",
+    "expiredLabel": "Expirados",
+    "profitFactor": "Fator de Lucro",
+    "expectancy": "Expectância",
     "loading": "A carregar histórico…",
     "emptyTitle": "Sem sinais fechados",
     "emptyBody": "Os sinais fechados aparecem aqui."

@@ -103,6 +103,12 @@ export default function HistoricoScreen() {
         <Stat label={t('historico.totalPips')} value={`${stats.totalPips >= 0 ? '+' : ''}${stats.totalPips}`} color={stats.totalPips >= 0 ? colors.success : colors.destructive} />
       </View>
 
+      <View style={styles.statsRow}>
+        <Stat label={t('historico.expiredLabel')} value={String(stats.expired)} color={colors.textMuted} />
+        <Stat label={t('historico.profitFactor')} value={stats.profitFactor === Infinity ? '∞' : stats.profitFactor.toFixed(2)} color={stats.profitFactor >= 1 ? colors.success : colors.destructive} />
+        <Stat label={t('historico.expectancy')} value={`${stats.expectancy >= 0 ? '+' : ''}${stats.expectancy}`} color={stats.expectancy >= 0 ? colors.success : colors.destructive} />
+      </View>
+
       <Pressable onPress={() => setOpen((v) => !v)} style={styles.pairFilter}>
         <AppText variant="small" style={{ color: colors.textMuted }}>{pair}</AppText>
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />

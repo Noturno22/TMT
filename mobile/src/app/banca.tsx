@@ -142,11 +142,11 @@ export default function BancaScreen() {
             {t('capital.inactiveEyebrow')}
           </AppText>
           <AppText variant="mono" style={styles.heroValue}>+{targetPct}%</AppText>
-          <AppText variant="small" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          <AppText variant="small" style={{ color: colors.textBody }}>
             {t('capital.inactiveHeroDesc')}
           </AppText>
           <View style={styles.heroFooter}>
-            <AppText variant="small" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            <AppText variant="small" style={{ color: colors.textMuted }}>
               {t('capital.minDeposit')}: {formatMinDepositCore(cur)}
             </AppText>
             <StatusPill label={t('capital.inactiveBadge')} color={colors.warning} />
@@ -237,7 +237,7 @@ export default function BancaScreen() {
           {formatBancaMoney(current, cur)}
         </AppText>
         <View style={styles.heroFooter}>
-          <AppText variant="small" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          <AppText variant="small" style={{ color: colors.textMuted }}>
             {t('capital.deposited')}{formatBancaMoney(capital, cur)}
           </AppText>
           <AppText variant="small" style={{ color: isProfit ? colors.success : colors.destructive }}>
@@ -322,7 +322,7 @@ export default function BancaScreen() {
         </View>
         <View style={styles.progressLabels}>
           <AppText variant="small" style={{ color: colors.textMuted }}>
-            +{formatBancaMoney(p, cur)}
+            {p >= 0 ? '+' : ''}{formatBancaMoney(p, cur)}
           </AppText>
           <AppText variant="small" style={{ color: colors.accent }}>
             {t('capital.targetValue', { value: formatBancaMoney(targetValue, cur) })}
@@ -434,7 +434,7 @@ const makeStyles = (c: Palette) =>
     hero: { gap: Spacing.sm, marginBottom: Spacing.md },
     heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     managedRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
-    heroEyebrow: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', letterSpacing: 1 },
+    heroEyebrow: { color: c.textMuted, fontWeight: '700', letterSpacing: 1 },
     heroValue: { fontSize: 36, lineHeight: 46, color: c.text, letterSpacing: 0.5 },
     heroFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     pill: {

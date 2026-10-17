@@ -152,5 +152,6 @@ export function formatMoney(n: number): string {
 export function formatBancaMoney(n: number, currency: 'usd' | 'aoa' = 'usd'): string {
   if (!isFinite(n)) return '—';
   if (currency === 'aoa') return `${Math.round(n).toLocaleString('pt-PT')} Kz`;
-  return `$${formatMoney(n)}`;
+  const abs = Math.abs(n);
+  return `${n < 0 && abs >= 0.005 ? '-' : ''}$${formatMoney(abs)}`;
 }

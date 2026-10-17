@@ -79,14 +79,14 @@ export function ManagementEnded({
         </View>
         <AppText variant="mono" style={styles.heroValue}>{formatBancaMoney(finalValue, currency)}</AppText>
         <View style={styles.heroFooter}>
-          <AppText variant="small" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          <AppText variant="small" style={{ color: colors.textMuted }}>
             {t('capital.deposited')}{formatBancaMoney(capital, currency)}
           </AppText>
           <AppText variant="small" style={{ color: isProfit ? colors.success : colors.destructive }}>
             {isProfit ? '+' : '−'}{formatBancaMoney(Math.abs(profitValue), currency)}
           </AppText>
         </View>
-        <AppText variant="small" style={{ color: 'rgba(255,255,255,0.7)' }}>{t('capital.endedDesc')}</AppText>
+        <AppText variant="small" style={{ color: colors.textBody }}>{t('capital.endedDesc')}</AppText>
       </GradientCard>
 
       {status === 'approved' ? (
@@ -184,7 +184,7 @@ const makeStyles = (c: Palette) => StyleSheet.create({
   wrap: { gap: Spacing.sm },
   hero: { gap: Spacing.sm, marginBottom: Spacing.md },
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  heroEyebrow: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', letterSpacing: 1 },
+  heroEyebrow: { color: c.textMuted, fontWeight: '700', letterSpacing: 1 },
   heroValue: { fontSize: 36, lineHeight: 46, color: c.text, letterSpacing: 0.5 },
   heroFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   notice: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, borderRadius: 12, padding: Spacing.sm },

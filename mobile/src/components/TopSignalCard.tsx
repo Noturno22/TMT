@@ -17,7 +17,7 @@ function typeColor(type: Signal['type'], colors: Palette): string {
 
 function decimalsFor(pair: string): number {
   if (pair.includes('JPY')) return 3;
-  if (pair.includes('XAU') || pair.includes('BTC')) return 2;
+  if (pair.includes('XAU') || pair.includes('BTC') || pair.includes('ETH')) return 2;
   return 5;
 }
 

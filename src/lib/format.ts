@@ -85,5 +85,5 @@ export function formatBancaMoney(n: number, currency: 'usd' | 'aoa' = 'usd'): st
  * Número de casas decimais usadas para apresentar o preço de um par.
  */
 export function decimalsFor(pair: string): number {
-  return pair.includes('JPY') ? 3 : (pair.includes('XAU') || pair.includes('BTC')) ? 2 : 5;
+  return pair.includes('JPY') ? 3 : (pair.includes('XAU') || pair.includes('BTC') || pair.includes('ETH')) ? 2 : 5;
 }

@@ -37,7 +37,7 @@ function formatSymbol(symbol: string): string {
 function calcPips(entry: number, tp: number, sl: number, status: string, symbol: string): number {
   const isJPY = symbol?.includes("JPY");
   const isGold = symbol?.includes("XAU");
-  const isBtc = symbol?.includes("BTC");
+  const isBtc = symbol?.includes("BTC") || symbol?.includes("ETH");
 
   let pipMultiplier: number;
   if (isJPY) pipMultiplier = 100;

@@ -164,7 +164,9 @@ export function replayCloseFromCandles(input: {
 export function pipsOf(outcome: CloseOutcome, entry: number, sl: number, tp: number, symbol: string): number {
   if (outcome === 'expired') return 0;
   const norm = symbol.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-  const pipMult = norm.includes('JPY') || norm.includes('XAU') ? 100 : 10000;
+  let pipMult = 10000;
+  if (norm.includes('JPY') || norm.includes('XAU')) pipMult = 100;
+  else if (norm.includes('BTC') || norm.includes('ETH')) pipMult = 1;
   const raw = outcome === 'tp' ? Math.abs(tp - entry) : -Math.abs(sl - entry);
   return Math.round(raw * pipMult * 10) / 10;
 }

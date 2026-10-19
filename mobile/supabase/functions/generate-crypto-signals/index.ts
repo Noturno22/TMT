@@ -489,7 +489,7 @@ function validateSignalTechnical(
 function getSpreadBuffer(symbol: string): number {
   if (symbol.includes('JPY')) return 0.03;
   if (symbol.includes('XAU')) return 0.02;
-  if (symbol.includes('BTC')) return 0.05;
+  if (symbol.includes('BTC') || symbol.includes('ETH')) return 0.05;
   return 0.015;
 }
 

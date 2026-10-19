@@ -36,7 +36,7 @@ function statusBadge(status: Signal['status'], t: TFunction, colors: Palette) {
 
 function decimalsFor(pair: string): number {
   if (pair.includes('JPY')) return 3;
-  if (pair.includes('XAU') || pair.includes('BTC')) return 2;
+  if (pair.includes('XAU') || pair.includes('BTC') || pair.includes('ETH')) return 2;
   return 5;
 }
 

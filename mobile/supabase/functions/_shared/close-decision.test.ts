@@ -100,6 +100,12 @@ describe('pipsOf', () => {
     expect(pipsOf('tp', 2000, 1980, 2050, 'XAUUSD')).toBeCloseTo(5000, 1);
   });
 
+  it('escala crypto (BTC/ETH) por 1, nao 10000', () => {
+    expect(pipsOf('tp', 81000, 81500, 81500, 'BTCUSDT')).toBeCloseTo(500, 1);
+    expect(pipsOf('sl', 2410, 2445, 2470, 'ETHUSDT')).toBeCloseTo(-35, 1);
+    expect(pipsOf('tp', 81000, 81500, 81500, 'btc/usd')).toBeCloseTo(500, 1);
+  });
+
   it('normaliza simbolos com sufixos e separadores', () => {
     expect(pipsOf('tp', 1.1, 1.09, 1.12, 'eur/usd')).toBeCloseTo(200, 1);
     expect(pipsOf('tp', 1.1, 1.09, 1.12, 'EURUSD.m')).toBeCloseTo(200, 1);

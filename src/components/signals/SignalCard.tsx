@@ -31,7 +31,7 @@ interface SignalCardProps {
 function pipMultiplier(pair: string): number {
   if (pair.includes("JPY")) return 100;
   if (pair.includes("XAU")) return 100;
-  if (pair.includes("BTC")) return 1;
+  if (pair.includes("BTC") || pair.includes("ETH")) return 1;
   return 10000;
 }
 

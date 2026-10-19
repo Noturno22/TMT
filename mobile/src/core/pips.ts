@@ -2,7 +2,7 @@ export function getPipMultiplier(symbol: string): number {
   if (!symbol) return 10000;
   if (symbol.includes('JPY')) return 100;
   if (symbol.includes('XAU')) return 100;
-  if (symbol.includes('BTC')) return 1;
+  if (symbol.includes('BTC') || symbol.includes('ETH')) return 1;
   return 10000;
 }
 
